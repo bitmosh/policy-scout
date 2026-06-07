@@ -23,7 +23,7 @@ jobs:
 
       - name: Install package editable
         run: |
-          pip install -e .
+          pip install -e ".[dev]"
 
       - name: Run doctor diagnostics
         run: |
