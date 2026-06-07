@@ -107,6 +107,7 @@ def generate_sweep_report(
         recommended_actions=recommended_actions,
         could_not_verify=sweep_result.could_not_verify,
         audit_event_ids=audit_event_ids,
+        redaction_applied=True,
         sweep_id=sweep_result.sweep_id,
         project_root=sweep_result.project_root,
         findings_count=sweep_result.findings_count,

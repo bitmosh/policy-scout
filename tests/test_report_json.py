@@ -401,6 +401,7 @@ def test_json_report_redaction_applied_flag():
         summary="Test summary.",
         request_id="req_test123",
         command="ls",
+        redaction_applied=True,
     )
 
     assert report["redaction_applied"] is True
