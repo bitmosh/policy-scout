@@ -1,0 +1,18 @@
+flowchart TD
+  request[Package Install Request] --> decision[SANDBOX_FIRST]
+  decision --> temp[Create Temp Workspace]
+  temp --> copy[Copy Manifest / Lockfile]
+  copy --> scrub[Scrub Sensitive Environment]
+  scrub --> install[Run Install in Sandbox]
+  install --> lifecycle[Inspect Lifecycle Scripts]
+  lifecycle --> diff[Capture Manifest / Lockfile Diff]
+  diff --> sweep[Run Sandbox Sweep]
+  sweep --> result[Sandbox Result]
+  result --> report[Scout Report]
+  report --> migrate{Migrate Changes?}
+  migrate -->|approve once| host[Apply Approved Manifest / Lockfile Changes]
+  migrate -->|deny| stop[Do Not Mutate Host Project]
+
+  host --> audit[(Audit)]
+  stop --> audit
+  report --> audit

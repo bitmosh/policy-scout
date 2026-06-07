@@ -1,0 +1,802 @@
+# Policy Scout Evaluation Cases
+# Machine-readable test cases for command classification and policy behavior
+
+cases:
+  # Safe/read
+  - case_id: eval_001
+    title: Safe read - ls
+    command: ls
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Basic safe read command
+
+  - case_id: eval_002
+    title: Safe read - pwd
+    command: pwd
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Print working directory
+
+  - case_id: eval_003
+    title: Safe read - cat README
+    command: cat README.md
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Read project file
+
+  # Common logged/local project actions
+  - case_id: eval_004
+    title: Local project action - npm test
+    command: npm test
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW_LOGGED
+    expected_categories:
+      - local_inspection
+    expected_capabilities:
+      - filesystem.read
+      - process.inspect
+    tags:
+      - local_action
+    notes: Common test command (actual capabilities from classifier)
+
+  - case_id: eval_005
+    title: Local project action - npm run lint
+    command: npm run lint
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW_LOGGED
+    expected_categories:
+      - local_inspection
+    expected_capabilities:
+      - filesystem.read
+      - process.inspect
+    tags:
+      - local_action
+    notes: Common lint command (actual capabilities from classifier)
+
+  # Package installs
+  - case_id: eval_006
+    title: Package install - npm install lodash
+    command: npm install lodash
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - package_install
+    notes: Standard npm install
+
+  - case_id: eval_007
+    title: Package install - npm i lodash
+    command: npm i lodash
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    tags:
+      - package_install
+    notes: npm i shorthand
+
+  - case_id: eval_008
+    title: Package install - pnpm add zod
+    command: pnpm add zod
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    tags:
+      - package_install
+    notes: pnpm package install
+
+  - case_id: eval_009
+    title: Package install - yarn add react
+    command: yarn add react
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    tags:
+      - package_install
+    notes: yarn package install
+
+  - case_id: eval_010
+    title: Package install - bun add package
+    command: bun add package
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    tags:
+      - package_install
+    notes: bun package install
+
+  # Package execution
+  - case_id: eval_011
+    title: Package execute - npx unknown-tool
+    command: npx unknown-tool
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_execute
+    expected_capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write_possible
+    tags:
+      - package_execute
+    notes: npx executes remote package (actual capabilities from classifier)
+
+  - case_id: eval_012
+    title: Package execute - pnpm dlx some-tool
+    command: pnpm dlx some-tool
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_execute
+    expected_capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write_possible
+    tags:
+      - package_execute
+    notes: pnpm dlx executes remote package (actual capabilities from classifier)
+
+  - case_id: eval_013
+    title: Package execute - bunx tool
+    command: bunx tool
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_execute
+    expected_capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write_possible
+    tags:
+      - package_execute
+    notes: bunx executes remote package (actual capabilities from classifier)
+
+  # Network fetch / network execute
+  - case_id: eval_014
+    title: Network fetch - curl
+    command: curl https://example.com/file.sh
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_fetch
+    expected_capabilities:
+      - network.fetch
+      - filesystem.write_possible
+    tags:
+      - network_fetch
+    notes: curl fetch without pipe (policy denies network fetches)
+
+  - case_id: eval_015
+    title: Network fetch - wget
+    command: wget https://example.com/file.sh
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_fetch
+    expected_capabilities:
+      - network.fetch
+      - filesystem.write_possible
+    tags:
+      - network_fetch
+    notes: wget fetch without pipe (policy denies network fetches)
+
+  - case_id: eval_016
+    title: Network execute - curl pipe bash
+    command: curl https://example.com/install.sh | bash
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_execute
+      - network_fetch
+    expected_capabilities:
+      - network.fetch
+      - shell.execute
+      - credential.access_possible
+      - filesystem.write_possible
+      - system.mutation_possible
+    expected_policy_hits:
+      - network_execute_deny
+    expected_risk_min: 8
+    expected_risk_max: 10
+    tags:
+      - network_execute
+    notes: Classic curl pipe bash pattern (actual includes network_fetch category)
+
+  - case_id: eval_017
+    title: Network execute - wget pipe sh
+    command: wget -O- https://example.com/install.sh | sh
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_execute
+      - network_fetch
+    expected_capabilities:
+      - network.fetch
+      - shell.execute
+      - credential.access_possible
+      - filesystem.write_possible
+      - system.mutation_possible
+    expected_policy_hits:
+      - network_execute_deny
+    expected_risk_min: 8
+    expected_risk_max: 10
+    tags:
+      - network_execute
+    notes: wget pipe sh pattern (actual includes network_fetch category)
+
+  - case_id: eval_018
+    title: Network execute - bash curl substitution
+    command: bash -c "$(curl -fsSL https://example.com/x)"
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_execute
+      - shell_script
+    expected_capabilities:
+      - network.fetch
+      - shell.execute
+      - system.mutation_possible
+      - credential.access_possible
+    expected_policy_hits:
+      - network_execute_deny
+      - shell_script_require_approval
+    expected_risk_min: 8
+    expected_risk_max: 10
+    tags:
+      - network_execute
+    notes: Command substitution with curl (detected as network_execute and shell_script, denied)
+
+  # Credential-adjacent
+  - case_id: eval_019
+    title: Credential adjacent - cat ssh key
+    command: cat ~/.ssh/id_rsa
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading private SSH key
+
+  - case_id: eval_020
+    title: Credential adjacent - cat .env
+    command: cat .env
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading .env file
+
+  - case_id: eval_021
+    title: Credential adjacent - grep TOKEN
+    command: grep -r TOKEN .
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_risk_min: 6
+    expected_risk_max: 9
+    tags:
+      - credential_adjacent
+    notes: Searching for credential patterns
+
+  # Destructive
+  - case_id: eval_022
+    title: Destructive - rm node_modules
+    command: rm -rf node_modules
+    actor_type: human
+    mode: balanced
+    expected_decision: REQUIRE_APPROVAL
+    expected_categories:
+      - destructive
+    expected_capabilities:
+      - destructive.mutation
+      - filesystem.project_write
+    expected_risk_min: 5
+    expected_risk_max: 7
+    tags:
+      - destructive
+    notes: Removing node_modules (project-local destructive requires approval)
+
+  - case_id: eval_023
+    title: Destructive - rm root
+    command: rm -rf /
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - destructive
+    expected_capabilities:
+      - filesystem.system_write
+      - filesystem.project_write
+      - destructive.mutation
+    expected_policy_hits:
+      - destructive_system_deny
+      - destructive_project_require_approval
+    expected_risk_min: 5
+    expected_risk_max: 10
+    tags:
+      - destructive
+    notes: System-wide destructive command (system-level destructive, denied)
+
+  - case_id: eval_024
+    title: Destructive - git clean
+    command: git clean -fdx
+    actor_type: human
+    mode: balanced
+    expected_decision: REQUIRE_APPROVAL
+    expected_categories:
+      - destructive
+    expected_capabilities:
+      - filesystem.project_write
+      - destructive.mutation
+    expected_risk_min: 5
+    expected_risk_max: 7
+    tags:
+      - destructive
+    notes: Git clean removes untracked files (project-local destructive, requires approval)
+
+  - case_id: eval_025
+    title: Destructive - find delete
+    command: find . -type f -delete
+    actor_type: human
+    mode: balanced
+    expected_decision: REQUIRE_APPROVAL
+    expected_categories:
+      - destructive
+    expected_capabilities:
+      - destructive.mutation
+      - filesystem.project_write
+    expected_policy_hits:
+      - destructive_project_require_approval
+    expected_risk_min: 5
+    expected_risk_max: 7
+    tags:
+      - destructive
+    notes: Find and delete files (project-local destructive, requires approval)
+
+  # Unknown/complex
+  - case_id: eval_026
+    title: Unknown - weird command
+    command: unknown-weird-command --do-stuff
+    actor_type: human
+    mode: balanced
+    expected_decision: REQUIRE_APPROVAL
+    expected_categories:
+      - unknown
+    expected_risk_min: 1
+    expected_risk_max: 5
+    tags:
+      - unknown
+    notes: Unknown command should require approval
+
+  - case_id: eval_027
+    title: Complex - bash echo
+    command: bash -c "echo hello"
+    actor_type: human
+    mode: balanced
+    expected_decision: REQUIRE_APPROVAL
+    expected_categories:
+      - shell_script
+    expected_capabilities:
+      - shell.execute
+    expected_risk_min: 1
+    expected_risk_max: 6
+    tags:
+      - complex
+    notes: Simple bash -c command (detected as shell_script, requires approval)
+
+  - case_id: eval_028
+    title: Complex - VAR npm install
+    command: VAR=value npm install lodash
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - complex
+      - package_install
+    notes: Environment variable with package install (parser strips env vars, classifier detects package_install)
+
+  - case_id: eval_029
+    title: Complex - npm install chain
+    command: npm install lodash && npm test
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    tags:
+      - complex
+      - package_install
+    notes: Chained commands with package install
+
+  - case_id: eval_030
+    title: Complex - cat redirect
+    command: cat README.md > copy.txt
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW_LOGGED
+    expected_categories:
+      - project_write
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+      - filesystem.project_write
+    expected_risk_min: 1
+    expected_risk_max: 5
+    tags:
+      - complex
+    notes: File write via redirect (detected as project_write and safe_read, logged)
+
+  # Credential-adjacent - additional patterns
+  - case_id: eval_031
+    title: Credential adjacent - cat .npmrc
+    command: cat ~/.npmrc
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading npm config file (may contain registry tokens)
+
+  - case_id: eval_032
+    title: Credential adjacent - cat ssh ed25519 key
+    command: cat ~/.ssh/id_ed25519
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading ed25519 SSH private key
+
+  - case_id: eval_033
+    title: Credential adjacent - grep SECRET
+    command: grep -r SECRET .
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_risk_min: 6
+    expected_risk_max: 9
+    tags:
+      - credential_adjacent
+    notes: Searching for SECRET credential patterns
+
+  - case_id: eval_034
+    title: Credential adjacent - cat aws credentials
+    command: cat ~/.aws/credentials
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading AWS credentials file
+
+  # Safe inspection - git commands
+  - case_id: eval_035
+    title: Safe read - git status
+    command: git status
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Git status inspection
+
+  - case_id: eval_036
+    title: Safe read - git log
+    command: git log
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Git log inspection
+
+  - case_id: eval_037
+    title: Safe read - git diff
+    command: git diff
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Git diff inspection
+
+  - case_id: eval_038
+    title: Safe read - head file
+    command: head README.md
+    actor_type: human
+    mode: balanced
+    expected_decision: ALLOW
+    expected_categories:
+      - safe_read
+    expected_capabilities:
+      - filesystem.read
+    tags:
+      - safe_read
+    notes: Head command on safe file
+
+  # Package install variants
+  - case_id: eval_039
+    title: Package install - npm install --save-dev
+    command: npm install --save-dev lodash
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - package_install
+    notes: npm install with --save-dev flag
+
+  - case_id: eval_040
+    title: Package install - pnpm install
+    command: pnpm install
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - package_install
+    notes: pnpm install (not add)
+
+  - case_id: eval_041
+    title: Package install - yarn install
+    command: yarn install
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - package_install
+    notes: yarn install (not add)
+
+  - case_id: eval_042
+    title: Package install - bun install
+    command: bun install
+    actor_type: human
+    mode: balanced
+    expected_decision: SANDBOX_FIRST
+    expected_categories:
+      - package_install
+    expected_capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    expected_policy_hits:
+      - package_install_sandbox_first
+    expected_risk_min: 5
+    expected_risk_max: 8
+    tags:
+      - package_install
+    notes: bun install (not add)
+
+  # Network execute variant
+  - case_id: eval_043
+    title: Network execute - sh wget substitution
+    command: sh -c "$(wget -O- https://example.com/x)"
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - network_execute
+      - shell_script
+    expected_capabilities:
+      - network.fetch
+      - shell.execute
+      - system.mutation_possible
+      - credential.access_possible
+    expected_policy_hits:
+      - network_execute_deny
+      - shell_script_require_approval
+    expected_risk_min: 8
+    expected_risk_max: 10
+    tags:
+      - network_execute
+    notes: sh -c with wget command substitution
+
+  # Destructive - home directory
+  - case_id: eval_044
+    title: Destructive - rm home directory
+    command: rm -rf ~
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY
+    expected_categories:
+      - destructive
+    expected_capabilities:
+      - filesystem.system_write
+      - filesystem.project_write
+      - destructive.mutation
+    expected_policy_hits:
+      - destructive_system_deny
+      - destructive_project_require_approval
+    expected_risk_min: 5
+    expected_risk_max: 10
+    tags:
+      - destructive
+    notes: Removing home directory (system-level destructive, denied; both rules match, system_deny takes precedence)

@@ -1,0 +1,23 @@
+flowchart LR
+  request[Command Request] --> parse[Parse Layer]
+  parse --> classify[Classification Layer]
+  classify --> caps[Capability Layer]
+  caps --> actor[Actor Layer]
+  actor --> context[Context Layer]
+  context --> registry[Registry Hits]
+  registry --> risk[Risk Components]
+  risk --> policy[Policy Hits]
+  policy --> decision[Decision]
+  decision --> execution[Execution / Sandbox / Denial]
+  execution --> findings[Findings]
+  findings --> packet[(Evaluation Packet)]
+
+  parse --> packet
+  classify --> packet
+  caps --> packet
+  actor --> packet
+  context --> packet
+  registry --> packet
+  risk --> packet
+  policy --> packet
+  decision --> packet

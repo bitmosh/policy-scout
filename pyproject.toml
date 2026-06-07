@@ -1,0 +1,20 @@
+[project]
+name = "policy-scout"
+version = "0.1.0"
+description = "Local-first safety harness for agent commands, package installs, and suspicious project activity"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0.0",
+]
+
+[project.scripts]
+policy-scout = "policy_scout.cli.main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

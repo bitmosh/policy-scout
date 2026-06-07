@@ -1,0 +1,23 @@
+flowchart TD
+  req[CommandRequested] --> parsed[CommandParsed]
+  parsed --> classified[CommandClassified]
+  classified --> matched[PolicyMatched]
+  matched --> decided[DecisionIssued]
+
+  decided --> approval[Approval Events]
+  decided --> execution[Execution Events]
+  decided --> sandbox[Sandbox Events]
+  decided --> denied[Denied / Alert Events]
+
+  sandbox --> findings[SweepFindingCreated]
+  execution --> findings
+  denied --> report[ScoutReportGenerated]
+  findings --> report
+  approval --> audit[(Audit Store)]
+  execution --> audit
+  sandbox --> audit
+  denied --> audit
+  report --> audit
+
+  audit --> md[Markdown Report]
+  audit --> json[JSON Report]

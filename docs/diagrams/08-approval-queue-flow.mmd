@@ -1,0 +1,18 @@
+flowchart TD
+  decision[Decision: REQUIRE_APPROVAL] --> create[Create Approval Request]
+  create --> pending[Pending Approval]
+  pending --> review[Human Review]
+  review --> approve[Approve Once]
+  review --> deny[Deny Once]
+  review --> expire[Expire]
+
+  approve --> recheck[Re-validate Request]
+  recheck --> match{Exact command + cwd match?}
+  match -->|yes| execute[Execute]
+  match -->|no| block[Block]
+
+  deny --> block
+  expire --> block
+
+  execute --> audit[(Audit)]
+  block --> audit

@@ -1,0 +1,16 @@
+flowchart LR
+  signals[Granular Signals] --> components[Risk Components]
+  components --> score[Risk Score]
+  components --> confidence[Confidence]
+  components --> evidence[Evidence Strength]
+
+  score --> clutch[Risk Clutch / Mode Router]
+  confidence --> clutch
+  evidence --> clutch
+  state[Recent State<br/>denials / findings / mode duration] --> clutch
+
+  clutch --> mode[Enforcement Mode]
+  clutch --> friction[Friction Adjustment]
+  mode --> policy[Policy Engine Context]
+  friction --> policy
+  policy --> decision[Final Decision]

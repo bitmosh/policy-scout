@@ -1,0 +1,27 @@
+flowchart LR
+  actor[Actor<br/>human / agent / IDE / CLI / CI] --> normalizer[Request Normalizer]
+  normalizer --> parser[Command Parser]
+  parser --> classifier[Command Classifier]
+  classifier --> capability[Capability Detector]
+  capability --> context[Context Inspector]
+  context --> registry[Registry Matcher]
+  registry --> risk[Risk Scorer]
+  risk --> policy[Policy Engine]
+  policy --> decision{Decision}
+
+  registries[(Local Registries<br/>commands / policies / indicators)] -.-> registry
+  registries -.-> policy
+
+  decision -->|ALLOW / ALLOW_LOGGED| executor[Direct Executor]
+  decision -->|REQUIRE_APPROVAL| approval[Approval Queue]
+  decision -->|SANDBOX_FIRST| sandbox[Sandbox Executor]
+  decision -->|DENY / DENY_AND_ALERT| denied[Blocked Path]
+
+  executor --> audit[(Audit Store)]
+  approval --> audit
+  sandbox --> audit
+  denied --> audit
+
+  sandbox --> report[Scout Report]
+  denied --> report
+  audit --> report

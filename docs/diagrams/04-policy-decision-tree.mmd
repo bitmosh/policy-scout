@@ -1,0 +1,22 @@
+flowchart TD
+  start[Evaluated Command] --> harddeny{Known hard deny?}
+  harddeny -->|yes| denyalert[DENY / DENY_AND_ALERT]
+  harddeny -->|no| credential{Credential-adjacent?}
+
+  credential -->|yes| denyalert
+  credential -->|no| networkexec{Network-fetched shell execution?}
+
+  networkexec -->|yes| deny[DENY]
+  networkexec -->|no| destructive{Destructive system mutation?}
+
+  destructive -->|yes| deny
+  destructive -->|no| package{Package install or execution?}
+
+  package -->|yes| sandbox[SANDBOX_FIRST]
+  package -->|no| unknown{Unknown or low confidence?}
+
+  unknown -->|yes| approval[REQUIRE_APPROVAL]
+  unknown -->|no| saferead{Safe read?}
+
+  saferead -->|yes| allow[ALLOW]
+  saferead -->|no| defaultapproval[REQUIRE_APPROVAL]

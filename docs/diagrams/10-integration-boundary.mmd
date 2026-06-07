@@ -1,0 +1,20 @@
+flowchart LR
+  cli[CLI] --> core[Policy Scout Core]
+  shell[Shell Shim] --> core
+  api[Local API] --> core
+  mcp[MCP-style Tool Server] --> core
+  editor[Editor Extension] --> core
+  ci[CI Integration] --> core
+
+  core --> parser[Parser / Classifier]
+  parser --> policy[Policy Engine]
+  policy --> decision{Decision}
+  decision --> executor[Executor]
+  decision --> sandbox[Sandbox]
+  decision --> approval[Approval]
+  decision --> deny[Deny]
+
+  executor --> audit[(Audit)]
+  sandbox --> audit
+  approval --> audit
+  deny --> audit

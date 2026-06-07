@@ -1,0 +1,19 @@
+flowchart TD
+  user[User Machine] --> config[~/.config/policy-scout/]
+  user --> data[~/.local/share/policy-scout/]
+  user --> cache[~/.cache/policy-scout/]
+
+  config --> cfg[config.yaml]
+  config --> policies[policies/]
+  config --> registries[registries/]
+
+  data --> audit[(audit.db)]
+  data --> reports[reports/]
+  data --> sandboxes[sandboxes/]
+  data --> approvals[approvals]
+
+  cache --> tmp[tmp/]
+  cache --> logs[temporary logs]
+
+  audit --> report[Scout Reports]
+  sandboxes --> report

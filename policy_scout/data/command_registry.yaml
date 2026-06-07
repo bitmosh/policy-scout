@@ -1,0 +1,250 @@
+version: 1
+
+commands:
+  - id: echo.safe
+    title: echo
+    description: Prints text to stdout. Safe command.
+    match:
+      command_regex: "^(echo)\\b"
+    categories:
+      - safe_read
+    capabilities:
+      - filesystem.read
+    default_risk: R1
+    recommended_controls:
+      - audit_log
+
+  - id: exit.safe
+    title: exit
+    description: Exits the shell with a status code. Safe for testing.
+    match:
+      command_regex: "^(exit)\\b"
+    categories:
+      - safe_read
+    capabilities:
+      - filesystem.read
+    default_risk: R1
+    recommended_controls:
+      - audit_log
+
+  - id: npm.install
+    title: npm install
+    description: Installs npm dependencies and may execute lifecycle scripts.
+    match:
+      command_regex: "^(npm)\\s+(install|i)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: pnpm.add
+    title: pnpm add
+    description: Installs pnpm dependencies.
+    match:
+      command_regex: "^(pnpm)\\s+(add)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: pnpm.install
+    title: pnpm install
+    description: Installs pnpm dependencies from lockfile.
+    match:
+      command_regex: "^(pnpm)\\s+(install)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: yarn.add
+    title: yarn add
+    description: Installs yarn dependencies.
+    match:
+      command_regex: "^(yarn)\\s+(add)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: yarn.install
+    title: yarn install
+    description: Installs yarn dependencies from lockfile.
+    match:
+      command_regex: "^(yarn)\\s+(install)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: bun.add
+    title: bun add
+    description: Installs bun dependencies.
+    match:
+      command_regex: "^(bun)\\s+(add)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: bun.install
+    title: bun install
+    description: Installs bun dependencies from lockfile.
+    match:
+      command_regex: "^(bun)\\s+(install)\\b"
+    categories:
+      - package_install
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+      - package.install
+      - lifecycle.execute_possible
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - inspect_lifecycle_scripts
+      - audit_log
+
+  - id: npx.execute
+    title: npx execute
+    description: Executes npm packages without installation.
+    match:
+      command_regex: "^(npx)\\b"
+    categories:
+      - package_execute
+    capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - audit_log
+
+  - id: pnpm.dlx
+    title: pnpm dlx
+    description: Executes pnpm packages without installation.
+    match:
+      command_regex: "^(pnpm)\\s+(dlx)\\b"
+    categories:
+      - package_execute
+    capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - audit_log
+
+  - id: bunx.execute
+    title: bunx execute
+    description: Executes bun packages without installation.
+    match:
+      command_regex: "^(bunx)\\b"
+    categories:
+      - package_execute
+    capabilities:
+      - network.fetch
+      - package.execute
+      - shell.execute
+      - filesystem.project_write
+    default_risk: R5
+    recommended_controls:
+      - sandbox_first
+      - audit_log
+
+  - id: network.execute
+    title: network execute
+    description: Fetches and executes remote scripts.
+    match:
+      command_regex: "^(curl|wget).*\\|\\s*(bash|sh|python|node)"
+    categories:
+      - network_execute
+    capabilities:
+      - network.fetch
+      - shell.execute
+      - system.mutation
+      - credential.access_possible
+    default_risk: R5
+    recommended_controls:
+      - deny
+      - audit_log
+
+  - id: curl.fetch
+    title: curl fetch
+    description: Fetches remote content.
+    match:
+      command_regex: "^(curl)\\b"
+    categories:
+      - network_fetch
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+    default_risk: R3
+    recommended_controls:
+      - audit_log
+
+  - id: wget.fetch
+    title: wget fetch
+    description: Fetches remote content.
+    match:
+      command_regex: "^(wget)\\b"
+    categories:
+      - network_fetch
+    capabilities:
+      - network.fetch
+      - filesystem.project_write
+    default_risk: R3
+    recommended_controls:
+      - audit_log

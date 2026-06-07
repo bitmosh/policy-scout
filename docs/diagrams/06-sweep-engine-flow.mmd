@@ -1,0 +1,29 @@
+flowchart LR
+  subgraph project[Project Sweep]
+    ps_start[Project Root] --> scripts[Package Scripts]
+    ps_start --> workflows[Workflow Files]
+    ps_start --> patterns[Suspicious Patterns]
+    ps_start --> executables[Executable Files]
+    ps_start --> credentials[Credential References]
+  end
+
+  subgraph quick[Quick System Sweep]
+    qs_start[Local System] --> ports[Open Ports]
+    qs_start --> processes[Processes]
+    qs_start --> shell[Shell Profiles]
+    qs_start --> temp[Temp Files]
+  end
+
+  scripts --> findings[Findings]
+  workflows --> findings
+  patterns --> findings
+  executables --> findings
+  credentials --> findings
+  ports --> findings
+  processes --> findings
+  shell --> findings
+  temp --> findings
+
+  findings --> severity[Severity + Confidence]
+  severity --> report[Scout Report]
+  severity --> audit[(Audit)]

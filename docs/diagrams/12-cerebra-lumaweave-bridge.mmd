@@ -1,0 +1,15 @@
+flowchart LR
+  scout[Policy Scout] --> events[Audit Events]
+  scout --> reports[Scout Reports]
+  scout --> findings[Findings]
+  scout --> sandbox[Sandbox Results]
+
+  events --> cerebra[Cerebra Memory Runtime]
+  reports --> cerebra
+  findings --> cerebra
+  sandbox --> cerebra
+
+  cerebra --> graph[Graph-ready Memory]
+  graph --> luma[LumaWeave Visualization]
+
+  luma --> view[Decision Graphs<br/>Incident Timelines<br/>Package Risk Maps]

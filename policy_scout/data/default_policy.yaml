@@ -1,0 +1,136 @@
+version: 1
+
+policies:
+  - id: credential_access_deny_and_alert
+    title: Deny credential-adjacent access
+    priority: 950
+    match:
+      categories:
+        - credential_adjacent
+    decision: DENY_AND_ALERT
+    reasons:
+      - The command may expose secrets, tokens, or private keys.
+      - Credential material should not be exposed to agents.
+    recommended_next_action: Review credential access manually.
+
+  - id: destructive_system_deny
+    title: Deny destructive system commands
+    priority: 975
+    match:
+      categories:
+        - destructive
+      capabilities:
+        - filesystem.system_write
+    decision: DENY
+    reasons:
+      - The command can cause destructive filesystem mutation.
+    recommended_next_action: Review destructive command carefully.
+
+  - id: destructive_project_require_approval
+    title: Require approval for project-local destructive commands
+    priority: 700
+    match:
+      categories:
+        - destructive
+    exclude:
+      capabilities:
+        - filesystem.system_write
+    decision: REQUIRE_APPROVAL
+    reasons:
+      - The command can cause destructive filesystem mutation.
+      - Project-local destructive commands should be reviewed.
+    recommended_next_action: Review destructive command carefully.
+
+  - id: network_execute_deny
+    title: Deny network-fetched shell execution
+    priority: 900
+    match:
+      categories:
+        - network_execute
+    decision: DENY
+    reasons:
+      - Network-fetched scripts piped directly into a shell are unsafe.
+      - The fetched script may change between review and execution.
+    recommended_next_action: Download and inspect the script manually if truly required.
+
+  - id: package_install_sandbox_first
+    title: Package installs should run in sandbox first
+    priority: 500
+    match:
+      categories:
+        - package_install
+    decision: SANDBOX_FIRST
+    reasons:
+      - Package installs may execute lifecycle scripts.
+      - Package installs download third-party code.
+      - Package installs can modify manifests and lockfiles.
+    recommended_next_action: Run sandbox analysis before host install.
+
+  - id: package_execute_sandbox_first
+    title: Package execution should run in sandbox first
+    priority: 550
+    match:
+      categories:
+        - package_execute
+    decision: SANDBOX_FIRST
+    reasons:
+      - Package execution may download and run remote code.
+    recommended_next_action: Run sandbox analysis before execution.
+
+  - id: safe_reads_allow
+    title: Allow safe read commands
+    priority: 100
+    match:
+      categories:
+        - safe_read
+    decision: ALLOW
+    reasons:
+      - Read-only local commands are low risk.
+    recommended_next_action: null
+
+  - id: inspection_allow_logged
+    title: Allow inspection commands with logging
+    priority: 250
+    match:
+      categories:
+        - local_inspection
+    decision: ALLOW_LOGGED
+    reasons:
+      - Inspection commands are usually safe but may execute project code.
+    recommended_next_action: null
+
+  - id: shell_script_require_approval
+    title: Require approval for shell script execution
+    priority: 600
+    match:
+      categories:
+        - shell_script
+    decision: REQUIRE_APPROVAL
+    reasons:
+      - Shell scripts can execute arbitrary commands.
+      - Shell script execution should be reviewed.
+    recommended_next_action: Review shell script before approval.
+
+  - id: project_write_allow_logged
+    title: Allow project write commands with logging
+    priority: 300
+    match:
+      categories:
+        - project_write
+    decision: ALLOW_LOGGED
+    reasons:
+      - Project write commands modify project state.
+      - Logging provides audit trail.
+    recommended_next_action: null
+
+  - id: unknown_require_approval
+    title: Require approval for unknown commands
+    priority: 650
+    match:
+      categories:
+        - unknown
+    decision: REQUIRE_APPROVAL
+    reasons:
+      - Policy Scout could not confidently classify this command.
+      - Unknown commands should be reviewed before execution.
+    recommended_next_action: Review command before approval.

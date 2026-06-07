@@ -1,0 +1,18 @@
+flowchart TB
+  subgraph bad[Bad Boundary]
+    bad_agent[Agent] --> bad_shell[Shell / Tool Execution]
+    bad_shell --> bad_log[Maybe Log Later]
+  end
+
+  subgraph good[Policy Scout Boundary]
+    actor[Actor] --> request[Structured Request]
+    request --> scout[Policy Scout Core]
+    scout --> allow[Allowed Path]
+    scout --> approval[Approval Path]
+    scout --> sandbox[Sandbox Path]
+    scout --> deny[Deny / Alert Path]
+    allow --> audit[(Audit)]
+    approval --> audit
+    sandbox --> audit
+    deny --> audit
+  end
