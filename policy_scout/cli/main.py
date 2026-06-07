@@ -533,6 +533,9 @@ def check_command(
         "policy_hits": decision.policy_hits,
     }
 
+    # Redact sensitive values from result for JSON output
+    result = redact_dict(result)
+
     # Write DecisionIssued event
     if audit_store.enabled:
         audit_store.write(
