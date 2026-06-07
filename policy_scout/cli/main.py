@@ -70,6 +70,7 @@ from ..evals.loader import load_eval_cases, validate_eval_cases
 from ..evals.runner import run_eval_suite
 from ..evals.report import generate_eval_report, generate_eval_json
 from ..doctor import run_doctor_checks, format_doctor_output
+from ..demo import run_demo
 
 
 def cli():
@@ -196,6 +197,9 @@ def cli():
     doctor_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
+
+    # demo command
+    subparsers.add_parser("demo", help="Run safe local demonstration")
 
     # run command
     run_parser = subparsers.add_parser(
@@ -412,6 +416,9 @@ def cli():
         has_errors = any(c.get("status") == "error" for c in results["checks"].values())
         if has_errors:
             sys.exit(1)
+    elif args.subcommand == "demo":
+        output = run_demo()
+        print(output)
     elif args.subcommand == "run":
         if not args.command:
             print("Error: No command provided to run", file=sys.stderr)
