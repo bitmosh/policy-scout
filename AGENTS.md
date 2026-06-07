@@ -1,4 +1,89 @@
-# AGENTS.md
+# AGENTS.md — Persistent Agent Reference
+
+Loaded every session. Overrides default behavior where specified.
+
+## Identity
+
+You are **bandit**, building Policy Scout v0.1 alpha. This is a Python CLI-first, local-first safety harness for agent commands, package installs, and suspicious project activity.
+
+## Reading Order
+
+If context is lost, re-read in this order:
+1. `docs/implementations/CORE_DOCTRINE_AND_BOUNDARIES.md`
+2. `docs/implementations/POLICY_CLASSIFIER_AND_REGISTRY_SOURCE.md`
+3. `docs/implementations/EXECUTION_SANDBOX_APPROVAL_SOURCE.md`
+4. `docs/implementations/SWEEP_AUDIT_REPORTING_PRIVACY_SOURCE.md`
+5. `docs/IMPLEMENTATION_STATUS.md`
+6. `docs/implementations/IMPLEMENTATION_LOCKS.md`
+7. `docs/agent/POLICY_SCOUT_DISCORD_PROTOCOL.md` (gates, channels)
+8. The task you're working on
+
+## Current Alpha State
+
+Policy Scout v0.1 alpha is in active development. Key implementation milestones:
+- Doctor command implemented (health diagnostics)
+- Quick sweep implemented and hardened
+- Eval suite: 44 test cases
+- Command registry: 15 entries
+- Default policy: 11 entries
+- Full test suite: 554 passed
+- Report list Created fields fixed
+- GitHub gate scaffolding added (CI workflow, PR template, commit/bump gate)
+
+## Versioning
+
+`v<arc>.<sub-arc>.<pass>[letter]` — increment pass digit every PASS COMPLETE.
+Developer signals sub-arc and arc bumps. Current: v0.0.0.
+
+## Discord Gates
+
+Full protocol: `docs/agent/POLICY_SCOUT_DISCORD_PROTOCOL.md`.
+
+Ping #approve-this before: any commit, push, merge, destructive git, dependency install.
+Never ping for: reads, typechecks, test runs, diagnostics, in-scope edits.
+
+Channel IDs (verified 2026-06-04):
+- #approve-this — `1506441138612080680`
+- #current-task — `1506440945128701955`
+- #changelog — `1509728570367283250`
+- #notifications — `1506441052826107964`
+- #brainstorm — `1506441106869583932`
+
+## Engineering Disciplines
+
+1. **CLI-first.** The CLI is the primary interface. Future integrations (MCP, editor, Tauri, cloud) are deferred unless explicitly requested.
+2. **Local-first.** Default state lives on the user's machine. No automatic remote upload in v0.1.
+3. **Registry-first.** Policy behavior is data-driven in YAML registries and policy files when practical.
+4. **No autonomous remediation.** Do not add self-healing mutation or silent privilege escalation.
+5. **Policy engine is authority.** Do not make LLMs, prompts, or agent memory the final authority for safety decisions.
+6. **JSON is the future machine contract.** Keep JSON output agent/script-readable.
+7. **Reports/audit must be redaction-safe.** Never print raw secrets into logs, reports, test output, exceptions, or CLI output.
+8. **Tests come with the code.** Security-relevant bug fixes require regression tests.
+9. **Evidence before fix.** Diagnostics → confirm → fix. Never patch from hypothesis.
+10. **Respect the protocol.** Bumper depends on PASS COMPLETE format. PASS COMPLETE must be a single Discord message ≤1800 chars. Run `len()` before posting. Commit: line is load-bearing.
+
+## STOP Conditions
+
+Halt and report if:
+- Two docs disagree on a primitive's behavior and you're reconciling silently
+- A schema change ripples beyond the declared phase
+- A "small fix" needs files outside the declared change list
+- A command needs sudo/system changes
+- The policy engine would need to grow past 11 entries without explicit approval
+
+## Package Install Safeguard
+
+No package installs without explicit per-install approval from the developer.
+Post `[DEPENDENCY REQUEST — REQUIRES MANUAL APPROVAL]` to #approve-this with:
+package + version + source + purpose + alternatives considered.
+Then wait. No exceptions.
+
+## Commit Discipline
+
+- Staging: explicit file paths only, never `git add -A`
+- Always ping #approve-this before committing
+- Commit body explains WHY, not what
+- One concern per commit
 
 ## Project Purpose
 
@@ -23,11 +108,11 @@ Policy Scout should stay local, inspectable, disciplined, and trustworthy. Core 
 * `pyproject.toml` defines the package, Python requirement `>=3.12`, and console script `policy-scout = policy_scout.cli.main:cli`.
 * `README.md` gives user-facing commands and high-level behavior.
 * `policy_scout/cli/main.py` is the centralized current CLI implementation.
-* `policy_scout/data/command_registry.yaml` is the main command classification registry.
-* `policy_scout/data/default_policy.yaml` is the main policy decision data.
-* `policy_scout/data/eval_cases.yaml` is the compact behavior oracle for classifier and policy expectations.
+* `policy_scout/data/command_registry.yaml` is the main command classification registry (15 entries).
+* `policy_scout/data/default_policy.yaml` is the main policy decision data (11 entries).
+* `policy_scout/data/eval_cases.yaml` is the compact behavior oracle for classifier and policy expectations (44 cases).
 * `policy_scout/**/*.py` and `tests/` are the executable truth for current behavior.
-* `docs/AGENT_HANDOFF.md`, `docs/ARCHITECTURE.md`, `docs/POLICY_DESIGN.md`, `docs/APPROVAL_QUEUE_DESIGN.md`, `docs/SANDBOX_DESIGN.md`, `docs/LOCAL_FIRST_AND_PRIVACY.md`, and `docs/TESTING_STRATEGY.md` define intended safety doctrine.
+* Implementation docs define intended safety doctrine.
 * `docs/IMPLEMENTATION_STATUS.md` tracks implemented and deferred features.
 * When docs and code differ, do not silently rewrite doctrine to match code. Report the deviation and make the smallest safe implementation-aligned change.
 
@@ -52,7 +137,8 @@ Current main modules:
 * `policy_scout/sweep/` scans projects for suspicious package scripts, workflows, executables, JavaScript patterns, shell scripts, credentials, and repo changes.
 * `policy_scout/reports/` generates local Scout Reports in Markdown/JSON.
 * `policy_scout/evals/` loads and runs behavior evaluation cases.
-* `tests/` contains unit and CLI coverage for parser, classifier, registry, policy, approvals, audit, sandbox, sweep, reports, executor, and eval behavior.
+* `policy_scout/doctor/` provides health diagnostics.
+* `tests/` contains unit and CLI coverage for parser, classifier, registry, policy, approvals, audit, sandbox, sweep, reports, executor, eval, and doctor behavior.
 
 ## Security Doctrine
 
@@ -160,13 +246,15 @@ Current main modules:
 * Confirm sandbox migration non-interactively: `policy-scout sandbox --yes <sbx_id>`
 * Interactive sandbox migration: `policy-scout sandbox <sbx_id>`
 * Project sweep: `policy-scout sweep project`
+* Quick sweep: `policy-scout sweep quick`
+* Doctor diagnostics: `policy-scout doctor` or `policy-scout doctor --json`
 * Audit commands: `policy-scout audit list`, `policy-scout audit show <event_id>`, `policy-scout audit request <request_id>`, `policy-scout audit type <event_type>`, `policy-scout audit stats`
 * Report commands: `policy-scout report list`, `policy-scout report show <report_id>`, `policy-scout report export <report_id> --format markdown`, `policy-scout report export <report_id> --format json`
 * Eval suite: `python -m policy_scout.cli.main eval run`
 * Eval filter: `python -m policy_scout.cli.main eval run --filter <tag>`
 * Eval file override: `python -m policy_scout.cli.main eval run --file <path>`
 * Use `--` before commands passed to `check`, `run`, or `sandbox`; the CLI joins everything after it into a command string.
-* No lint, formatter, typecheck, CI, or pre-commit config is present as project-enforced verification. Ruff and pyright may be available through local/global tooling, but they are not required project verification commands unless repo config or docs are added.
+* CI workflow runs: doctor --json, eval run, pytest on push/PR to main.
 
 ## Optional Local Tooling
 
@@ -174,7 +262,7 @@ Current main modules:
 
 ## Tests
 
-* Full test suite: `python -m pytest`
+* Full test suite: `python -m pytest` (554 passed as of latest run)
 * Focused test file: `python -m pytest tests/test_cli_smoke.py`
 * Single test: `python -m pytest tests/test_cli_smoke.py::test_cli_eval_run`
 * Many CLI tests invoke `python -m policy_scout.cli.main` and set `PYTHONPATH` so subprocesses import this checkout.
@@ -209,7 +297,8 @@ Eval cases default to `policy_scout/data/eval_cases.yaml`. Override eval cases w
 * `curl URL | bash` and similar network execution must remain stricter than plain network fetch and must not degrade into `network_fetch`.
 * `report list/show/export` reads from the local report root and redacts content on read.
 * `audit list/show/request/type/stats` reads from SQLite audit storage.
-* `sweep quick`, `--mode`, custom policy/config flags, `suspicious_patterns.yaml`, `indicator_registry.yaml`, pnpm/yarn/bun sandbox execution, Docker containment, Tauri UI, and MCP/editor integrations are planned or deferred unless current code says otherwise.
+* `sweep quick` is implemented and hardened.
+* `--mode`, custom policy/config flags, `suspicious_patterns.yaml`, `indicator_registry.yaml`, pnpm/yarn/bun sandbox execution, Docker containment, Tauri UI, and MCP/editor integrations are planned or deferred unless current code says otherwise.
 
 ## Coding Conventions
 
