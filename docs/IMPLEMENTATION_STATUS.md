@@ -75,6 +75,14 @@ v0.1-alpha
 - Read-only checks, no system mutation
 - No network access
 
+### policy-scout data
+- Show local data status
+- Reports data root path, all local state paths, and existence status
+- Reports counts for reports, sandbox results, demo workspaces, approvals, audit events
+- Human-readable output by default, JSON with --json
+- Read-only checks, no system mutation
+- No network access
+
 ## Implemented Modules
 
 ### Core
@@ -148,17 +156,20 @@ v0.1-alpha
 ### Doctor
 - `doctor.py` - Health diagnostics for CLI, registries, data directories, and package managers
 
+### Data
+- `data_status.py` - Local data visibility and counts
+
 ### CLI
 - `cli/main.py` - Main CLI entry point
 
 ## Current Limitations
 
 ### Sandbox
-- npm, pnpm, yarn, and bun sandbox install implemented
-- pnpm/yarn/bun sandboxing support added
+- npm sandbox install implemented
+- pnpm/yarn/bun package installs classify as SANDBOX_FIRST but sandbox execution support is deferred
 - No Docker containment
 - Sandbox is a review workspace, not perfect malware containment
-- Migration command implemented: `policy-scout sandbox migrate <sandbox_id>`
+- Migration command implemented: `policy-scout sandbox <sandbox_id>`
 - Migration copies package-manager-specific lockfiles (npm: package-lock.json, npm-shrinkwrap.json; pnpm: pnpm-lock.yaml; yarn: yarn.lock; bun: bun.lockb, bun.lock)
 - Migration never copies node_modules or arbitrary files
 - Migration creates backups before overwriting host files
@@ -234,10 +245,10 @@ v0.1-alpha
 
 ### v0.2+
 - pnpm/yarn/bun sandbox execution
-- Migration command
 - Tauri UI
 - MCP server
 - Editor integrations
+- Data cleanup command (planned)
 
 ### Future
 - Docker containment for sandbox
@@ -259,13 +270,15 @@ v0.1-alpha
 
 ## Test Count
 
-- Total tests: 554
+- Total tests: 591
 - Policy Scout Doctor v1: 8 new tests (doctor human output, doctor JSON output, registry counts, package manager warnings, no secrets printed, audit/report paths, help message)
+- Policy Scout Data v1: 11 new tests (data human output, data JSON output, path existence, counts, override env vars)
 - Report/Audit UX Polish v1: 4 new tests (redaction section, created_at, audit redaction note, audit time range)
 - Quick sweep hardening v1/v2 tests: 10 new tests
 - Registry validation hardening v1 tests: 12 new tests
 - Eval suite expansion v1: 14 new eval cases (30 → 44)
-- Existing tests: 546 (no regressions)
+- JSON contracts v1: 12 new tests (check JSON redaction, sandbox JSON redaction_applied, sweep JSON redaction_applied, report list created_at)
+- Existing tests: 520 (no regressions)
 
 ## Current Alpha Status
 
@@ -276,12 +289,15 @@ v0.1-alpha
 **Pass Rate**: 100% on eval suite (44/44)
 
 **Known Issues**:
-- Sandbox is npm-only
+- Sandbox is npm-only (pnpm/yarn/bun sandbox execution deferred)
 - Redaction is regex-based only
+- No automated data cleanup (manual cleanup only)
 
 **Next Milestones**:
-1. Add Tauri UI prototype
-2. Add MCP server
-3. Add editor integrations
+1. Add pnpm/yarn/bun sandbox execution
+2. Add Tauri UI prototype
+3. Add MCP server
+4. Add editor integrations
+5. Add data cleanup command
 
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.
