@@ -71,6 +71,11 @@ from ..evals.runner import run_eval_suite
 from ..evals.report import generate_eval_report, generate_eval_json
 from ..doctor import run_doctor_checks, format_doctor_output
 from ..demo import run_demo
+from ..data_status import (
+    get_data_status,
+    format_data_status_human,
+    format_data_status_json,
+)
 
 
 def cli():
@@ -209,6 +214,12 @@ def cli():
 
     # demo command
     subparsers.add_parser("demo", help="Run safe local demonstration")
+
+    # data command
+    data_parser = subparsers.add_parser("data", help="Show local data status")
+    data_parser.add_argument(
+        "--json", action="store_true", help="Output JSON instead of human-readable text"
+    )
 
     # run command
     run_parser = subparsers.add_parser(
@@ -427,6 +438,13 @@ def cli():
             sys.exit(1)
     elif args.subcommand == "demo":
         output = run_demo()
+        print(output)
+    elif args.subcommand == "data":
+        status = get_data_status()
+        if args.json:
+            output = format_data_status_json(status)
+        else:
+            output = format_data_status_human(status)
         print(output)
     elif args.subcommand == "run":
         if not args.command:
