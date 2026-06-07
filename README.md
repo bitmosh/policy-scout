@@ -21,6 +21,31 @@ policy-scout demo
 
 The demo creates a temporary workspace, runs showcase command checks, performs a project sweep, and prints a human-readable summary. The workspace is left for manual inspection and cleanup.
 
+## Safety boundary
+
+Policy Scout inserts a policy decision boundary between actors and shell/tool execution.
+
+```mermaid
+flowchart TB
+  subgraph bad[Bad Boundary]
+    bad_agent[Agent] --> bad_shell[Shell / Tool Execution]
+    bad_shell --> bad_log[Maybe Log Later]
+  end
+
+  subgraph good[Policy Scout Boundary]
+    actor[Actor] --> request[Structured Request]
+    request --> scout[Policy Scout Core]
+    scout --> allow[Allowed Path]
+    scout --> approval[Approval Path]
+    scout --> sandbox[Sandbox Path]
+    scout --> deny[Deny / Alert Path]
+    allow --> audit[(Audit)]
+    approval --> audit
+    sandbox --> audit
+    deny --> audit
+  end
+```
+
 ## Try the safety gate
 
 ```bash

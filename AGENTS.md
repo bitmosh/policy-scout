@@ -9,10 +9,10 @@ You are **bandit**, building Policy Scout v0.1 alpha. This is a Python CLI-first
 ## Reading Order
 
 If context is lost, re-read in this order:
-1. `docs/implementations/CORE_DOCTRINE_AND_BOUNDARIES.md`
-2. `docs/implementations/POLICY_CLASSIFIER_AND_REGISTRY_SOURCE.md`
-3. `docs/implementations/EXECUTION_SANDBOX_APPROVAL_SOURCE.md`
-4. `docs/implementations/SWEEP_AUDIT_REPORTING_PRIVACY_SOURCE.md`
+1. `docs/compressed/CORE_DOCTRINE_AND_BOUNDARIES.md`
+2. `docs/compressed/POLICY_CLASSIFIER_AND_REGISTRY_SOURCE.md`
+3. `docs/compressed/EXECUTION_SANDBOX_APPROVAL_SOURCE.md`
+4. `docs/compressed/SWEEP_AUDIT_REPORTING_PRIVACY_SOURCE.md`
 5. `docs/IMPLEMENTATION_STATUS.md`
 6. `docs/implementations/IMPLEMENTATION_LOCKS.md`
 7. `docs/agent/POLICY_SCOUT_DISCORD_PROTOCOL.md` (gates, channels)
@@ -26,7 +26,7 @@ Policy Scout v0.1 alpha is in active development. Key implementation milestones:
 - Eval suite: 44 test cases
 - Command registry: 15 entries
 - Default policy: 11 entries
-- Full test suite: 554 passed
+- Full test suite: 591 passed
 - Report list Created fields fixed
 - GitHub gate scaffolding added (CI workflow, PR template, commit/bump gate)
 
@@ -261,7 +261,7 @@ Current main modules:
 
 ## Tests
 
-* Full test suite: `python -m pytest` (554 passed as of latest run)
+* Full test suite: `python -m pytest` (591 passed as of latest run)
 * Focused test file: `python -m pytest tests/test_cli_smoke.py`
 * Single test: `python -m pytest tests/test_cli_smoke.py::test_cli_eval_run`
 * Many CLI tests invoke `python -m policy_scout.cli.main` and set `PYTHONPATH` so subprocesses import this checkout.
