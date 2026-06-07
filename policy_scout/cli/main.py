@@ -305,6 +305,11 @@ def cli():
         "--limit", type=int, default=20, help="Number of reports to show (default: 20)"
     )
     report_list_parser.add_argument(
+        "--type",
+        type=str,
+        help="Filter by report type (command_decision, sandbox_result, project_sweep, system_quick_sweep)",
+    )
+    report_list_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
 
@@ -2241,6 +2246,10 @@ def handle_report_command(args):
 
             reports.append(metadata)
 
+        # Apply type filter
+        if args.type:
+            reports = [r for r in reports if r.get("report_type") == args.type]
+
         # Apply limit
         total_reports = len(reports)
         if args.limit:
@@ -2253,6 +2262,8 @@ def handle_report_command(args):
                 print("No Scout Reports found.")
                 return
             print("Recent Scout Reports:")
+            if args.type:
+                print(f"Filtered by type: {args.type}")
             if total_reports > len(reports):
                 print(
                     f"Showing {len(reports)} most recent reports (total: {total_reports})"
