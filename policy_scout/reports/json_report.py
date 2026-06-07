@@ -27,6 +27,7 @@ def generate_json_report(
     audit_event_ids: Optional[List[str]] = None,
     recommended_actions: Optional[List[str]] = None,
     redaction_applied: bool = False,
+    files_changed: Optional[List[str]] = None,
     sweep_id: Optional[str] = None,
     project_root: Optional[str] = None,
     findings_count: Optional[Dict[str, int]] = None,
@@ -57,6 +58,7 @@ def generate_json_report(
         audit_event_ids: List of audit event IDs
         recommended_actions: List of recommended actions
         redaction_applied: Whether redaction was applied
+        files_changed: List of files changed in sandbox
 
     Returns:
         JSON-serializable dict
@@ -108,7 +110,8 @@ def generate_json_report(
         ],
         "audit_event_ids": audit_event_ids or [],
         "recommended_actions": recommended_actions or [],
-        "redaction_applied": True,
+        "redaction_applied": redaction_applied,
+        "files_changed": files_changed or [],
         "credential_exposure_assessment": {
             "level": credential_exposure_level,
             "notes": credential_exposure_notes,

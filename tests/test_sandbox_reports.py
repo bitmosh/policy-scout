@@ -252,3 +252,70 @@ def test_generate_sandbox_report_files_changed():
         assert "package-lock.json or npm-shrinkwrap.json: NO CHANGE" in markdown_content
     finally:
         del os.environ["POLICY_SCOUT_REPORT_ROOT"]
+
+
+def test_sandbox_json_includes_redaction_applied():
+    """Test sandbox JSON report includes redaction_applied field."""
+    os.environ["POLICY_SCOUT_REPORT_ROOT"] = tempfile.mkdtemp()
+
+    try:
+        sandbox_result = SandboxResult(
+            sandbox_id="sbx_test123",
+            request_id="req_test123",
+            command="npm install lodash",
+            package_manager="npm",
+            temp_workspace="/tmp/sandbox",
+            exit_code=0,
+            duration_ms=500,
+            stdout="",
+            stderr="",
+            manifest_changed=True,
+            lockfile_changed=True,
+            lifecycle_scripts_found=[],
+            findings=[],
+            migration_available=True,
+            migration_requires_approval=True,
+        )
+
+        report = generate_sandbox_report(sandbox_result)
+
+        json_content = json.loads(Path(report.json_path).read_text())
+        assert "redaction_applied" in json_content
+        assert json_content["redaction_applied"] is True
+    finally:
+        del os.environ["POLICY_SCOUT_REPORT_ROOT"]
+
+
+def test_sandbox_json_includes_files_changed():
+    """Test sandbox JSON report includes files_changed field."""
+    os.environ["POLICY_SCOUT_REPORT_ROOT"] = tempfile.mkdtemp()
+
+    try:
+        sandbox_result = SandboxResult(
+            sandbox_id="sbx_test123",
+            request_id="req_test123",
+            command="npm install lodash",
+            package_manager="npm",
+            temp_workspace="/tmp/sandbox",
+            exit_code=0,
+            duration_ms=500,
+            stdout="",
+            stderr="",
+            manifest_changed=True,
+            lockfile_changed=True,
+            lifecycle_scripts_found=[],
+            findings=[],
+            migration_available=True,
+            migration_requires_approval=True,
+        )
+
+        report = generate_sandbox_report(sandbox_result)
+
+        json_content = json.loads(Path(report.json_path).read_text())
+        assert "files_changed" in json_content
+        assert isinstance(json_content["files_changed"], list)
+        assert "package.json" in json_content["files_changed"]
+        # npm should include lockfiles
+        assert any("lock" in f for f in json_content["files_changed"])
+    finally:
+        del os.environ["POLICY_SCOUT_REPORT_ROOT"]

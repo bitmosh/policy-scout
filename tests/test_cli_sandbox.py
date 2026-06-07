@@ -6,6 +6,27 @@ from pathlib import Path
 from policy_scout.cli.main import handle_sandbox_command
 
 
+def test_sandbox_help_shows_dual_mode():
+    """Test sandbox help explains dual-mode behavior."""
+    import sys
+    import subprocess
+
+    result = subprocess.run(
+        [sys.executable, "-m", "policy_scout.cli.main", "sandbox", "--help"],
+        capture_output=True,
+        text=True,
+    )
+    help_output = result.stdout
+
+    assert "Install/review mode" in help_output
+    assert "Migration mode" in help_output
+    assert "Dry-run migration" in help_output
+    assert "Non-interactive migration" in help_output
+    assert "--dry-run" in help_output
+    assert "--yes" in help_output
+    assert "migration mode only" in help_output
+
+
 def test_sandbox_command_npm_install():
     """Test sandbox command with npm install."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -169,3 +190,39 @@ def test_sandbox_command_creates_result_file():
         finally:
             os.environ.pop("POLICY_SCOUT_SANDBOX_ROOT", None)
             os.environ.pop("POLICY_SCOUT_AUDIT_PATH", None)
+
+
+def test_sandbox_human_output_includes_report_id():
+    """Test sandbox human output includes report_id when report created."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.environ["POLICY_SCOUT_SANDBOX_ROOT"] = tmpdir
+        os.environ["POLICY_SCOUT_AUDIT_PATH"] = str(Path(tmpdir) / "audit.jsonl")
+        os.environ["POLICY_SCOUT_REPORT_ROOT"] = tmpdir
+
+        try:
+            import sys
+            from io import StringIO
+
+            old_stdout = sys.stdout
+            old_stderr = sys.stderr
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
+
+            try:
+                handle_sandbox_command(
+                    "npm install lodash", json_output=False, audit_enabled=False
+                )
+            except SystemExit:
+                pass  # Expected
+
+            stdout_output = sys.stdout.getvalue()
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
+
+            # If report was generated, check for report_id in output
+            if "Scout Report generated" in stdout_output:
+                assert "Report ID:" in stdout_output
+        finally:
+            os.environ.pop("POLICY_SCOUT_SANDBOX_ROOT", None)
+            os.environ.pop("POLICY_SCOUT_AUDIT_PATH", None)
+            os.environ.pop("POLICY_SCOUT_REPORT_ROOT", None)

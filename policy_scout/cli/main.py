@@ -127,7 +127,10 @@ def cli():
 
     # sandbox command
     sandbox_parser = subparsers.add_parser(
-        "sandbox", help="Run package install in sandbox review workspace"
+        "sandbox",
+        help="Run package install in sandbox review workspace or migrate sandbox result to host",
+        epilog="Install/review mode: policy-scout sandbox -- npm install lodash\nMigration mode: policy-scout sandbox <sbx_id>\nDry-run migration: policy-scout sandbox --dry-run <sbx_id>\nNon-interactive migration: policy-scout sandbox --yes <sbx_id>\n\nNote: --dry-run and --yes apply to migration mode only, not install/review mode.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     sandbox_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
@@ -136,13 +139,19 @@ def cli():
         "--no-audit", action="store_true", help="Disable audit logging"
     )
     sandbox_parser.add_argument(
-        "--dry-run", action="store_true", help="Dry run migration (no changes)"
+        "--dry-run",
+        action="store_true",
+        help="Dry run migration (no changes, migration mode only)",
     )
     sandbox_parser.add_argument(
-        "--yes", action="store_true", help="Auto-confirm migration"
+        "--yes",
+        action="store_true",
+        help="Auto-confirm migration (migration mode only)",
     )
     sandbox_parser.add_argument(
-        "command", nargs="...", help="Command to sandbox or sandbox_id for migrate"
+        "command",
+        nargs="...",
+        help="Command to sandbox (install/review mode) or sandbox_id for migrate",
     )
 
     # sweep command
@@ -1006,14 +1015,12 @@ def handle_sandbox_command(
                 msg = finding.get("message", str(finding))
                 print(f"  - {msg}")
         print()
-        # Print report paths if report was generated
-        try:
-            if "report" in locals():
-                print("Scout Report generated:")
-                print(f"  Markdown: {report.markdown_path}")
-                print(f"  JSON: {report.json_path}")
-        except NameError:
-            pass
+        # Print report info if report was generated
+        if "report" in locals() and report is not None:
+            print(f"Report ID: {report.report_id}")
+            print("Scout Report generated:")
+            print(f"  Markdown: {report.markdown_path}")
+            print(f"  JSON: {report.json_path}")
 
     # Set exit code based on install success
     if exit_code != 0:

@@ -218,7 +218,6 @@ Current main modules:
 ## Sandbox Migration Rules
 
 * Current CLI migration shape is `policy-scout sandbox --dry-run <sbx_id>`, `policy-scout sandbox --yes <sbx_id>`, or `policy-scout sandbox <sbx_id>` for interactive confirmation.
-* Some docs mention `policy-scout sandbox migrate <sandbox_id>` as intended syntax, but current argparse dispatch treats a single `sbx_...` argument as migration.
 * Migration must be reviewable before host mutation.
 * Use `--dry-run` to preview migration without changes.
 * Migration must be rollback-aware and create backups before overwriting host files.

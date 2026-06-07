@@ -109,6 +109,21 @@ def generate_sandbox_report(
         recommended_actions=recommended_actions,
     )
 
+    # Build files changed summary
+    files_changed = []
+    if sandbox_result.manifest_changed:
+        files_changed.append("package.json")
+    if sandbox_result.lockfile_changed:
+        # Add appropriate lockfile based on package manager
+        if sandbox_result.package_manager == "npm":
+            files_changed.extend(["package-lock.json", "npm-shrinkwrap.json"])
+        elif sandbox_result.package_manager == "pnpm":
+            files_changed.append("pnpm-lock.yaml")
+        elif sandbox_result.package_manager == "yarn":
+            files_changed.append("yarn.lock")
+        elif sandbox_result.package_manager == "bun":
+            files_changed.append("bun.lockb")
+
     # Generate JSON
     json_content = generate_json_report(
         report_id=report_id,
@@ -130,6 +145,8 @@ def generate_sandbox_report(
         audit_event_ids=audit_event_ids,
         recommended_actions=recommended_actions,
         created_at=created_at,
+        redaction_applied=True,
+        files_changed=files_changed,
     )
 
     # Write files
