@@ -116,3 +116,13 @@ When opening a pull request, use the PR template (`.github/pull_request_template
 - Whether a blog bump is needed
 
 This ensures all safety and documentation considerations are reviewed before merge.
+
+## Project Classifier
+
+For Policy Scout, the `Project:` field in PASS COMPLETE messages should be:
+
+```
+Project: policy-scout
+```
+
+This ensures blog.bumper correctly routes the post to the Policy Scout project configuration in the registry (`~/.bumper/projects.toml`). The bumper registry is already configured with the correct project name, path, and remote for Policy Scout.
