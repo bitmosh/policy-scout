@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package editable
+        run: |
+          pip install -e .
+
+      - name: Run doctor diagnostics
+        run: |
+          python -m policy_scout.cli.main doctor --json
+
+      - name: Run evaluation suite
+        run: |
+          python -m policy_scout.cli.main eval run
+
+      - name: Run pytest
+        run: |
+          python -m pytest
