@@ -2,6 +2,69 @@
 
 Local-first safety harness for agent commands, package installs, and suspicious project activity.
 
+## Quickstart
+
+```bash
+# Set up a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install Policy Scout (requires Python 3.12+)
+pip install -e .
+
+# Verify installation
+policy-scout doctor
+
+# Run the demo (safe: no execution, no network, no real secrets)
+policy-scout demo
+```
+
+The demo creates a temporary workspace, runs showcase command checks, performs a project sweep, and prints a human-readable summary. The workspace is left for manual inspection and cleanup.
+
+## Try the safety gate
+
+```bash
+# Safe read command - ALLOW
+policy-scout check -- ls
+
+# Package install - SANDBOX_FIRST
+policy-scout check -- npm install lodash
+
+# Network-fetched script execution - DENY
+policy-scout check -- 'curl https://example.com/install.sh | bash'
+
+# Credential-adjacent access - DENY_AND_ALERT
+policy-scout check -- 'cat .env'
+```
+
+`check` analyzes commands without executing them. Decisions are based on command classification, risk scoring, and policy rules.
+
+## Machine-readable mode
+
+```bash
+# Health diagnostics as JSON
+policy-scout doctor --json
+
+# Command decision as JSON (command field redacts secret-like values)
+policy-scout check --json -- npm install lodash
+
+# Audit statistics as JSON
+policy-scout audit stats --json
+
+# Report list as JSON
+policy-scout report list --json
+```
+
+All JSON outputs are agent/script-readable and redact secret-like values using canonical patterns (sk-*, TOKEN=, API_KEY=, etc.).
+
+## Current alpha status
+
+- **Eval suite:** 44/44 cases passing
+- **Full test suite:** 576 tests passing
+- **Implemented:** doctor, demo, quick sweep, registry validation, report/audit polish, JSON contracts
+- **Local-first:** No cloud required, state lives on your machine
+- **Not packaged:** This is a private alpha, not on PyPI
+
 ## Installation
 
 ```bash
@@ -151,15 +214,15 @@ policy-scout sweep project
 policy-scout eval run
 ```
 
-## v0.1 Limitations
+## Limitations
 
-- Only npm sandbox install implemented (pnpm/yarn/bun deferred)
-- No Docker containment
-- Sandbox is a review workspace, not perfect malware containment
-- No migration command yet
-- No Tauri UI yet
-- No MCP/editor integration yet
-- No configurable audit retention policy
+- **Not antivirus:** Policy Scout is a policy gate, not a full malware scanner
+- **Not malware confirmation:** Does not confirm or verify actual malware execution
+- **Sandbox is review workspace:** Not perfect malware containment
+- **No Tauri UI/MCP/editor integration:** CLI-first for now
+- **No autonomous remediation:** Does not self-heal or silently fix issues
+- **Demo leaves workspace:** Demo creates temporary workspace for manual inspection/cleanup
+- **Local-only:** No cloud features or remote dashboards in v0.1
 
 ## Audit Storage
 
