@@ -17,7 +17,7 @@
 .container {
   margin: 0;
   padding: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -35,9 +35,19 @@ h1 {
 }
 
 .cards-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cleanup-card {
+    grid-column: span 2;
+  }
 }
 
 .doctor-card,
@@ -396,6 +406,12 @@ button:disabled {
   .cleanup-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (min-width: 900px) {
+    .cleanup-card {
+      grid-column: span 2;
+    }
   }
 
   .card-header {
