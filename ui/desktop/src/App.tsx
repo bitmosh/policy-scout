@@ -69,7 +69,13 @@ function App() {
         setError(evalResult.error || "Unknown error");
       }
     } catch (e) {
-      setError(String(e));
+      const errorStr = String(e);
+      // Detect Tauri invoke error (occurs in browser preview without Tauri runtime)
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
     } finally {
       setLoading(false);
     }
