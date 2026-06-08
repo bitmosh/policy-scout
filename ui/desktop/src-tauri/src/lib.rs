@@ -271,44 +271,45 @@ fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
     run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"])
 }
 
-#[tauri::command]
-fn show_audit_event(event_id: String) -> CliJsonResponse {
-    // Validation: event_id must start with "evt_"
-    if !event_id.starts_with("evt_") {
-        return CliJsonResponse {
-            ok: false,
-            exit_code: -1,
-            data: None,
-            error: Some("Invalid event_id: must start with 'evt_'".to_string()),
-            stderr_summary: None,
-        };
-    }
-
-    // Validation: reject empty string
+fn validate_audit_event_id(event_id: &str) -> Result<(), CliJsonResponse> {
     if event_id.is_empty() {
-        return CliJsonResponse {
+        return Err(CliJsonResponse {
             ok: false,
             exit_code: -1,
             data: None,
             error: Some("Invalid event_id: cannot be empty".to_string()),
             stderr_summary: None,
-        };
+        });
     }
-
-    // Validation: reject spaces, path separators, shell metacharacters
+    if !event_id.starts_with("evt_") {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid event_id: must start with 'evt_'".to_string()),
+            stderr_summary: None,
+        });
+    }
     let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
     for c in dangerous_chars.iter() {
         if event_id.contains(*c) {
-            return CliJsonResponse {
+            return Err(CliJsonResponse {
                 ok: false,
                 exit_code: -1,
                 data: None,
                 error: Some(format!("Invalid event_id: contains dangerous character '{}'", c)),
                 stderr_summary: None,
-            };
+            });
         }
     }
+    Ok(())
+}
 
+#[tauri::command]
+fn show_audit_event(event_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_audit_event_id(&event_id) {
+        return e;
+    }
     run_policy_scout_json(&["audit", "show", &event_id, "--json"])
 }
 

@@ -368,8 +368,8 @@ for bad in ["evt_a/b", "evt_ x", "evt_a;b", "evt_a|b", "evt_a&b"] {
 }
 ```
 
-Note: `show_audit_event` currently has inline validation, not a named helper. Extract to
-`validate_event_id` before adding unit tests (see §15 hardening sequence).
+Note: `validate_audit_event_id` is now a named helper (extracted in v0.2.37). Unit tests
+can be added without further refactoring (see §15 hardening sequence — step 1 completed).
 
 ### Error response contract
 
@@ -476,8 +476,8 @@ The following are explicitly not in scope for Tauri adapter testing:
 
 ## 15. Future Hardening Sequence
 
-1. **Extract `validate_event_id` helper** from `show_audit_event` inline validation.
-   Makes the function unit-testable at the same level as other validators.
+1. ✅ **Extract `validate_audit_event_id` helper** from `show_audit_event` inline validation.
+   Completed in v0.2.37. Function is now unit-testable at the same level as other validators.
 
 2. **Add Rust `#[cfg(test)]` module** to `lib.rs` (or a dedicated test file) with unit tests
    for all six validators using the cases in §11.
@@ -545,7 +545,8 @@ Use this checklist to confirm the adapter validation layer is complete and corre
 - [ ] Rust unit tests for `validate_audit_event_type` — **pending**
 - [ ] Rust unit tests for `validate_cleanup_target` — **pending**
 - [ ] Rust unit tests for `validate_report_id` — **pending**
-- [ ] `validate_event_id` extracted and unit tests added — **pending** (requires §15 step 1)
+- [x] `validate_audit_event_id` extracted — **done** (v0.2.37)
+- [ ] Unit tests for `validate_audit_event_id` — **pending**
 - [ ] Native smoke checklist run — **pending** (see §13)
 - [x] TypeScript compile check via `npm run build` — active
 - [x] CLI JSON contract tests via `pytest tests/test_json_contracts.py` — active
