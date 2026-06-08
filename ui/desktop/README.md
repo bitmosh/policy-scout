@@ -9,6 +9,12 @@ Experimental read-only desktop dashboard for Policy Scout. v0.2.x track.
 Experimental — v0.2.x read-only UI. Not a mutation, execution, or approval surface.
 Native Tauri runtime required for live data. Browser/Vite preview shows static layout only.
 
+**For complete installation and development setup instructions**, see [`docs/INSTALL.md`](../docs/INSTALL.md).
+
+## Shipping Model
+
+**CLI-first, desktop dogfooded.** The desktop app is an optional read-only/check-only companion. Verify it through Policy Scout's own CLI checks, tests, and native smoke before use. See the Desktop Dogfood Checklist in docs/INSTALL.md.
+
 ## Current Dashboard Status
 
 - **Decision Check wired** — check-only classification via `policy-scout check --json`

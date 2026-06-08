@@ -413,3 +413,29 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - Manual native click verification pass
 
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.
+
+## v0.4.0 Shipping-Hardening Audit
+
+**Fresh install and development setup audit completed.**
+
+- Created `docs/INSTALL.md` with complete setup instructions:
+  - System requirements (Python 3.12+, Node.js 22, Rust stable, Linux Tauri dependencies)
+  - Python setup with virtual environment guidance
+  - CLI verification commands (doctor, eval, check)
+  - Desktop setup (npm install, build, Tauri system dependencies, cargo check/test)
+  - Data locations and environment variable overrides
+  - Green checkpoint command list
+  - Native smoke checklist pointer
+  - Safety boundaries (read-only UI, dry-run cleanup, no risky setup commands)
+  - Troubleshooting (externally-managed Python, Tauri build failures, pytest from subdirectory)
+- Updated `README.md` with pointer to `docs/INSTALL.md` and shipping model note
+- Updated `ui/desktop/README.md` with pointer to root install docs and shipping model note
+- Added shipping model documentation: CLI-first, desktop dogfooded
+  - CLI is source of truth for policy decisions, audit, reports, sweeps, JSON contracts
+  - Desktop app is optional read-only/check-only companion
+  - Desktop app should be verified through CLI checks, tests, and native smoke before use
+  - Decision Check remains check-only through bounded adapter
+  - No command execution, approval resolution, sandbox migration, cleanup deletion, shell plugin, or arbitrary argv UI shipped in v0.4
+- Added Desktop Dogfood Checklist to docs/INSTALL.md
+- No new behavior introduced — documentation and audit only
+- v0.4 focus remains shipping hardening (install/docs, data path clarity, repeatable verification)

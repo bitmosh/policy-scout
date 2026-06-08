@@ -19,7 +19,13 @@ policy-scout doctor
 policy-scout demo
 ```
 
+**For complete installation and development setup instructions**, see [`docs/INSTALL.md`](docs/INSTALL.md).
+
 The demo creates a temporary workspace, runs showcase command checks, performs a project sweep, and prints a human-readable summary. The workspace is left for manual inspection and cleanup.
+
+## Shipping Model
+
+**CLI-first, desktop dogfooded.** The CLI is the source of truth for policy decisions, audit, reports, and JSON contracts. The Tauri desktop app is an optional read-only/check-only companion that should be verified through Policy Scout's own CLI checks, tests, and native smoke before use.
 
 ## Safety boundary
 
