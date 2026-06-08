@@ -315,7 +315,7 @@ An experimental read-only desktop dashboard is available under `ui/desktop/`. It
 
 - Experimental v0.2.x — not production-ready
 - **Policy Scout CLI remains the authority.** The desktop UI is a read-only preview surface only.
-- Shows: doctor status, data status, reports, audit events, cleanup dry-run, eval results, quick sweep, project sweep
+- Shows: doctor status, data status, reports, audit events, cleanup dry-run, eval results, quick sweep, project sweep, sandbox results
 - No command execution, approval resolution, sandbox migration, or cleanup deletion UI
 - Native Tauri runtime required for live data (`npm run tauri dev`)
 

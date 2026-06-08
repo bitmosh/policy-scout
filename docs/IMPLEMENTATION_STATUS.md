@@ -223,7 +223,7 @@ v0.1-alpha
 - Experimental Tauri desktop UI (v0.2.x, read-only)
   - Located in `ui/desktop/`
   - **Policy Scout CLI remains the authority. Tauri UI is a read-only preview surface only.**
-  - Rust backend (`src-tauri/src/lib.rs`) with 13 command wrappers:
+  - Rust backend (`src-tauri/src/lib.rs`) with 15 command wrappers:
     - `get_doctor_status` → `policy-scout doctor --json`
     - `get_data_status` → `policy-scout data status --json`
     - `list_reports_filtered(limit, report_type?)` → `policy-scout report list --json --limit <n> [--type <type>]`
@@ -237,6 +237,8 @@ v0.1-alpha
     - `run_eval` → `policy-scout eval run --json`
     - `run_sweep_quick` → `policy-scout sweep quick --json`
     - `run_sweep_project` → `policy-scout sweep project --json`
+    - `list_sandbox_results` → `policy-scout report list --json --type sandbox_result --limit 5`
+    - `show_sandbox_result(report_id)` → `policy-scout report show --json <report_id>`
   - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
   - React/TypeScript frontend with `App.tsx` owning state and invoke calls
   - Current dashboard cards and views:
@@ -252,6 +254,8 @@ v0.1-alpha
     - Eval Results
     - Quick Sweep
     - Project Sweep
+    - Sandbox Results List
+    - Sandbox Result Detail
   - Shared components: StatusPill, EvidenceText, RedactionNotice, DetailHeader, SweepResultPreview, BoundaryNote
   - `types.ts` provides loose current-contract TypeScript interfaces for CLI JSON shapes
   - Visual system: calm dark theme, CSS variables, evidence-safe display, redaction styling

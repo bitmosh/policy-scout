@@ -59,6 +59,8 @@ cd src-tauri && cargo check
 | Eval Results | `policy-scout eval run --json` |
 | Quick Sweep | `policy-scout sweep quick --json` |
 | Project Sweep | `policy-scout sweep project --json` |
+| Sandbox Results List | `policy-scout report list --json --type sandbox_result --limit 5` |
+| Sandbox Result Detail | `policy-scout report show --json <report_id>` |
 
 ## Rust Backend Command Wrappers
 
@@ -80,6 +82,8 @@ ID arguments (`report_id`, `event_id`) are validated in Rust before being passed
 | `run_eval` | `policy-scout eval run --json` |
 | `run_sweep_quick` | `policy-scout sweep quick --json` |
 | `run_sweep_project` | `policy-scout sweep project --json` |
+| `list_sandbox_results` | `policy-scout report list --json --type sandbox_result --limit 5` |
+| `show_sandbox_result(report_id)` | `policy-scout report show --json <report_id>` |
 
 ## Frontend Architecture
 
