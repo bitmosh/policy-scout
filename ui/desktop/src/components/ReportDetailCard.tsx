@@ -7,18 +7,19 @@ import { EvidenceText } from "./EvidenceText";
 interface ReportDetailCardProps {
   reportDetail: CliJsonResponse | null;
   loading: boolean;
+  selectedId: string;
   onClose: () => void;
 }
 
-export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetailCardProps) {
+export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }: ReportDetailCardProps) {
   const data = reportDetail?.data;
-  const reportId = data?.report_id || "N/A";
+  const reportId = data?.report_id || selectedId;
 
   if (loading) {
     return (
       <div className="report-detail-card">
-        <DetailHeader detailType="Scout Report" selectedId="Loading..." onClose={onClose} />
-        <p className="status-message">Loading report...</p>
+        <DetailHeader detailType="Scout Report" selectedId={selectedId} onClose={onClose} />
+        <p className="status-message">Loading report detail...</p>
       </div>
     );
   }
@@ -26,8 +27,8 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
   if (!reportDetail || !reportDetail.ok || !data) {
     return (
       <div className="report-detail-card">
-        <DetailHeader detailType="Scout Report" selectedId="N/A" onClose={onClose} />
-        <p className="empty-message">No report data available</p>
+        <DetailHeader detailType="Scout Report" selectedId={selectedId} onClose={onClose} />
+        <p className="empty-message">Could not load report detail</p>
       </div>
     );
   }

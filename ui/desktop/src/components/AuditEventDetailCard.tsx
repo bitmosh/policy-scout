@@ -6,18 +6,19 @@ import { EvidenceText } from "./EvidenceText";
 interface AuditEventDetailCardProps {
   auditEventDetail: CliJsonResponse | null;
   loading: boolean;
+  selectedId: string;
   onClose: () => void;
 }
 
-export function AuditEventDetailCard({ auditEventDetail, loading, onClose }: AuditEventDetailCardProps) {
+export function AuditEventDetailCard({ auditEventDetail, loading, selectedId, onClose }: AuditEventDetailCardProps) {
   const event = auditEventDetail?.data;
-  const eventId = event?.event_id || "N/A";
+  const eventId = event?.event_id || selectedId;
   const redactionApplied = event?.redaction_applied as boolean || false;
 
   if (loading) {
     return (
       <div className="audit-event-detail-card">
-        <DetailHeader detailType="Audit Event" selectedId="Loading..." onClose={onClose} />
+        <DetailHeader detailType="Audit Event" selectedId={selectedId} onClose={onClose} />
         <p className="status-message">Loading event detail...</p>
       </div>
     );
@@ -26,9 +27,9 @@ export function AuditEventDetailCard({ auditEventDetail, loading, onClose }: Aud
   if (!auditEventDetail || !auditEventDetail.ok || !auditEventDetail.data) {
     return (
       <div className="audit-event-detail-card">
-        <DetailHeader detailType="Audit Event" selectedId="N/A" onClose={onClose} />
+        <DetailHeader detailType="Audit Event" selectedId={selectedId} onClose={onClose} />
         <p className="error-message">
-          {auditEventDetail?.error || "Failed to load event detail"}
+          Could not load event detail
         </p>
       </div>
     );

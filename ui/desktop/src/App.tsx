@@ -119,6 +119,7 @@ function App() {
 
   async function handleReportClick(reportId: string) {
     setSelectedReportId(reportId);
+    setReportDetail(null);
     setReportDetailLoading(true);
     try {
       const result = await invoke<CliJsonResponse>("show_report", { reportId });
@@ -142,6 +143,7 @@ function App() {
 
   async function handleAuditEventClick(eventId: string) {
     setSelectedAuditEventId(eventId);
+    setAuditEventDetail(null);
     setAuditEventDetailLoading(true);
     try {
       const result = await invoke<CliJsonResponse>("show_audit_event", { eventId });
@@ -191,12 +193,14 @@ function App() {
           <ReportDetailCard
             reportDetail={reportDetail}
             loading={reportDetailLoading}
+            selectedId={selectedReportId}
             onClose={handleCloseReportDetail}
           />
         ) : selectedAuditEventId ? (
           <AuditEventDetailCard
             auditEventDetail={auditEventDetail}
             loading={auditEventDetailLoading}
+            selectedId={selectedAuditEventId}
             onClose={handleCloseAuditEventDetail}
           />
         ) : (
