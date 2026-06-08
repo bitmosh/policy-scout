@@ -1,7 +1,209 @@
-export interface CliJsonResponse {
+// Generic CLI JSON response wrapper
+export interface CliJsonResponse<T = any> {
   ok: boolean;
   exit_code: number;
-  data: any;
+  data: T;
   error: string | null;
   stderr_summary: string | null;
+}
+
+// Type guards and helpers
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function asArray<T = unknown>(value: unknown): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+export function isCliSuccess<T = unknown>(response: CliJsonResponse<T>): response is CliJsonResponse<T> {
+  return response.ok === true && response.exit_code === 0;
+}
+
+// Doctor Status
+export interface DoctorStatusData {
+  policy_scout_version?: string;
+  python_version?: string;
+  platform?: {
+    system?: string;
+    release?: string;
+    version?: string;
+    machine?: string;
+    processor?: string;
+  };
+  checks?: Record<string, {
+    status: string;
+    message: string;
+    [key: string]: unknown;
+  }>;
+}
+
+// Data Status
+export interface DataStatusData {
+  data_directory?: string;
+  audit_db_path?: string;
+  audit_db_size_bytes?: number;
+  audit_db_record_count?: number;
+  report_directory?: string;
+  report_count?: number;
+  [key: string]: unknown;
+}
+
+// Report List
+export interface ReportListItem {
+  report_id: string;
+  created_at?: string;
+  updated_at?: string;
+  findings_count?: number;
+  severity_distribution?: Record<string, number>;
+  [key: string]: unknown;
+}
+
+export interface ReportListData {
+  reports?: ReportListItem[];
+  total_count?: number;
+  [key: string]: unknown;
+}
+
+// Report Detail
+export interface SweepFinding {
+  finding_id?: string;
+  sweep_id?: string;
+  severity?: string;
+  confidence?: string;
+  category?: string;
+  title?: string;
+  location?: string;
+  evidence_ref?: string;
+  why_it_matters?: string;
+  recommended_action?: string;
+  schema_version?: number;
+  [key: string]: unknown;
+}
+
+export interface CouldNotVerifyItem {
+  check?: string;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface CredentialExposureAssessment {
+  level?: string;
+  exposure_detected?: boolean;
+  exposure_type?: string;
+  notes?: string;
+  [key: string]: unknown;
+}
+
+export interface ReportDetailData {
+  report_id?: string;
+  report_type?: string;
+  title?: string;
+  created_at?: string;
+  updated_at?: string;
+  request_id?: string;
+  summary?: string;
+  findings?: SweepFinding[];
+  findings_count?: Record<string, number>;
+  could_not_verify?: (string | CouldNotVerifyItem)[];
+  recommended_actions?: (string | unknown)[];
+  credential_exposure_assessment?: CredentialExposureAssessment;
+  host_mutation_status?: string;
+  migration_status?: string;
+  sweep_id?: string;
+  project_root?: string;
+  redaction_applied?: boolean;
+  schema_version?: number;
+  [key: string]: unknown;
+}
+
+// Audit Stats
+export interface AuditStatsData {
+  total_events?: number;
+  events_by_decision?: Record<string, number>;
+  events_by_category?: Record<string, number>;
+  [key: string]: unknown;
+}
+
+// Audit Event List
+export interface AuditEventListItem {
+  event_id: string;
+  timestamp?: string;
+  decision?: string;
+  category?: string;
+  [key: string]: unknown;
+}
+
+export interface AuditEventListData {
+  events?: AuditEventListItem[];
+  total_count?: number;
+  [key: string]: unknown;
+}
+
+// Audit Event Detail
+export interface AuditEventDetailData {
+  event_id?: string;
+  timestamp?: string;
+  decision?: string;
+  category?: string;
+  summary?: string;
+  data_json?: string;
+  redaction_applied?: boolean;
+  schema_version?: number;
+  [key: string]: unknown;
+}
+
+// Cleanup Dry Run
+export interface CleanupItem {
+  path?: string;
+  size_bytes?: number;
+  [key: string]: unknown;
+}
+
+export interface CleanupDryRunData {
+  target?: string;
+  dry_run?: boolean;
+  total_items?: number;
+  total_bytes?: number;
+  planned_items?: CleanupItem[];
+  could_not_verify?: (string | CouldNotVerifyItem)[];
+  schema_version?: number;
+  [key: string]: unknown;
+}
+
+// Eval Run
+export interface EvalSummary {
+  total_cases?: number;
+  passed?: number;
+  failed?: number;
+  pass_rate?: number;
+  duration_ms?: number;
+  execution_time_ms?: number;
+  failed_case_ids?: string[];
+  [key: string]: unknown;
+}
+
+export interface EvalRunData {
+  summary?: EvalSummary;
+  cases?: Array<{
+    case_id?: string;
+    status?: string;
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
+}
+
+// Sweep
+export interface SweepData {
+  sweep_id?: string;
+  sweep_type?: string;
+  started_at?: string;
+  completed_at?: string;
+  project_root?: string;
+  platform?: string;
+  findings_count?: Record<string, number>;
+  findings?: SweepFinding[];
+  could_not_verify?: (string | CouldNotVerifyItem)[];
+  schema_version?: number;
+  [key: string]: unknown;
 }

@@ -1,7 +1,7 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, DoctorStatusData } from "../types";
 
 interface DoctorStatusCardProps {
-  doctorStatus: CliJsonResponse | null;
+  doctorStatus: CliJsonResponse<DoctorStatusData> | null;
   loading: boolean;
   onRefresh: () => void;
 }

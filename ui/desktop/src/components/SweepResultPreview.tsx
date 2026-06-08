@@ -1,8 +1,9 @@
 import { StatusPill, severityToTone, confidenceToTone } from "./StatusPill";
 import { EvidenceText } from "./EvidenceText";
+import { SweepData, asArray } from "../types";
 
 interface SweepResultPreviewProps {
-  data: any;
+  data: SweepData | undefined;
   maxFindings?: number;
   maxCouldNotVerify?: number;
   showProjectRoot?: boolean;
@@ -16,8 +17,8 @@ export function SweepResultPreview({
 }: SweepResultPreviewProps) {
   if (!data) return null;
 
-  const findings = data.findings as any[] || [];
-  const couldNotVerify = data.could_not_verify as any[] || [];
+  const findings = asArray(data.findings);
+  const couldNotVerify = asArray(data.could_not_verify);
   const findingsCount = findings.length;
   const couldNotVerifyCount = couldNotVerify.length;
 

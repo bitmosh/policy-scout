@@ -1,14 +1,14 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, SweepData } from "../types";
 import { SweepResultPreview } from "./SweepResultPreview";
 
 interface QuickSweepCardProps {
-  quickSweep: CliJsonResponse | null;
+  quickSweep: CliJsonResponse<SweepData> | null;
   loading: boolean;
   onRunSweep: () => void;
 }
 
 export function QuickSweepCard({ quickSweep, loading, onRunSweep }: QuickSweepCardProps) {
-  const data = quickSweep?.data;
+  const data = quickSweep?.data as SweepData | undefined;
 
   return (
     <div className="card quick-sweep-card">

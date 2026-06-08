@@ -1,8 +1,8 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, EvalRunData, asArray } from "../types";
 import { StatusPill, evalStatusToTone } from "./StatusPill";
 
 interface EvalResultsCardProps {
-  evalResults: CliJsonResponse | null;
+  evalResults: CliJsonResponse<EvalRunData> | null;
 }
 
 export function EvalResultsCard({ evalResults }: EvalResultsCardProps) {
@@ -20,7 +20,7 @@ export function EvalResultsCard({ evalResults }: EvalResultsCardProps) {
   const failed = summary.failed || 0;
   const passRate = summary.pass_rate !== undefined ? (summary.pass_rate * 100).toFixed(1) + "%" : "N/A";
   const duration = summary.duration_ms || summary.execution_time_ms || 0;
-  const failedCaseIds = summary.failed_case_ids || [];
+  const failedCaseIds = asArray<string>(summary.failed_case_ids);
 
   return (
     <div className="eval-card">

@@ -1,14 +1,14 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, SweepData } from "../types";
 import { SweepResultPreview } from "./SweepResultPreview";
 
 interface ProjectSweepCardProps {
-  projectSweep: CliJsonResponse | null;
+  projectSweep: CliJsonResponse<SweepData> | null;
   loading: boolean;
   onRunSweep: () => void;
 }
 
 export function ProjectSweepCard({ projectSweep, loading, onRunSweep }: ProjectSweepCardProps) {
-  const data = projectSweep?.data;
+  const data = projectSweep?.data as SweepData | undefined;
 
   return (
     <div className="card project-sweep-card">

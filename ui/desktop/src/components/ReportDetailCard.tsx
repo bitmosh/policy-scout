@@ -1,11 +1,11 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, ReportDetailData, asArray } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { StatusPill, severityToTone } from "./StatusPill";
 import { RedactionNotice } from "./RedactionNotice";
 import { EvidenceText } from "./EvidenceText";
 
 interface ReportDetailCardProps {
-  reportDetail: CliJsonResponse | null;
+  reportDetail: CliJsonResponse<ReportDetailData> | null;
   loading: boolean;
   selectedId: string;
   onClose: () => void;
@@ -33,12 +33,12 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
     );
   }
 
-  const findings = data.findings as any[] || [];
-  const couldNotVerify = data.could_not_verify as any[] || [];
-  const recommendedActions = data.recommended_actions as any[] || [];
-  const redactionApplied = data.redaction_applied as boolean || false;
-  const credentialExposure = data.credential_exposure_assessment as any || null;
-  const findingsCount = data.findings_count as any || null;
+  const findings = asArray(data.findings);
+  const couldNotVerify = asArray(data.could_not_verify);
+  const recommendedActions = asArray(data.recommended_actions);
+  const redactionApplied = data.redaction_applied || false;
+  const credentialExposure = data.credential_exposure_assessment || null;
+  const findingsCount = data.findings_count || null;
 
   return (
     <div className="report-detail-card">
