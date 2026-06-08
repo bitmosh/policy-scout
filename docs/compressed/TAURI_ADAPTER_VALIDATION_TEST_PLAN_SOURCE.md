@@ -479,13 +479,12 @@ The following are explicitly not in scope for Tauri adapter testing:
 1. ✅ **Extract `validate_audit_event_id` helper** from `show_audit_event` inline validation.
    Completed in v0.2.37. Function is now unit-testable at the same level as other validators.
 
-2. **Add Rust `#[cfg(test)]` module** to `lib.rs` (or a dedicated test file) with unit tests
-   for all six validators using the cases in §11.
+2. ✅ **Add Rust `#[cfg(test)]` module** to `lib.rs` with unit tests for all six validators.
+   Completed in v0.2.39. 12 tests added, all pass. No new dependencies required.
 
-   **Test readiness (verified v0.2.38):** `cargo test` already runs cleanly in `src-tauri`
-   with 0 tests and 0 failures. Crate type includes `rlib`, so internal `#[cfg(test)]`
-   modules in `lib.rs` will compile and run without any additional setup. No new
-   dependencies or test framework required. This step is unblocked.
+   **Test readiness (verified v0.2.38):** `cargo test` already ran cleanly in `src-tauri`
+   with 0 tests. Crate type includes `rlib`. `#[cfg(test)]` module in `lib.rs` compiled
+   and ran without any additional setup.
 
 3. **Add minimal frontend component tests** only if Vitest or another test framework is
    already introduced for another reason. Do not add a test framework solely for selector tests.
@@ -545,13 +544,13 @@ Use this checklist to confirm the adapter validation layer is complete and corre
 
 ### Tests
 
-- [ ] Rust unit tests for `validate_limit` — **pending** (see §11)
-- [ ] Rust unit tests for `validate_report_type` — **pending**
-- [ ] Rust unit tests for `validate_audit_event_type` — **pending**
-- [ ] Rust unit tests for `validate_cleanup_target` — **pending**
-- [ ] Rust unit tests for `validate_report_id` — **pending**
+- [x] Rust unit tests for `validate_limit` — **done** (v0.2.39)
+- [x] Rust unit tests for `validate_report_type` — **done** (v0.2.39)
+- [x] Rust unit tests for `validate_audit_event_type` — **done** (v0.2.39)
+- [x] Rust unit tests for `validate_cleanup_target` — **done** (v0.2.39)
+- [x] Rust unit tests for `validate_report_id` — **done** (v0.2.39)
 - [x] `validate_audit_event_id` extracted — **done** (v0.2.37)
-- [ ] Unit tests for `validate_audit_event_id` — **pending**
+- [x] Unit tests for `validate_audit_event_id` — **done** (v0.2.39)
 - [ ] Native smoke checklist run — **pending** (see §13)
 - [x] TypeScript compile check via `npm run build` — active
 - [x] CLI JSON contract tests via `pytest tests/test_json_contracts.py` — active
