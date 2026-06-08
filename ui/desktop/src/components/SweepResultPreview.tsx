@@ -87,7 +87,7 @@ export function SweepResultPreview({
             ))}
             {findingsCount > maxFindings && (
               <p className="findings-truncated">
-                ... and {findingsCount - maxFindings} more findings
+                Showing first {maxFindings} of {findingsCount} findings — run from CLI for full results.
               </p>
             )}
           </div>
@@ -108,7 +108,7 @@ export function SweepResultPreview({
             ))}
             {couldNotVerifyCount > maxCouldNotVerify && (
               <p className="could-not-verify-truncated">
-                ... and {couldNotVerifyCount - maxCouldNotVerify} more checks
+                Showing first {maxCouldNotVerify} of {couldNotVerifyCount} checks — run from CLI for full results.
               </p>
             )}
           </div>

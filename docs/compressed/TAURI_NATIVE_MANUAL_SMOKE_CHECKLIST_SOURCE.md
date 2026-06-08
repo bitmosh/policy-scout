@@ -187,6 +187,7 @@ The strip summarizes loaded state across cards.
 - [ ] Card loads without crash
 - [ ] Shows data directory path and counts
 - [ ] No deletion or cleanup trigger button
+- [ ] **Contrast:** Count rows (`approvals`, `audit_events`, `reports`, etc.) are readable — dark elevated background, not white/light
 
 ---
 
@@ -229,6 +230,7 @@ The strip summarizes loaded state across cards.
 - [ ] Closing the detail returns to the list
 - [ ] Detail cannot be opened for an ID that was not selected from the list
   (no free-text ID input visible)
+- [ ] **Contrast:** Report detail card background is dark (not white) — finding items and action items use dark elevated background
 
 ---
 
@@ -239,6 +241,7 @@ The strip summarizes loaded state across cards.
 - [ ] Card loads without crash
 - [ ] Shows event counts or summary stats
 - [ ] No deletion, export, or audit-manipulation controls
+- [ ] **Contrast:** By-type rows (e.g., `ApprovalRequested`, `SweepCompleted`) are readable — dark elevated background, event type names and counts visible
 
 ---
 
@@ -386,6 +389,9 @@ The strip summarizes loaded state across cards.
 - [ ] Could-not-verify findings in sweep results look like **review/unknown** states (amber/neutral), not critical danger states
 - [ ] No raw secret-like strings visible in card output
 - [ ] Redaction placeholders are not broken HTML (no raw `<` / `>` visible as markup)
+- [ ] **Contrast:** `<select>` controls (report limit, report type, audit event type, cleanup target) show readable text on dark background — not light text on light or default-OS-light background
+- [ ] **Contrast:** Evidence JSON block (`.evidence-json`) uses dark background and readable text — not white/light
+- [ ] **Contrast:** Report section dividers and headings within report detail use dark styling — not `#eee` borders or `#333` text on dark panel
 
 ---
 

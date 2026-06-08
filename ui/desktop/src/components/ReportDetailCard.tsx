@@ -116,7 +116,7 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
                 </div>
               ))}
               {findings.length > 10 && (
-                <p className="findings-truncated">... and {findings.length - 10} more findings</p>
+                <p className="findings-truncated">Showing first 10 of {findings.length} findings — run from CLI for full results.</p>
               )}
             </div>
           </div>

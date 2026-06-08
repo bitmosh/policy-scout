@@ -1679,7 +1679,7 @@ button:disabled {
 
   .list-control-select {
     background: var(--color-background);
-    color: var(--color-text);
+    color: var(--color-text-primary);
     border-color: var(--color-border);
   }
 
@@ -1777,5 +1777,115 @@ button:disabled {
 
   .report-item.clickable:hover {
     background: var(--color-border);
+  }
+}
+
+/* ── Dark theme: cascade fixes for base styles added after first dark block ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+
+  /* Report detail card — base rule at ~l.1393 sets background: white */
+  .report-detail-card {
+    background: var(--color-panel);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Detail header border — base rule uses #eee */
+  .detail-header {
+    border-bottom-color: var(--color-border-muted);
+  }
+
+  /* Breadcrumb text — base rules use #666/#999 */
+  .detail-breadcrumb,
+  .breadcrumb-text {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb-separator {
+    color: var(--color-text-muted);
+  }
+
+  /* Read-only badge — base rule uses light green bg */
+  .read-only-badge {
+    color: var(--color-success);
+    background: rgba(94, 224, 139, 0.08);
+  }
+
+  /* Close button — base rule sets background: white, color: #0f0f0f */
+  .close-button {
+    color: var(--color-text-primary);
+    background-color: var(--color-elevated);
+    border-color: var(--color-border);
+  }
+
+  .close-button:hover:not(:disabled) {
+    background-color: var(--color-border);
+  }
+
+  /* Report section divider — base rule uses border #eee, heading color #333 */
+  .report-section {
+    border-top-color: var(--color-border-muted);
+  }
+
+  .report-section h3 {
+    color: var(--color-text-secondary);
+  }
+
+  .report-summary {
+    color: var(--color-text-secondary);
+  }
+
+  /* count-item: DataStatus counts, AuditStats by-type, ReportDetail findings-count
+     Base rule at ~l.1536 sets background: #f9f9f9 (outside media queries — overrides dark). */
+  .count-item {
+    background: var(--color-elevated);
+    color: var(--color-text-primary);
+  }
+
+  .count-name {
+    color: var(--color-text-secondary);
+  }
+
+  /* finding-item: SweepResultPreview, ReportDetailCard
+     Base rule at ~l.1553 sets background: #f9f9f9 */
+  .finding-item {
+    background: var(--color-elevated);
+  }
+
+  .finding-category {
+    color: var(--color-text-muted);
+  }
+
+  .finding-title {
+    color: var(--color-text-secondary);
+  }
+
+  .finding-location {
+    color: var(--color-text-muted);
+  }
+
+  .findings-truncated,
+  .could-not-verify-truncated {
+    color: var(--color-text-muted);
+  }
+
+  /* action-item / could-not-verify-item — base rule sets background: #f9f9f9 */
+  .action-item,
+  .could-not-verify-item {
+    background: var(--color-elevated);
+    color: var(--color-text-secondary);
+  }
+
+  /* status-text — base rule uses color: #555 */
+  .status-text {
+    color: var(--color-text-secondary);
+  }
+
+  /* list-control-select: add color-scheme so native <option> elements
+     inherit dark styling from the OS/browser */
+  .list-control-select {
+    color-scheme: dark;
   }
 }
