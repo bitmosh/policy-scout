@@ -220,18 +220,62 @@ v0.1-alpha
 - Quick sweep is evidence-gathering, not malware confirmation
 
 ### UI/Integration
-- Experimental Tauri UI scaffold (v0.2.x, read-only)
-  - Located in ui/desktop/
-  - Rust backend with commands: get_doctor_status, get_data_status, list_reports, get_audit_stats, get_cleanup_dry_run_demo, get_cleanup_dry_run_sandbox, get_cleanup_dry_run_sandbox_results, run_eval
-  - React frontend with Overview screen and cards
-  - Current cards: Doctor Status, Data Status, Reports List, Audit Stats, Cleanup Dry-Run, Eval Results
+- Experimental Tauri desktop UI (v0.2.x, read-only)
+  - Located in `ui/desktop/`
+  - **Policy Scout CLI remains the authority. Tauri UI is a read-only preview surface only.**
+  - Rust backend (`src-tauri/src/lib.rs`) with 13 command wrappers:
+    - `get_doctor_status` → `policy-scout doctor --json`
+    - `get_data_status` → `policy-scout data status --json`
+    - `list_reports` → `policy-scout report list --json --limit 5`
+    - `show_report(report_id)` → `policy-scout report show --json <report_id>`
+    - `get_audit_stats` → `policy-scout audit stats --json`
+    - `list_audit_events` → `policy-scout audit list --json --limit 10`
+    - `show_audit_event(event_id)` → `policy-scout audit show --json <event_id>`
+    - `get_cleanup_dry_run_demo` → `policy-scout data cleanup --target demo --dry-run --json`
+    - `get_cleanup_dry_run_sandbox` → `policy-scout data cleanup --target sandbox --dry-run --json`
+    - `get_cleanup_dry_run_sandbox_results` → `policy-scout data cleanup --target sandbox-results --dry-run --json`
+    - `run_eval` → `policy-scout eval run --json`
+    - `run_sweep_quick` → `policy-scout sweep quick --json`
+    - `run_sweep_project` → `policy-scout sweep project --json`
+  - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
+  - React/TypeScript frontend with `App.tsx` owning state and invoke calls
+  - Current dashboard cards and views:
+    - Overview Status Strip (cross-card summary)
+    - Doctor Status
+    - Data Status
+    - Reports List
+    - Report Detail
+    - Audit Stats
+    - Audit Events List
+    - Audit Event Detail
+    - Cleanup Dry-Run (demo, sandbox, sandbox-results targets)
+    - Eval Results
+    - Quick Sweep
+    - Project Sweep
+  - Shared components: StatusPill, EvidenceText, RedactionNotice, DetailHeader, SweepResultPreview, BoundaryNote
+  - `types.ts` provides loose current-contract TypeScript interfaces for CLI JSON shapes
+  - Visual system: calm dark theme, CSS variables, evidence-safe display, redaction styling
   - Boundary note: "Read-only preview. Policy Scout CLI remains the authority."
-  - No command execution UI, approval UI, sandbox migration UI, or cleanup deletion
-  - No arbitrary shell access or frontend-provided argv arrays
-  - No direct SQLite or filesystem access from frontend
-  - Browser/Vite preview limitation: Cannot load live data through Tauri invoke APIs
-  - Browser preview shows friendly message: "Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data."
-  - Native Tauri runtime required for live CLI-backed data cards
+  - Safety boundaries enforced:
+    - No command execution UI
+    - No approval resolution UI
+    - No sandbox migration UI
+    - No cleanup deletion (dry-run only)
+    - No report/audit export or deletion UI
+    - No arbitrary shell access or frontend-provided argv arrays
+    - No direct SQLite or filesystem access from frontend
+    - Sweeps are user-triggered only (no background scanning)
+  - Dev workflow:
+    - `npm run dev` — browser/Vite preview, static layout only, no live CLI data
+    - `npm run tauri dev` — native runtime with live CLI-backed data
+    - `npm run build` — frontend build check
+    - `cd src-tauri && cargo check` — Rust compile check
+  - Known limitations:
+    - Native click-level interaction requires manual verification
+    - No pagination/filtering for reports or audit event lists
+    - No project path selection for project sweep
+    - No strict JSON API v1 envelope (types are current-contract/loose)
+    - Browser preview cannot load live Tauri invoke data
 - No MCP/editor integrations yet
 - No VS Code extension
 - No Cursor extension
@@ -257,10 +301,14 @@ v0.1-alpha
 
 ### v0.2+
 - pnpm/yarn/bun sandbox execution
-- Tauri UI
+- Tauri UI (v0.2.x experimental read-only UI is active; full UI deferred)
 - MCP server
 - Editor integrations
 - Data cleanup deletion path (v1 dry-run planning implemented)
+- Tauri: sandbox results read-only list/detail
+- Tauri: audit/report list pagination and filters
+- Tauri: Decision Check UI (check-only, not run)
+- Tauri: manual native click verification pass
 
 ### Future
 - Docker containment for sandbox
@@ -317,9 +365,10 @@ Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ens
 
 **Next Milestones**:
 1. Add pnpm/yarn/bun sandbox execution
-2. Add Tauri UI prototype
-3. Add MCP server
-4. Add editor integrations
-5. Add data cleanup deletion path (v1 dry-run planning implemented)
+2. Manual native click verification of Tauri UI cards
+3. Tauri audit/report list pagination or filters
+4. Add MCP server
+5. Add editor integrations
+6. Add data cleanup deletion path (v1 dry-run planning implemented)
 
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.
