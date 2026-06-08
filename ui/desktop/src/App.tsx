@@ -9,6 +9,7 @@ import { ReportsListCard } from "./components/ReportsListCard";
 import { AuditStatsCard } from "./components/AuditStatsCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 import { EvalResultsCard } from "./components/EvalResultsCard";
+import { QuickSweepCard } from "./components/QuickSweepCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -19,6 +20,8 @@ function App() {
   const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
+  const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
+  const [sweepLoading, setSweepLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,6 +84,23 @@ function App() {
     }
   }
 
+  async function runQuickSweep() {
+    setSweepLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("run_sweep_quick");
+      setQuickSweep(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setSweepLoading(false);
+    }
+  }
+
   return (
     <main className="container">
       <h1>Policy Scout</h1>
@@ -105,6 +125,11 @@ function App() {
           sandboxResultsCleanup={sandboxResultsCleanup}
         />
         <EvalResultsCard evalResults={evalResults} />
+        <QuickSweepCard
+          quickSweep={quickSweep}
+          loading={sweepLoading}
+          onRunSweep={runQuickSweep}
+        />
       </div>
     </main>
   );

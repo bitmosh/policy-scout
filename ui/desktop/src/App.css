@@ -55,7 +55,8 @@ h1 {
 .reports-card,
 .audit-card,
 .cleanup-card,
-.eval-card {
+.eval-card,
+.quick-sweep-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -451,7 +452,8 @@ button:disabled {
   .reports-card,
   .audit-card,
   .cleanup-card,
-  .eval-card {
+  .eval-card,
+  .quick-sweep-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -637,5 +639,188 @@ button:disabled {
     color: #aaa;
     font-style: italic;
     padding: 0.5rem 0.75rem;
+  }
+
+  .card-subtitle {
+    color: #aaa;
+  }
+
+  .sweep-summary {
+    margin-top: 1rem;
+  }
+
+  .sweep-findings,
+  .sweep-could-not-verify {
+    margin-top: 1.5rem;
+  }
+
+  .sweep-findings h3,
+  .sweep-could-not-verify h3 {
+    color: #ddd;
+  }
+
+  .finding-note {
+    color: #aaa;
+  }
+
+  .findings-list,
+  .could-not-verify-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .finding-item,
+  .could-not-verify-item {
+    background: #4f4f4f;
+  }
+
+  .finding-item {
+    border-left-color: #f59e0b;
+  }
+
+  .finding-category {
+    color: #aaa;
+  }
+
+  .finding-title {
+    color: #ddd;
+  }
+
+  .finding-location {
+    color: #aaa;
+  }
+
+  .findings-truncated,
+  .could-not-verify-truncated {
+    color: #aaa;
+  }
+
+  .could-not-verify-check {
+    color: #aaa;
+  }
+
+  .could-not-verify-reason {
+    color: #aaa;
+  }
+
+  @media (min-width: 900px) {
+    .quick-sweep-card {
+      grid-column: span 2;
+    }
+  }
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.sweep-button {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sweep-summary {
+  margin-top: 1rem;
+}
+
+.sweep-findings,
+.sweep-could-not-verify {
+  margin-top: 1.5rem;
+}
+
+.sweep-findings h3,
+.sweep-could-not-verify h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.finding-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.findings-list,
+.could-not-verify-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.finding-item,
+.could-not-verify-item {
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+  border-left: 3px solid #ccc;
+}
+
+.finding-item {
+  border-left-color: #f59e0b;
+}
+
+.finding-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.finding-severity,
+.finding-confidence {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.finding-category {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.finding-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.finding-location {
+  font-size: 0.8rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.findings-truncated,
+.could-not-verify-truncated {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+}
+
+.could-not-verify-check {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.could-not-verify-reason {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+@media (min-width: 900px) {
+  .quick-sweep-card {
+    grid-column: span 2;
   }
 }

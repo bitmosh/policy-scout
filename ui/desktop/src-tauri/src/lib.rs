@@ -98,6 +98,11 @@ fn run_eval() -> CliJsonResponse {
     run_policy_scout_json(&["eval", "run", "--json"])
 }
 
+#[tauri::command]
+fn run_sweep_quick() -> CliJsonResponse {
+    run_policy_scout_json(&["sweep", "quick", "--json"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -110,7 +115,8 @@ pub fn run() {
             get_cleanup_dry_run_demo,
             get_cleanup_dry_run_sandbox,
             get_cleanup_dry_run_sandbox_results,
-            run_eval
+            run_eval,
+            run_sweep_quick
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
