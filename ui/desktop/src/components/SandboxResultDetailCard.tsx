@@ -44,7 +44,7 @@ export function SandboxResultDetailCard({ sandboxResultDetail, loading, selected
       <DetailHeader detailType="Sandbox Result" selectedId={reportId} onClose={onClose} />
 
       <div className="report-detail-content">
-        <div className="boundary-note">
+        <div className="sandbox-readonly-notice">
           Read-only sandbox result. Migration is not available from this UI.
         </div>
 
