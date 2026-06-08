@@ -13,6 +13,7 @@ import { AuditEventDetailCard } from "./components/AuditEventDetailCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 import { EvalResultsCard } from "./components/EvalResultsCard";
 import { QuickSweepCard } from "./components/QuickSweepCard";
+import { ProjectSweepCard } from "./components/ProjectSweepCard";
 import { ReportDetailCard } from "./components/ReportDetailCard";
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
   const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
   const [sweepLoading, setSweepLoading] = useState(false);
+  const [projectSweep, setProjectSweep] = useState<CliJsonResponse | null>(null);
+  const [projectSweepLoading, setProjectSweepLoading] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [reportDetail, setReportDetail] = useState<CliJsonResponse | null>(null);
   const [reportDetailLoading, setReportDetailLoading] = useState(false);
@@ -114,6 +117,23 @@ function App() {
       }
     } finally {
       setSweepLoading(false);
+    }
+  }
+
+  async function runProjectSweep() {
+    setProjectSweepLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("run_sweep_project");
+      setProjectSweep(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setProjectSweepLoading(false);
     }
   }
 
@@ -220,6 +240,11 @@ function App() {
               quickSweep={quickSweep}
               loading={sweepLoading}
               onRunSweep={runQuickSweep}
+            />
+            <ProjectSweepCard
+              projectSweep={projectSweep}
+              loading={projectSweepLoading}
+              onRunSweep={runProjectSweep}
             />
           </>
         )}

@@ -104,6 +104,11 @@ fn run_sweep_quick() -> CliJsonResponse {
 }
 
 #[tauri::command]
+fn run_sweep_project() -> CliJsonResponse {
+    run_policy_scout_json(&["sweep", "project", "--json"])
+}
+
+#[tauri::command]
 fn show_report(report_id: String) -> CliJsonResponse {
     // Validation: report_id must start with "report_"
     if !report_id.starts_with("report_") {
@@ -204,6 +209,7 @@ pub fn run() {
             get_cleanup_dry_run_sandbox_results,
             run_eval,
             run_sweep_quick,
+            run_sweep_project,
             show_report,
             list_audit_events,
             show_audit_event
