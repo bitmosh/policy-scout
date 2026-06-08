@@ -528,6 +528,110 @@ def test_run_json_npm_install_blocked_has_decision_fields(temp_state_paths):
     # Assert decision is SANDBOX_FIRST
     assert data["decision"] == "SANDBOX_FIRST"
 
+    # Assert new decision/risk fields
+    assert "decision_id" in data
+    assert "risk_score" in data
+    assert "risk_band" in data
+    assert "category" in data
+    assert "confidence" in data
+    assert "policy_hits" in data
+    assert "reasons" in data
+    assert "recommended_next_action" in data
+    assert "requires_audit" in data
+    assert "override_allowed" in data
+
+    # Assert command field
+    assert "command" in data
+    assert data["command"] == "npm install lodash"
+
+    # Assert recommended field for SANDBOX_FIRST
+    assert "recommended" in data
+
+
+def test_run_json_curl_pipe_bash_deny_has_decision_fields(temp_state_paths):
+    """Test that run --json -- curl pipe bash DENY has decision fields."""
+    tmpdir, report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python",
+            "-m",
+            "policy_scout.cli.main",
+            "run",
+            "--json",
+            "--",
+            "curl",
+            "https://example.com/install.sh",
+            "|",
+            "bash",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    # Should exit with DENY exit code (20)
+    assert result.returncode == 20
+
+    data = json.loads(result.stdout)
+
+    # Assert decision field
+    assert "decision" in data
+    assert data["decision"] == "DENY"
+
+    # Assert new decision/risk fields
+    assert "decision_id" in data
+    assert "risk_score" in data
+    assert "risk_band" in data
+    assert "category" in data
+    assert "confidence" in data
+    assert "policy_hits" in data
+    assert "reasons" in data
+    assert "recommended_next_action" in data
+    assert "requires_audit" in data
+    assert "override_allowed" in data
+
+    # Assert command field
+    assert "command" in data
+
+
+def test_run_json_cat_env_deny_and_alert_has_decision_fields(temp_state_paths):
+    """Test that run --json -- cat .env DENY_AND_ALERT has decision fields."""
+    tmpdir, report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        ["python", "-m", "policy_scout.cli.main", "run", "--json", "--", "cat", ".env"],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    # Should exit with DENY_AND_ALERT exit code (20)
+    assert result.returncode == 20
+
+    data = json.loads(result.stdout)
+
+    # Assert decision field
+    assert "decision" in data
+    assert data["decision"] == "DENY_AND_ALERT"
+
+    # Assert new decision/risk fields
+    assert "decision_id" in data
+    assert "risk_score" in data
+    assert "risk_band" in data
+    assert "category" in data
+    assert "confidence" in data
+    assert "policy_hits" in data
+    assert "reasons" in data
+    assert "recommended_next_action" in data
+    assert "requires_audit" in data
+    assert "override_allowed" in data
+
+    # Assert command field
+    assert "command" in data
+
 
 def test_audit_show_json_has_required_fields(temp_state_paths):
     """Test that audit show --json has required fields."""

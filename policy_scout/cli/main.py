@@ -1953,12 +1953,23 @@ def handle_run_command(
 
         # Output results
         if json_output:
+            # Derive risk band from risk score
+            risk_band = derive_risk_band(decision.risk_score)
             print(
                 json.dumps(
                     {
                         "decision": decision.decision,
+                        "decision_id": decision.decision_id,
                         "approval_id": approval.approval_id,
+                        "risk_score": decision.risk_score,
+                        "risk_band": risk_band,
+                        "category": decision.category,
+                        "confidence": decision.confidence,
+                        "policy_hits": decision.policy_hits,
                         "reasons": decision.reasons,
+                        "recommended_next_action": decision.recommended_next_action,
+                        "requires_audit": decision.requires_audit,
+                        "override_allowed": decision.override_allowed,
                         "command": command,
                     },
                     indent=2,
@@ -1995,11 +2006,22 @@ def handle_run_command(
 
         # Output results
         if json_output:
+            # Derive risk band from risk score
+            risk_band = derive_risk_band(decision.risk_score)
             print(
                 json.dumps(
                     {
                         "decision": decision.decision,
+                        "decision_id": decision.decision_id,
+                        "risk_score": decision.risk_score,
+                        "risk_band": risk_band,
+                        "category": decision.category,
+                        "confidence": decision.confidence,
+                        "policy_hits": decision.policy_hits,
                         "reasons": decision.reasons,
+                        "recommended_next_action": decision.recommended_next_action,
+                        "requires_audit": decision.requires_audit,
+                        "override_allowed": decision.override_allowed,
                         "command": command,
                         "recommended": f"policy-scout sandbox -- {command}",
                     },
@@ -2039,11 +2061,22 @@ def handle_run_command(
 
         # Output results
         if json_output:
+            # Derive risk band from risk score
+            risk_band = derive_risk_band(decision.risk_score)
             print(
                 json.dumps(
                     {
                         "decision": decision.decision,
+                        "decision_id": decision.decision_id,
+                        "risk_score": decision.risk_score,
+                        "risk_band": risk_band,
+                        "category": decision.category,
+                        "confidence": decision.confidence,
+                        "policy_hits": decision.policy_hits,
                         "reasons": decision.reasons,
+                        "recommended_next_action": decision.recommended_next_action,
+                        "requires_audit": decision.requires_audit,
+                        "override_allowed": decision.override_allowed,
                         "command": command,
                     },
                     indent=2,
