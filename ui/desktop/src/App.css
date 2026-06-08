@@ -933,6 +933,49 @@ button:disabled {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
+  .detail-header {
+    border-bottom-color: #555;
+  }
+
+  .detail-breadcrumb {
+    color: #aaa;
+  }
+
+  .breadcrumb-text {
+    color: #aaa;
+  }
+
+  .breadcrumb-separator {
+    color: #888;
+  }
+
+  .detail-title-group h2 {
+    color: #ddd;
+  }
+
+  .detail-id {
+    color: #aaa;
+  }
+
+  .read-only-badge {
+    color: #4caf50;
+    background: #2f4f2f;
+  }
+
+  .detail-subtitle {
+    color: #888;
+  }
+
+  .close-button {
+    color: #ffffff;
+    background-color: #4f4f4f;
+    border-color: #666;
+  }
+
+  .close-button:hover:not(:disabled) {
+    background-color: #5f5f5f;
+  }
+
   .redaction-notice {
     background: #5f4f3f;
     border-color: #8f7f5f;
@@ -1111,6 +1154,90 @@ button:disabled {
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.breadcrumb-text {
+  color: #666;
+}
+
+.breadcrumb-separator {
+  color: #999;
+}
+
+.detail-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.detail-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.detail-title-group h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.detail-id {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.read-only-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #28a745;
+  background: #e8f5e9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.detail-subtitle {
+  font-size: 0.85rem;
+  color: #999;
+  font-style: italic;
+  margin: 0;
+}
+
+.close-button {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-button:hover:not(:disabled) {
+  border-color: #396cd8;
+  background-color: #f0f0f0;
 }
 
 .report-detail-content {

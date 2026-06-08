@@ -1,4 +1,5 @@
 import { CliJsonResponse } from "../types";
+import { DetailHeader } from "./DetailHeader";
 
 interface ReportDetailCardProps {
   reportDetail: CliJsonResponse | null;
@@ -8,14 +9,12 @@ interface ReportDetailCardProps {
 
 export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetailCardProps) {
   const data = reportDetail?.data;
+  const reportId = data?.report_id || "N/A";
 
   if (loading) {
     return (
       <div className="report-detail-card">
-        <div className="card-header">
-          <h2>Report Detail</h2>
-          <button onClick={onClose}>Close</button>
-        </div>
+        <DetailHeader detailType="Scout Report" selectedId="Loading..." onClose={onClose} />
         <p className="status-message">Loading report...</p>
       </div>
     );
@@ -24,10 +23,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
   if (!reportDetail || !reportDetail.ok || !data) {
     return (
       <div className="report-detail-card">
-        <div className="card-header">
-          <h2>Report Detail</h2>
-          <button onClick={onClose}>Close</button>
-        </div>
+        <DetailHeader detailType="Scout Report" selectedId="N/A" onClose={onClose} />
         <p className="empty-message">No report data available</p>
       </div>
     );
@@ -42,10 +38,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
 
   return (
     <div className="report-detail-card">
-      <div className="card-header">
-        <h2>Report Detail</h2>
-        <button onClick={onClose}>Close</button>
-      </div>
+      <DetailHeader detailType="Scout Report" selectedId={reportId} onClose={onClose} />
 
       <div className="report-detail-content">
         {redactionApplied && (
