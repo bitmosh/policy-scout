@@ -386,4 +386,12 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 6. Add editor integrations
 7. Add data cleanup deletion path (v1 dry-run planning implemented)
 
+## v0.3.5 Notes
+
+- v0.3.4 CI green (pytest 621 passed, cargo test 18 passed, npm build success)
+- Native smoke documented with Decision Check section in TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md
+- Audit Events rendering regression found/fixed before push (argument casing + response shape mismatch, fix committed in 0ebc137)
+- Decision Check QA section added to ui/desktop/README.md
+- No new behavior in this pass (documentation/polish only)
+
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.

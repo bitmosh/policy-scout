@@ -75,7 +75,7 @@ export function AuditEventsListCard({ auditEventsList, onEventClick, auditEventT
               ))}
             </div>
           ) : (
-            <p className="empty-message">No audit events found</p>
+            <p className="empty-message">No audit events found. Run a check, sweep, or report command to generate audit entries.</p>
           )}
         </div>
       )}

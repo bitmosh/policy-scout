@@ -135,6 +135,21 @@ safety boundaries in the native Tauri window is maintained at:
 
 Run it at significant Tauri checkpoints and before v0.3.x feature expansion.
 
+## Decision Check QA
+
+Quick verification for the Decision Check card (check-only, never executes):
+
+1. Run native app: `npm run tauri dev`
+2. Check `git status` — should return ALLOW decision
+3. Check `npm install left-pad` — should return SANDBOX_FIRST decision
+4. Check `rm -rf /` — should return DENY decision
+5. Verify every result shows "NOT EXECUTED" marker
+6. Verify FAQ buttons populate input/explanation only (no auto-check)
+7. Verify dangerous examples labeled "Example only — do not run"
+8. Verify Audit Events list still populates after check probes
+9. Verify DecisionIssued filter populates after check probes
+10. Browser preview should show native-required error if attempting check
+
 ## Known Limitations
 
 - Native click-level interaction requires manual or GUI automation verification (not automated)
@@ -144,7 +159,7 @@ Run it at significant Tauri checkpoints and before v0.3.x feature expansion.
 - Types in `types.ts` document actual shapes but do not enforce them at runtime
 - Browser preview (`npm run dev`) cannot load live Tauri invoke data
 - No sandbox results read-only list/detail yet
-- No Decision Check UI yet
+- Decision Check UI implemented (v0.3.4)
 
 ## Recommended Next Steps
 

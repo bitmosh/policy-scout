@@ -352,7 +352,36 @@ The strip summarizes loaded state across cards.
 
 ---
 
-## 18. Sandbox Results Checks
+## 18. Decision Check Native Smoke
+
+**Decision Check card** — invokes `policy-scout check --json <command_text>` (check-only; never executes)
+
+- [ ] Card appears near top of dashboard
+- [ ] "CHECK ONLY — commands are classified, never executed" banner visible
+- [ ] Button says "Check command" (not "Run command" or "Execute")
+- [ ] Empty/whitespace input rejected with validation error
+- [ ] `git status` returns ALLOW decision
+- [ ] `npm install left-pad` returns SANDBOX_FIRST decision
+- [ ] `rm -rf /` returns DENY decision
+- [ ] Every result shows "NOT EXECUTED" marker prominently
+- [ ] FAQ buttons populate local explanation/command only
+- [ ] FAQ buttons do not auto-check (no CLI call on FAQ click)
+- [ ] Dangerous examples (e.g., `rm -rf /`) are clearly labeled "Example only — do not run"
+- [ ] Browser preview shows native-required error if attempting check
+- [ ] Audit Events list still populates after check probes
+- [ ] DecisionIssued filter populates after check probes
+
+**v0.3.4 Native Smoke Finding Note:**
+
+During v0.3.4 native smoke, CLI audit data was present (17,152+ events) but the UI did not render audit events. Root cause was a dual contract mismatch:
+- Frontend passed `eventType` (camelCase) but Rust expected `event_type` (snake_case)
+- CLI returned JSON arrays directly but frontend expected `{ "events": [...] }` wrapper
+
+This validated why native smoke matters: CLI contract verification alone does not catch adapter/frontend shape mismatches. Fix committed in 0ebc137.
+
+---
+
+## 19. Sandbox Results Checks
 
 **Sandbox Results List card** — invokes `policy-scout report list --json --type sandbox_result --limit 5`
 
