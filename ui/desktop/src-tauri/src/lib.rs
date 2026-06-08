@@ -149,6 +149,47 @@ fn list_audit_events() -> CliJsonResponse {
     run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"])
 }
 
+#[tauri::command]
+fn show_audit_event(event_id: String) -> CliJsonResponse {
+    // Validation: event_id must start with "evt_"
+    if !event_id.starts_with("evt_") {
+        return CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid event_id: must start with 'evt_'".to_string()),
+            stderr_summary: None,
+        };
+    }
+
+    // Validation: reject empty string
+    if event_id.is_empty() {
+        return CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid event_id: cannot be empty".to_string()),
+            stderr_summary: None,
+        };
+    }
+
+    // Validation: reject spaces, path separators, shell metacharacters
+    let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
+    for c in dangerous_chars.iter() {
+        if event_id.contains(*c) {
+            return CliJsonResponse {
+                ok: false,
+                exit_code: -1,
+                data: None,
+                error: Some(format!("Invalid event_id: contains dangerous character '{}'", c)),
+                stderr_summary: None,
+            };
+        }
+    }
+
+    run_policy_scout_json(&["audit", "show", &event_id, "--json"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -164,7 +205,8 @@ pub fn run() {
             run_eval,
             run_sweep_quick,
             show_report,
-            list_audit_events
+            list_audit_events,
+            show_audit_event
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

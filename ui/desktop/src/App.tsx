@@ -9,6 +9,7 @@ import { DataStatusCard } from "./components/DataStatusCard";
 import { ReportsListCard } from "./components/ReportsListCard";
 import { AuditStatsCard } from "./components/AuditStatsCard";
 import { AuditEventsListCard } from "./components/AuditEventsListCard";
+import { AuditEventDetailCard } from "./components/AuditEventDetailCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 import { EvalResultsCard } from "./components/EvalResultsCard";
 import { QuickSweepCard } from "./components/QuickSweepCard";
@@ -29,6 +30,9 @@ function App() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [reportDetail, setReportDetail] = useState<CliJsonResponse | null>(null);
   const [reportDetailLoading, setReportDetailLoading] = useState(false);
+  const [selectedAuditEventId, setSelectedAuditEventId] = useState<string | null>(null);
+  const [auditEventDetail, setAuditEventDetail] = useState<CliJsonResponse | null>(null);
+  const [auditEventDetailLoading, setAuditEventDetailLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -136,6 +140,29 @@ function App() {
     setReportDetail(null);
   }
 
+  async function handleAuditEventClick(eventId: string) {
+    setSelectedAuditEventId(eventId);
+    setAuditEventDetailLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("show_audit_event", { eventId });
+      setAuditEventDetail(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setAuditEventDetailLoading(false);
+    }
+  }
+
+  function handleCloseAuditEventDetail() {
+    setSelectedAuditEventId(null);
+    setAuditEventDetail(null);
+  }
+
   return (
     <main className="container">
       <h1>Policy Scout</h1>
@@ -166,13 +193,19 @@ function App() {
             loading={reportDetailLoading}
             onClose={handleCloseReportDetail}
           />
+        ) : selectedAuditEventId ? (
+          <AuditEventDetailCard
+            auditEventDetail={auditEventDetail}
+            loading={auditEventDetailLoading}
+            onClose={handleCloseAuditEventDetail}
+          />
         ) : (
           <>
             <DoctorStatusCard doctorStatus={doctorStatus} loading={loading} onRefresh={fetchAllStatus} />
             <DataStatusCard dataStatus={dataStatus} />
             <ReportsListCard reportsList={reportsList} onReportClick={handleReportClick} />
             <AuditStatsCard auditStats={auditStats} />
-            <AuditEventsListCard auditEventsList={auditEventsList} />
+            <AuditEventsListCard auditEventsList={auditEventsList} onEventClick={handleAuditEventClick} />
             <CleanupDryRunCard
               demoCleanup={demoCleanup}
               sandboxCleanup={sandboxCleanup}

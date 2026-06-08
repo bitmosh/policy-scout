@@ -2,9 +2,10 @@ import { CliJsonResponse } from "../types";
 
 interface AuditEventsListCardProps {
   auditEventsList: CliJsonResponse | null;
+  onEventClick?: (eventId: string) => void;
 }
 
-export function AuditEventsListCard({ auditEventsList }: AuditEventsListCardProps) {
+export function AuditEventsListCard({ auditEventsList, onEventClick }: AuditEventsListCardProps) {
   return (
     <div className="audit-events-card">
       <div className="card-header">
@@ -16,7 +17,11 @@ export function AuditEventsListCard({ auditEventsList }: AuditEventsListCardProp
           {Array.isArray(auditEventsList.data) && auditEventsList.data.length > 0 ? (
             <div className="audit-events-list">
               {auditEventsList.data.map((event: any) => (
-                <div key={event.event_id} className="audit-event-item">
+                <div
+                  key={event.event_id}
+                  className="audit-event-item"
+                  onClick={() => onEventClick?.(event.event_id)}
+                >
                   <div className="event-info">
                     <span className="event-id">{event.event_id}</span>
                     <span className="event-type">{event.event_type}</span>

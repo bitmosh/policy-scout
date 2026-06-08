@@ -85,6 +85,7 @@ h1 {
 .reports-card,
 .audit-card,
 .audit-events-card,
+.audit-event-detail-card,
 .cleanup-card,
 .eval-card,
 .quick-sweep-card {
@@ -383,6 +384,60 @@ button:disabled {
   color: #999;
 }
 
+.audit-event-item {
+  cursor: pointer;
+}
+
+.audit-event-item:hover {
+  background: #f0f0f0;
+}
+
+.event-detail-content {
+  margin-top: 1rem;
+}
+
+.event-detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.event-detail-section h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.event-detail-value {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0;
+}
+
+.event-detail-json {
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.event-detail-json code {
+  font-family: 'Courier New', monospace;
+}
+
+.event-detail-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-detail-fields p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
 .cleanup-sections {
   display: flex;
   flex-direction: column;
@@ -546,6 +601,7 @@ button:disabled {
   .reports-card,
   .audit-card,
   .audit-events-card,
+  .audit-event-detail-card,
   .cleanup-card,
   .eval-card,
   .quick-sweep-card {
@@ -659,6 +715,10 @@ button:disabled {
     background: #4f4f4f;
   }
 
+  .audit-event-item:hover {
+    background: #5f5f5f;
+  }
+
   .event-id {
     color: #aaa;
   }
@@ -674,6 +734,23 @@ button:disabled {
   .event-timestamp,
   .event-request-id {
     color: #888;
+  }
+
+  .event-detail-section h3 {
+    color: #aaa;
+  }
+
+  .event-detail-value {
+    color: #ddd;
+  }
+
+  .event-detail-json {
+    background: #2f2f2f;
+    color: #ddd;
+  }
+
+  .event-detail-fields p {
+    color: #aaa;
   }
 
   .audit-data {
