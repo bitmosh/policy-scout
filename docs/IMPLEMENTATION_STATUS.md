@@ -502,3 +502,27 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - No broad cleanup of user data
 - No new behavior introduced — documentation and audit only
 - v0.4.1 focus: data path hardening, empty-state clarity, fresh install experience
+
+## v0.4.5 Local Alpha Release Checklist
+
+**Local alpha release checklist created.**
+
+- Created `docs/LOCAL_ALPHA_RELEASE_CHECKLIST.md` as the authoritative release-readiness audit and checklist for v0.4.0 Local Alpha
+- Classified known limitations as blocker or non-blocker:
+  - Blockers: None identified
+  - Non-blockers: Browser preview Tauri invoke limitation, native Tauri runtime requirement, no packaged installer, no approval/migration/deletion UI by design, manual native smoke, no full frontend automated tests, detailed boundary docs deferred, long findings capped in UI
+- Documented release identity: Policy Scout v0.4.0 Local Alpha, CLI-first with optional dogfooded desktop dashboard
+- Documented shipping model: CLI authority, desktop read-only/check-only, no execution/mutation/approval UI
+- Documented required automated gates: pytest, doctor, eval, npm build, cargo check/test
+- Documented required manual/native gates: native smoke checklist completion
+- Documented safety boundary checklist: CLI authority, desktop read-only, no execution/mutation/approval UI, secret redaction
+- Documented data/readiness checklist: local data paths, empty states, report/audit/evidence surfaces
+- Documented CI/tag checklist: CI green, git clean, HEAD matches origin/main
+- Documented rollback/undo guidance
+- Documented final release decision template
+- Recommended git tag: `v0.4.0`
+- Discord/dev-log version: `v0.4.5` (for this checklist pass)
+- No code changes — documentation and audit only
+- No new features added
+- No CLI, Rust, or frontend behavior changes
+- Next step: Run checklist gates and decide tag readiness
