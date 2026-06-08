@@ -113,6 +113,44 @@ fn list_sandbox_results() -> CliJsonResponse {
     run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", "5"])
 }
 
+fn validate_limit(limit: u32) -> Result<u32, CliJsonResponse> {
+    const ALLOWED: &[u32] = &[5, 10, 25, 50];
+    if ALLOWED.contains(&limit) {
+        Ok(limit)
+    } else {
+        Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!("Invalid limit: {}. Must be one of: 5, 10, 25, 50.", limit)),
+            stderr_summary: None,
+        })
+    }
+}
+
+fn validate_report_type(report_type: &str) -> Result<(), CliJsonResponse> {
+    const ALLOWED: &[&str] = &[
+        "command_decision",
+        "sandbox_result",
+        "project_sweep",
+        "system_quick_sweep",
+    ];
+    if ALLOWED.contains(&report_type) {
+        Ok(())
+    } else {
+        Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!(
+                "Invalid report_type: '{}'. Must be one of: command_decision, sandbox_result, project_sweep, system_quick_sweep.",
+                report_type
+            )),
+            stderr_summary: None,
+        })
+    }
+}
+
 fn validate_report_id(report_id: &str) -> Result<(), CliJsonResponse> {
     if report_id.is_empty() {
         return Err(CliJsonResponse {
@@ -161,6 +199,26 @@ fn show_sandbox_result(report_id: String) -> CliJsonResponse {
         return e;
     }
     run_policy_scout_json(&["report", "show", &report_id, "--json"])
+}
+
+#[tauri::command]
+fn list_reports_filtered(limit: u32, report_type: Option<String>) -> CliJsonResponse {
+    let validated_limit = match validate_limit(limit) {
+        Ok(l) => l,
+        Err(e) => return e,
+    };
+    let limit_str = validated_limit.to_string();
+    if let Some(ref rt) = report_type {
+        if !rt.is_empty() {
+            if let Err(e) = validate_report_type(rt.as_str()) {
+                return e;
+            }
+            return run_policy_scout_json(&[
+                "report", "list", "--json", "--limit", &limit_str, "--type", rt.as_str(),
+            ]);
+        }
+    }
+    run_policy_scout_json(&["report", "list", "--json", "--limit", &limit_str])
 }
 
 #[tauri::command]
@@ -225,6 +283,7 @@ pub fn run() {
             run_sweep_quick,
             run_sweep_project,
             list_sandbox_results,
+            list_reports_filtered,
             show_report,
             show_sandbox_result,
             list_audit_events,

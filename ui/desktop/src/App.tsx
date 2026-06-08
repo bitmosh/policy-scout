@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { CliJsonResponse } from "./types";
+import { CliJsonResponse, ReportTypeFilter } from "./types";
 import { BoundaryNote } from "./components/BoundaryNote";
 import { OverviewStatusStrip } from "./components/OverviewStatusStrip";
 import { DoctorStatusCard } from "./components/DoctorStatusCard";
@@ -42,6 +42,9 @@ function App() {
   const [selectedAuditEventId, setSelectedAuditEventId] = useState<string | null>(null);
   const [auditEventDetail, setAuditEventDetail] = useState<CliJsonResponse | null>(null);
   const [auditEventDetailLoading, setAuditEventDetailLoading] = useState(false);
+  const [reportLimit, setReportLimit] = useState<number>(5);
+  const [reportType, setReportType] = useState<ReportTypeFilter>("");
+  const [reportsLoading, setReportsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +55,7 @@ function App() {
       const [doctor, data, reports, audit, auditEvents, demo, sandbox, sandboxResults, evalResult, sbxList] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
-        invoke<CliJsonResponse>("list_reports"),
+        invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
         invoke<CliJsonResponse>("get_audit_stats"),
         invoke<CliJsonResponse>("list_audit_events"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
@@ -112,6 +115,43 @@ function App() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function fetchReports(limit: number, type: ReportTypeFilter) {
+    setReportsLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("list_reports_filtered", {
+        limit,
+        reportType: type || null,
+      });
+      setReportsList(result);
+      if (!result.ok) {
+        setError(result.error || "Unknown error");
+      }
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
+  function handleReportLimitChange(limit: number) {
+    setReportLimit(limit);
+    fetchReports(limit, reportType);
+  }
+
+  function handleReportTypeChange(type: ReportTypeFilter) {
+    setReportType(type);
+    if (selectedReportId) {
+      setSelectedReportId(null);
+      setReportDetail(null);
+    }
+    fetchReports(reportLimit, type);
   }
 
   async function runQuickSweep() {
@@ -269,7 +309,15 @@ function App() {
           <>
             <DoctorStatusCard doctorStatus={doctorStatus} loading={loading} onRefresh={fetchAllStatus} />
             <DataStatusCard dataStatus={dataStatus} />
-            <ReportsListCard reportsList={reportsList} onReportClick={handleReportClick} />
+            <ReportsListCard
+              reportsList={reportsList}
+              onReportClick={handleReportClick}
+              limit={reportLimit}
+              reportType={reportType}
+              onLimitChange={handleReportLimitChange}
+              onTypeChange={handleReportTypeChange}
+              loading={reportsLoading}
+            />
             <AuditStatsCard auditStats={auditStats} />
             <AuditEventsListCard auditEventsList={auditEventsList} onEventClick={handleAuditEventClick} />
             <CleanupDryRunCard

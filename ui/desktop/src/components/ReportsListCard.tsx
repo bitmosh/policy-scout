@@ -1,18 +1,62 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, ReportTypeFilter } from "../types";
 
 interface ReportsListCardProps {
   reportsList: CliJsonResponse | null;
   onReportClick?: (reportId: string) => void;
+  limit: number;
+  reportType: ReportTypeFilter;
+  onLimitChange: (limit: number) => void;
+  onTypeChange: (type: ReportTypeFilter) => void;
+  loading?: boolean;
 }
 
-export function ReportsListCard({ reportsList, onReportClick }: ReportsListCardProps) {
+export function ReportsListCard({
+  reportsList,
+  onReportClick,
+  limit,
+  reportType,
+  onLimitChange,
+  onTypeChange,
+  loading = false,
+}: ReportsListCardProps) {
   return (
     <div className="reports-card">
       <div className="card-header">
         <h2>Reports List</h2>
+        <div className="reports-controls">
+          <div className="reports-control-group">
+            <label className="reports-control-label">Limit</label>
+            <select
+              className="reports-control-select"
+              value={limit}
+              onChange={(e) => onLimitChange(Number(e.target.value))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <div className="reports-control-group">
+            <label className="reports-control-label">Type</label>
+            <select
+              className="reports-control-select"
+              value={reportType}
+              onChange={(e) => onTypeChange(e.target.value as ReportTypeFilter)}
+            >
+              <option value="">All</option>
+              <option value="command_decision">Command Decision</option>
+              <option value="sandbox_result">Sandbox Result</option>
+              <option value="project_sweep">Project Sweep</option>
+              <option value="system_quick_sweep">Quick Sweep</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      {reportsList && reportsList.ok && reportsList.data && (
+      {loading && <p className="status-message">Loading reports...</p>}
+
+      {!loading && reportsList && reportsList.ok && reportsList.data && (
         <div className="reports-data">
           {Array.isArray(reportsList.data) && reportsList.data.length > 0 ? (
             <div className="reports-list">

@@ -20,6 +20,16 @@ export function isCliSuccess<T = unknown>(response: CliJsonResponse<T>): respons
   return response.ok === true && response.exit_code === 0;
 }
 
+// Report type allowlist (mirrors Rust ALLOWED_REPORT_TYPES)
+export type ReportType =
+  | "command_decision"
+  | "sandbox_result"
+  | "project_sweep"
+  | "system_quick_sweep";
+
+// Empty string = no filter (all report types)
+export type ReportTypeFilter = ReportType | "";
+
 // Doctor Status
 export interface DoctorStatusData {
   policy_scout_version?: string;
