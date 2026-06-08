@@ -314,6 +314,8 @@ pytest
 
 Some subprocess-based smoke tests inherit CWD and will fail if invoked from `ui/desktop/` or subdirectories. Always run the full suite from the project root.
 
+GitHub Actions runs two CI jobs on push/PR to main: `test` (Python 3.12 + pytest) and `tauri-desktop` (Node 22 + `npm run build` + Rust stable + `cargo check` + `cargo test`).
+
 ## Desktop UI
 
 An experimental read-only desktop dashboard is available under `ui/desktop/`. It uses Tauri to display live Policy Scout CLI data locally.

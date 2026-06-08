@@ -355,6 +355,15 @@ Most CLI tests use `PYTHONPATH` intentionally for subprocess checkout isolation.
 - JSON contracts v1: 12 new tests (check JSON redaction, sandbox JSON redaction_applied, sweep JSON redaction_applied, report list created_at)
 - Existing tests: 520 (no regressions, as of v0.1 accounting)
 
+## CI Coverage
+
+GitHub Actions (`ci.yml`) runs two parallel jobs on push/PR to main:
+
+- **`test`** — Python 3.12, `pip install -e ".[dev]"`, doctor JSON, eval run, pytest (621 tests)
+- **`tauri-desktop`** — Node 22 + `npm ci` + `npm run build` (tsc + vite); then Rust stable + `cargo check` + `cargo test` (12 Rust validator unit tests). Requires `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf` on the ubuntu runner.
+
+No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional system deps and is not part of this workflow.
+
 ## Current Alpha Status
 
 **Status**: v0.1-alpha
