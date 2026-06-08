@@ -419,3 +419,96 @@ def test_report_list_unknown_type_returns_empty():
         assert cmd_report.report_id not in output
     finally:
         del os.environ["POLICY_SCOUT_REPORT_ROOT"]
+
+
+def test_report_list_shows_unknown_for_empty_created_at():
+    """Test report list displays 'unknown' for empty created_at fields."""
+    report_root = Path(tempfile.mkdtemp())
+    os.environ["POLICY_SCOUT_REPORT_ROOT"] = str(report_root)
+
+    try:
+        # Manually create a report with empty created_at to test display logic
+        report_dir = report_root / "report_test_empty_date"
+        report_dir.mkdir(parents=True, exist_ok=True)
+
+        report_json = {
+            "report_id": "report_test_empty_date",
+            "report_type": "command_decision",
+            "title": "Test Report",
+            "created_at": "",  # Empty created_at
+        }
+
+        with open(report_dir / "report.json", "w") as f:
+            json.dump(report_json, f)
+
+        # List reports
+        import subprocess
+
+        result = subprocess.run(
+            ["python", "-m", "policy_scout.cli.main", "report", "list"],
+            capture_output=True,
+            text=True,
+            env={**os.environ, "POLICY_SCOUT_REPORT_ROOT": str(report_root)},
+        )
+
+        output = result.stdout
+        # Should show "Created: unknown" instead of blank
+        assert "Created: unknown" in output
+        # Should not show "Created: " with nothing after
+        assert "Created: \n" not in output
+    finally:
+        del os.environ["POLICY_SCOUT_REPORT_ROOT"]
+
+
+def test_report_list_includes_show_hint():
+    """Test report list includes hint to use report show command."""
+    report_root = Path(tempfile.mkdtemp())
+    os.environ["POLICY_SCOUT_REPORT_ROOT"] = str(report_root)
+
+    try:
+        # Create a report
+        generate_command_decision_report(
+            request_id="req_test_hint",
+            command="ls",
+            decision="ALLOW",
+            risk_score=1,
+            risk_band="low",
+        )
+
+        # List reports
+        import subprocess
+
+        result = subprocess.run(
+            ["python", "-m", "policy_scout.cli.main", "report", "list"],
+            capture_output=True,
+            text=True,
+            env={**os.environ, "POLICY_SCOUT_REPORT_ROOT": str(report_root)},
+        )
+
+        output = result.stdout
+        assert "Use: policy-scout report show <report_id>" in output
+    finally:
+        del os.environ["POLICY_SCOUT_REPORT_ROOT"]
+
+
+def test_report_list_no_hint_when_empty():
+    """Test report list does not show hint when no reports exist."""
+    report_root = Path(tempfile.mkdtemp())
+    os.environ["POLICY_SCOUT_REPORT_ROOT"] = str(report_root)
+
+    try:
+        # List reports with no reports
+        import subprocess
+
+        result = subprocess.run(
+            ["python", "-m", "policy_scout.cli.main", "report", "list"],
+            capture_output=True,
+            text=True,
+            env={**os.environ, "POLICY_SCOUT_REPORT_ROOT": str(report_root)},
+        )
+
+        output = result.stdout
+        assert "No Scout Reports found." in output
+        assert "Use: policy-scout report show" not in output
+    finally:
+        del os.environ["POLICY_SCOUT_REPORT_ROOT"]

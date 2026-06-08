@@ -2273,11 +2273,13 @@ def handle_report_command(args):
                 print(f"Report ID: {report['report_id']}")
                 print(f"Type: {report.get('report_type', 'unknown')}")
                 print(f"Title: {report.get('title', 'N/A')}")
-                print(f"Created: {report.get('created_at', 'N/A')}")
+                created_at = report.get("created_at", "")
+                print(f"Created: {created_at if created_at else 'unknown'}")
                 print(
                     f"Formats: Markdown={report['has_markdown']}, JSON={report['has_json']}"
                 )
                 print()
+            print("Use: policy-scout report show <report_id>")
 
     elif args.report_subcommand == "show":
         report_dir = report_root / args.report_id
