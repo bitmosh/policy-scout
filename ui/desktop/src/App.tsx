@@ -60,7 +60,7 @@ function App() {
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
         invoke<CliJsonResponse>("get_audit_stats"),
-        invoke<CliJsonResponse>("list_audit_events_filtered", { eventType: auditEventType === "all" ? null : auditEventType }),
+        invoke<CliJsonResponse>("list_audit_events_filtered", { event_type: auditEventType === "all" ? null : auditEventType }),
         invoke<CliJsonResponse>("get_cleanup_dry_run", { target: cleanupTarget }),
         invoke<CliJsonResponse>("run_eval"),
         invoke<CliJsonResponse>("list_sandbox_results"),

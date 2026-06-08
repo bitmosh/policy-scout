@@ -326,10 +326,36 @@ fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
             if let Err(e) = validate_audit_event_type(et.as_str()) {
                 return e;
             }
-            return run_policy_scout_json(&["audit", "type", "--json", et.as_str()]);
+            let response = run_policy_scout_json(&["audit", "type", "--json", et.as_str()]);
+            // Wrap array response in expected shape
+            if response.ok {
+                if let Some(data) = response.data {
+                    return CliJsonResponse {
+                        ok: true,
+                        exit_code: response.exit_code,
+                        data: Some(serde_json::json!({ "events": data })),
+                        error: None,
+                        stderr_summary: None,
+                    };
+                }
+            }
+            return response;
         }
     }
-    run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"])
+    let response = run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"]);
+    // Wrap array response in expected shape
+    if response.ok {
+        if let Some(data) = response.data {
+            return CliJsonResponse {
+                ok: true,
+                exit_code: response.exit_code,
+                data: Some(serde_json::json!({ "events": data })),
+                error: None,
+                stderr_summary: None,
+            };
+        }
+    }
+    response
 }
 
 fn validate_audit_event_id(event_id: &str) -> Result<(), CliJsonResponse> {
