@@ -79,6 +79,32 @@ export interface SandboxResultListItem {
   [key: string]: unknown;
 }
 
+// Sandbox Result Detail
+export interface SandboxResultDetailData {
+  report_id?: string;
+  report_type?: string;
+  title?: string;
+  created_at?: string;
+  request_id?: string;
+  summary?: string;
+  command?: string;
+  sandbox_id?: string;
+  exit_code?: number;
+  duration_ms?: number;
+  lifecycle_scripts?: string[];
+  manifest_changed?: boolean;
+  lockfile_changed?: boolean;
+  files_changed?: string[];
+  findings?: unknown[];
+  recommended_actions?: string[];
+  could_not_verify?: string[];
+  host_mutation_status?: string;
+  migration_status?: string;
+  credential_exposure_assessment?: CredentialExposureAssessment;
+  redaction_applied?: boolean;
+  [key: string]: unknown;
+}
+
 // Report Detail
 export interface SweepFinding {
   finding_id?: string;

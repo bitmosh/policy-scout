@@ -113,44 +113,53 @@ fn list_sandbox_results() -> CliJsonResponse {
     run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", "5"])
 }
 
-#[tauri::command]
-fn show_report(report_id: String) -> CliJsonResponse {
-    // Validation: report_id must start with "report_"
-    if !report_id.starts_with("report_") {
-        return CliJsonResponse {
-            ok: false,
-            exit_code: -1,
-            data: None,
-            error: Some("Invalid report_id: must start with 'report_'".to_string()),
-            stderr_summary: None,
-        };
-    }
-
-    // Validation: reject empty string
+fn validate_report_id(report_id: &str) -> Result<(), CliJsonResponse> {
     if report_id.is_empty() {
-        return CliJsonResponse {
+        return Err(CliJsonResponse {
             ok: false,
             exit_code: -1,
             data: None,
             error: Some("Invalid report_id: cannot be empty".to_string()),
             stderr_summary: None,
-        };
+        });
     }
-
-    // Validation: reject spaces, path separators, shell metacharacters
+    if !report_id.starts_with("report_") {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid report_id: must start with 'report_'".to_string()),
+            stderr_summary: None,
+        });
+    }
     let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
     for c in dangerous_chars.iter() {
         if report_id.contains(*c) {
-            return CliJsonResponse {
+            return Err(CliJsonResponse {
                 ok: false,
                 exit_code: -1,
                 data: None,
                 error: Some(format!("Invalid report_id: contains dangerous character '{}'", c)),
                 stderr_summary: None,
-            };
+            });
         }
     }
+    Ok(())
+}
 
+#[tauri::command]
+fn show_report(report_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_report_id(&report_id) {
+        return e;
+    }
+    run_policy_scout_json(&["report", "show", &report_id, "--json"])
+}
+
+#[tauri::command]
+fn show_sandbox_result(report_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_report_id(&report_id) {
+        return e;
+    }
     run_policy_scout_json(&["report", "show", &report_id, "--json"])
 }
 
@@ -217,6 +226,7 @@ pub fn run() {
             run_sweep_project,
             list_sandbox_results,
             show_report,
+            show_sandbox_result,
             list_audit_events,
             show_audit_event
         ])

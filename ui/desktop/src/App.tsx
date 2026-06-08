@@ -16,6 +16,7 @@ import { QuickSweepCard } from "./components/QuickSweepCard";
 import { ProjectSweepCard } from "./components/ProjectSweepCard";
 import { ReportDetailCard } from "./components/ReportDetailCard";
 import { SandboxResultsListCard } from "./components/SandboxResultsListCard";
+import { SandboxResultDetailCard } from "./components/SandboxResultDetailCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -28,6 +29,9 @@ function App() {
   const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse | null>(null);
+  const [selectedSandboxResultId, setSelectedSandboxResultId] = useState<string | null>(null);
+  const [sandboxResultDetail, setSandboxResultDetail] = useState<CliJsonResponse | null>(null);
+  const [sandboxResultDetailLoading, setSandboxResultDetailLoading] = useState(false);
   const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
   const [sweepLoading, setSweepLoading] = useState(false);
   const [projectSweep, setProjectSweep] = useState<CliJsonResponse | null>(null);
@@ -192,6 +196,30 @@ function App() {
     setAuditEventDetail(null);
   }
 
+  async function handleSandboxResultClick(reportId: string) {
+    setSelectedSandboxResultId(reportId);
+    setSandboxResultDetail(null);
+    setSandboxResultDetailLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("show_sandbox_result", { reportId });
+      setSandboxResultDetail(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setSandboxResultDetailLoading(false);
+    }
+  }
+
+  function handleCloseSandboxResultDetail() {
+    setSelectedSandboxResultId(null);
+    setSandboxResultDetail(null);
+  }
+
   return (
     <main className="container">
       <h1>Policy Scout</h1>
@@ -230,6 +258,13 @@ function App() {
             selectedId={selectedAuditEventId}
             onClose={handleCloseAuditEventDetail}
           />
+        ) : selectedSandboxResultId ? (
+          <SandboxResultDetailCard
+            sandboxResultDetail={sandboxResultDetail}
+            loading={sandboxResultDetailLoading}
+            selectedId={selectedSandboxResultId}
+            onClose={handleCloseSandboxResultDetail}
+          />
         ) : (
           <>
             <DoctorStatusCard doctorStatus={doctorStatus} loading={loading} onRefresh={fetchAllStatus} />
@@ -253,7 +288,7 @@ function App() {
               loading={projectSweepLoading}
               onRunSweep={runProjectSweep}
             />
-            <SandboxResultsListCard sandboxResults={sandboxResultsList} />
+            <SandboxResultsListCard sandboxResults={sandboxResultsList} onResultClick={handleSandboxResultClick} />
           </>
         )}
       </div>

@@ -1,7 +1,7 @@
 import { StatusPill } from "./StatusPill";
 
 interface DetailHeaderProps {
-  detailType: "Scout Report" | "Audit Event";
+  detailType: "Scout Report" | "Audit Event" | "Sandbox Result";
   selectedId: string;
   onClose: () => void;
 }

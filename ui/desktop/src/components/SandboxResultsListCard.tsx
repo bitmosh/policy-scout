@@ -2,9 +2,10 @@ import { CliJsonResponse, SandboxResultListItem, asArray } from "../types";
 
 interface SandboxResultsListCardProps {
   sandboxResults: CliJsonResponse<SandboxResultListItem[]> | null;
+  onResultClick?: (reportId: string) => void;
 }
 
-export function SandboxResultsListCard({ sandboxResults }: SandboxResultsListCardProps) {
+export function SandboxResultsListCard({ sandboxResults, onResultClick }: SandboxResultsListCardProps) {
   const results = asArray<SandboxResultListItem>(sandboxResults?.data);
 
   return (
@@ -19,7 +20,11 @@ export function SandboxResultsListCard({ sandboxResults }: SandboxResultsListCar
           {results.length > 0 ? (
             <div className="reports-list">
               {results.map((item: SandboxResultListItem, index: number) => (
-                <div key={item.report_id || index} className="report-item">
+                <div
+                  key={item.report_id || index}
+                  className={`report-item${onResultClick && item.report_id ? " clickable" : ""}`}
+                  onClick={() => onResultClick && item.report_id && onResultClick(item.report_id)}
+                >
                   <div className="report-info">
                     <span className="report-id">{item.report_id || "—"}</span>
                     <span className="report-type">{item.report_type || "sandbox_result"}</span>
