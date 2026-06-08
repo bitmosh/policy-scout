@@ -41,7 +41,8 @@ h1 {
 }
 
 .doctor-card,
-.data-card {
+.data-card,
+.reports-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -217,6 +218,59 @@ button:disabled {
   color: #dc3545;
 }
 
+.reports-data {
+  margin-top: 1rem;
+}
+
+.reports-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.report-item {
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.report-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.report-id {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.report-type {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #396cd8;
+}
+
+.report-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.report-created {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -224,7 +278,8 @@ button:disabled {
   }
 
   .doctor-card,
-  .data-card {
+  .data-card,
+  .reports-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -268,12 +323,36 @@ button:disabled {
     background: #4f4f4f;
   }
 
+  .report-item {
+    background: #4f4f4f;
+  }
+
   .check-message {
     color: #aaa;
   }
 
   .count-value {
     color: #aaa;
+  }
+
+  .report-id {
+    color: #aaa;
+  }
+
+  .report-type {
+    color: #6b9fff;
+  }
+
+  .report-title {
+    color: #ddd;
+  }
+
+  .report-created {
+    color: #888;
+  }
+
+  .empty-message {
+    color: #888;
   }
 
   .error-message {

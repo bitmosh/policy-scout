@@ -13,6 +13,7 @@ interface CliJsonResponse {
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
   const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
+  const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,17 +21,22 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data] = await Promise.all([
+      const [doctor, data, reports] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
+        invoke<CliJsonResponse>("list_reports"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
+      setReportsList(reports);
       if (!doctor.ok) {
         setError(doctor.error || "Unknown error");
       }
       if (!data.ok) {
         setError(data.error || "Unknown error");
+      }
+      if (!reports.ok) {
+        setError(reports.error || "Unknown error");
       }
     } catch (e) {
       setError(String(e));
@@ -130,6 +136,35 @@ function App() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="reports-card">
+          <div className="card-header">
+            <h2>Reports List</h2>
+          </div>
+
+          {reportsList && reportsList.ok && reportsList.data && (
+            <div className="reports-data">
+              {Array.isArray(reportsList.data) && reportsList.data.length > 0 ? (
+                <div className="reports-list">
+                  {reportsList.data.map((report: any) => (
+                    <div key={report.report_id} className="report-item">
+                      <div className="report-info">
+                        <span className="report-id">{report.report_id}</span>
+                        <span className="report-type">{report.report_type}</span>
+                      </div>
+                      <div className="report-title">{report.title}</div>
+                      {report.created_at && (
+                        <div className="report-created">{report.created_at}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-message">No reports found</p>
               )}
             </div>
           )}

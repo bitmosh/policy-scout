@@ -68,11 +68,16 @@ fn get_data_status() -> CliJsonResponse {
     run_policy_scout_json(&["data", "status", "--json"])
 }
 
+#[tauri::command]
+fn list_reports() -> CliJsonResponse {
+    run_policy_scout_json(&["report", "list", "--json", "--limit", "5"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_doctor_status, get_data_status])
+        .invoke_handler(tauri::generate_handler![get_doctor_status, get_data_status, list_reports])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
