@@ -223,7 +223,7 @@ v0.1-alpha
 - Experimental Tauri desktop UI (v0.2.x, read-only)
   - Located in `ui/desktop/`
   - **Policy Scout CLI remains the authority. Tauri UI is a read-only preview surface only.**
-  - Rust backend (`src-tauri/src/lib.rs`) with 15 command wrappers:
+  - Rust backend (`src-tauri/src/lib.rs`) with 13 command wrappers:
     - `get_doctor_status` → `policy-scout doctor --json`
     - `get_data_status` → `policy-scout data status --json`
     - `list_reports_filtered(limit, report_type?)` → `policy-scout report list --json --limit <n> [--type <type>]`
@@ -231,9 +231,7 @@ v0.1-alpha
     - `get_audit_stats` → `policy-scout audit stats --json`
     - `list_audit_events_filtered(event_type?)` → `policy-scout audit list --json --limit 10` (default) or `policy-scout audit type --json <event_type>` (filtered)
     - `show_audit_event(event_id)` → `policy-scout audit show --json <event_id>`
-    - `get_cleanup_dry_run_demo` → `policy-scout data cleanup --target demo --dry-run --json`
-    - `get_cleanup_dry_run_sandbox` → `policy-scout data cleanup --target sandbox --dry-run --json`
-    - `get_cleanup_dry_run_sandbox_results` → `policy-scout data cleanup --target sandbox-results --dry-run --json`
+    - `get_cleanup_dry_run(target)` → `policy-scout data cleanup --target <target> --dry-run --json` (target allowlist: demo, sandbox, sandbox-results; always dry-run)
     - `run_eval` → `policy-scout eval run --json`
     - `run_sweep_quick` → `policy-scout sweep quick --json`
     - `run_sweep_project` → `policy-scout sweep project --json`
@@ -241,6 +239,7 @@ v0.1-alpha
     - `show_sandbox_result(report_id)` → `policy-scout report show --json <report_id>`
   - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
   - Audit event type filter validated in Rust against 12-value allowlist; no unvalidated strings reach CLI argv
+  - Cleanup target validated in Rust against 3-value allowlist (demo, sandbox, sandbox-results); `--dry-run` always included; no real deletion path exposed
   - React/TypeScript frontend with `App.tsx` owning state and invoke calls
   - Current dashboard cards and views:
     - Overview Status Strip (cross-card summary)

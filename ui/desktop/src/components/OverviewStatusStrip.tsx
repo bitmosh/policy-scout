@@ -5,9 +5,7 @@ interface OverviewStatusStripProps {
   doctorStatus: CliJsonResponse | null;
   reportsList: CliJsonResponse | null;
   auditStats: CliJsonResponse | null;
-  demoCleanup: CliJsonResponse | null;
-  sandboxCleanup: CliJsonResponse | null;
-  sandboxResultsCleanup: CliJsonResponse | null;
+  cleanupResult: CliJsonResponse | null;
   evalResults: CliJsonResponse | null;
   quickSweep: CliJsonResponse | null;
 }
@@ -16,9 +14,7 @@ export function OverviewStatusStrip({
   doctorStatus,
   reportsList,
   auditStats,
-  demoCleanup,
-  sandboxCleanup,
-  sandboxResultsCleanup,
+  cleanupResult,
   evalResults,
   quickSweep,
 }: OverviewStatusStripProps) {
@@ -67,35 +63,10 @@ export function OverviewStatusStrip({
 
   // Cleanup dry-run total items
   const getCleanupTotal = () => {
-    let total = 0;
-    let hasData = false;
-
-    if (demoCleanup?.ok && demoCleanup?.data) {
-      const planned = demoCleanup.data.planned_items as any[];
-      if (planned) {
-        total += planned.length;
-        hasData = true;
-      }
-    }
-
-    if (sandboxCleanup?.ok && sandboxCleanup?.data) {
-      const planned = sandboxCleanup.data.planned_items as any[];
-      if (planned) {
-        total += planned.length;
-        hasData = true;
-      }
-    }
-
-    if (sandboxResultsCleanup?.ok && sandboxResultsCleanup?.data) {
-      const planned = sandboxResultsCleanup.data.planned_items as any[];
-      if (planned) {
-        total += planned.length;
-        hasData = true;
-      }
-    }
-
-    if (!hasData) return "Unknown";
-    return total.toString();
+    if (!cleanupResult?.ok || !cleanupResult?.data) return "Unknown";
+    const planned = cleanupResult.data.planned_items as any[];
+    if (!planned) return "Unknown";
+    return planned.length.toString();
   };
 
   // Quick Sweep status

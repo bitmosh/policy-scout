@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter } from "./types";
+import { CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter, CleanupTarget } from "./types";
 import { BoundaryNote } from "./components/BoundaryNote";
 import { OverviewStatusStrip } from "./components/OverviewStatusStrip";
 import { DoctorStatusCard } from "./components/DoctorStatusCard";
@@ -24,9 +24,9 @@ function App() {
   const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
   const [auditStats, setAuditStats] = useState<CliJsonResponse | null>(null);
   const [auditEventsList, setAuditEventsList] = useState<CliJsonResponse | null>(null);
-  const [demoCleanup, setDemoCleanup] = useState<CliJsonResponse | null>(null);
-  const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
-  const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
+  const [cleanupResult, setCleanupResult] = useState<CliJsonResponse | null>(null);
+  const [cleanupTarget, setCleanupTarget] = useState<CleanupTarget>("demo");
+  const [cleanupLoading, setCleanupLoading] = useState(false);
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse | null>(null);
   const [selectedSandboxResultId, setSelectedSandboxResultId] = useState<string | null>(null);
@@ -54,15 +54,13 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, auditEvents, demo, sandbox, sandboxResults, evalResult, sbxList] = await Promise.all([
+      const [doctor, data, reports, audit, auditEvents, cleanup, evalResult, sbxList] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
         invoke<CliJsonResponse>("get_audit_stats"),
         invoke<CliJsonResponse>("list_audit_events_filtered", { eventType: auditEventType === "all" ? null : auditEventType }),
-        invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
-        invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
-        invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
+        invoke<CliJsonResponse>("get_cleanup_dry_run", { target: cleanupTarget }),
         invoke<CliJsonResponse>("run_eval"),
         invoke<CliJsonResponse>("list_sandbox_results"),
       ]);
@@ -71,9 +69,7 @@ function App() {
       setReportsList(reports);
       setAuditStats(audit);
       setAuditEventsList(auditEvents);
-      setDemoCleanup(demo);
-      setSandboxCleanup(sandbox);
-      setSandboxResultsCleanup(sandboxResults);
+      setCleanupResult(cleanup);
       setEvalResults(evalResult);
       setSandboxResultsList(sbxList);
       if (!doctor.ok) {
@@ -91,14 +87,8 @@ function App() {
       if (!auditEvents.ok) {
         setError(auditEvents.error || "Unknown error");
       }
-      if (!demo.ok) {
-        setError(demo.error || "Unknown error");
-      }
-      if (!sandbox.ok) {
-        setError(sandbox.error || "Unknown error");
-      }
-      if (!sandboxResults.ok) {
-        setError(sandboxResults.error || "Unknown error");
+      if (!cleanup.ok) {
+        setError(cleanup.error || "Unknown error");
       }
       if (!evalResult.ok) {
         setError(evalResult.error || "Unknown error");
@@ -140,6 +130,31 @@ function App() {
     } finally {
       setReportsLoading(false);
     }
+  }
+
+  async function fetchCleanupDryRun(target: CleanupTarget) {
+    setCleanupLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("get_cleanup_dry_run", { target });
+      setCleanupResult(result);
+      if (!result.ok) {
+        setError(result.error || "Unknown error");
+      }
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setCleanupLoading(false);
+    }
+  }
+
+  function handleCleanupTargetChange(target: CleanupTarget) {
+    setCleanupTarget(target);
+    fetchCleanupDryRun(target);
   }
 
   function handleReportLimitChange(limit: number) {
@@ -301,9 +316,7 @@ function App() {
         doctorStatus={doctorStatus}
         reportsList={reportsList}
         auditStats={auditStats}
-        demoCleanup={demoCleanup}
-        sandboxCleanup={sandboxCleanup}
-        sandboxResultsCleanup={sandboxResultsCleanup}
+        cleanupResult={cleanupResult}
         evalResults={evalResults}
         quickSweep={quickSweep}
       />
@@ -360,9 +373,10 @@ function App() {
               loading={auditEventsLoading}
             />
             <CleanupDryRunCard
-              demoCleanup={demoCleanup}
-              sandboxCleanup={sandboxCleanup}
-              sandboxResultsCleanup={sandboxResultsCleanup}
+              cleanupResult={cleanupResult}
+              cleanupTarget={cleanupTarget}
+              onTargetChange={handleCleanupTargetChange}
+              loading={cleanupLoading}
             />
             <EvalResultsCard evalResults={evalResults} />
             <QuickSweepCard

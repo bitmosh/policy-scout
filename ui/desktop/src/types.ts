@@ -48,6 +48,9 @@ export type AuditEventType =
 // "all" = no filter (recent audit list)
 export type AuditEventTypeFilter = AuditEventType | "all";
 
+// Cleanup target allowlist (mirrors Rust ALLOWED_CLEANUP_TARGETS)
+export type CleanupTarget = "demo" | "sandbox" | "sandbox-results";
+
 // Doctor Status
 export interface DoctorStatusData {
   policy_scout_version?: string;

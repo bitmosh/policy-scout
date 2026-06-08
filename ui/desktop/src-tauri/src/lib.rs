@@ -73,19 +73,30 @@ fn get_audit_stats() -> CliJsonResponse {
     run_policy_scout_json(&["audit", "stats", "--json"])
 }
 
-#[tauri::command]
-fn get_cleanup_dry_run_demo() -> CliJsonResponse {
-    run_policy_scout_json(&["data", "cleanup", "--target", "demo", "--dry-run", "--json"])
+fn validate_cleanup_target(target: &str) -> Result<(), CliJsonResponse> {
+    const ALLOWED: &[&str] = &["demo", "sandbox", "sandbox-results"];
+    if ALLOWED.contains(&target) {
+        Ok(())
+    } else {
+        Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!(
+                "Invalid cleanup target: '{}'. Must be one of: demo, sandbox, sandbox-results.",
+                target
+            )),
+            stderr_summary: None,
+        })
+    }
 }
 
 #[tauri::command]
-fn get_cleanup_dry_run_sandbox() -> CliJsonResponse {
-    run_policy_scout_json(&["data", "cleanup", "--target", "sandbox", "--dry-run", "--json"])
-}
-
-#[tauri::command]
-fn get_cleanup_dry_run_sandbox_results() -> CliJsonResponse {
-    run_policy_scout_json(&["data", "cleanup", "--target", "sandbox-results", "--dry-run", "--json"])
+fn get_cleanup_dry_run(target: String) -> CliJsonResponse {
+    if let Err(e) = validate_cleanup_target(target.as_str()) {
+        return e;
+    }
+    run_policy_scout_json(&["data", "cleanup", "--target", target.as_str(), "--dry-run", "--json"])
 }
 
 #[tauri::command]
@@ -309,9 +320,7 @@ pub fn run() {
             get_doctor_status,
             get_data_status,
             get_audit_stats,
-            get_cleanup_dry_run_demo,
-            get_cleanup_dry_run_sandbox,
-            get_cleanup_dry_run_sandbox_results,
+            get_cleanup_dry_run,
             run_eval,
             run_sweep_quick,
             run_sweep_project,
