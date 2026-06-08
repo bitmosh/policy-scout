@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.3
+
+### Added
+- Decision Check UI in Tauri desktop dashboard (check-only, never executes)
+- Rust `check_command` adapter for `policy-scout check --json` CLI invocation
+- TypeScript current-contract types for Decision Check JSON response
+- Static Decision Check card shell with command input and FAQ buttons
+- Tauri invoke wiring for Decision Check with live CLI data
+- "NOT EXECUTED" result marker prominently displayed on all check results
+- Frontend validation for empty/whitespace/NUL/length on command input
+- Guided FAQ prompt behavior (populates input/explanation, no auto-check)
+- Native smoke checklist section for Decision Check verification
+- Decision Check QA section in ui/desktop/README.md
+- Audit Events empty-state copy polish with actionable guidance
+
+### Fixed
+- Audit Events rendering regression (v0.3.4): argument casing mismatch (eventType vs event_type) and response shape mismatch (CLI array vs expected {events: [...]}) fixed before push (commit 0ebc137)
+
+### Implementation Notes
+- Decision Check is check-only — no command execution, approval, sandbox migration, or cleanup deletion UI
+- Rust adapter validates command_text (max length, rejects empty/whitespace/NUL)
+- CLI remains policy authority — UI is a viewer only
+- CI green: pytest 621 passed, cargo test 18 passed, npm build success
+- Native smoke documented with Decision Check section and v0.3.4 audit events finding note
+
+---
+
 ## v0.1-alpha
 
 ### Added

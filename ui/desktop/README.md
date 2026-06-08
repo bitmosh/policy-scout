@@ -9,6 +9,14 @@ Experimental read-only desktop dashboard for Policy Scout. v0.2.x track.
 Experimental — v0.2.x read-only UI. Not a mutation, execution, or approval surface.
 Native Tauri runtime required for live data. Browser/Vite preview shows static layout only.
 
+## Current Dashboard Status
+
+- **Decision Check wired** — check-only classification via `policy-scout check --json`
+- **Reports/audit/sweeps/sandbox views** — read-only display only
+- **Cleanup** — dry-run preview only, no deletion path
+- **Browser preview** — static layout only, no live CLI data
+- **Native app required** — `npm run tauri dev` for real invoke data
+
 ## Development Modes
 
 ### Browser/Vite Preview (Static Layout Only)

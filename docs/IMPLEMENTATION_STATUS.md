@@ -394,4 +394,22 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - Decision Check QA section added to ui/desktop/README.md
 - No new behavior in this pass (documentation/polish only)
 
+## v0.3 Milestone Summary
+
+**Decision Check is implemented as check-only.**
+
+- UI can classify commands through `check_command` Rust adapter
+- No command execution UI exists
+- No approval resolution UI exists
+- No sandbox migration UI exists
+- No cleanup deletion UI exists (dry-run only)
+- Native smoke checklist documented with Decision Check section
+- Audit Events rendering contract issue found/fixed during native smoke
+- CI green: pytest 621 passed, cargo test 18 passed, npm build success
+
+**v0.4 next focus:**
+- Shipping hardening (install docs, data path hardening)
+- Report/audit polish
+- Manual native click verification pass
+
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.
