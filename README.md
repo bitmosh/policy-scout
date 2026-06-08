@@ -254,7 +254,8 @@ policy-scout eval run
 - **Not antivirus:** Policy Scout is a policy gate, not a full malware scanner
 - **Not malware confirmation:** Does not confirm or verify actual malware execution
 - **Sandbox is review workspace:** Not perfect malware containment
-- **No Tauri UI/MCP/editor integration:** CLI-first for now
+- **Experimental desktop UI:** Read-only Tauri dashboard exists under `ui/desktop/` — no mutation, execution, approval, or deletion UI; see `ui/desktop/README.md`
+- **No MCP/editor integration:** Deferred
 - **No autonomous remediation:** Does not self-heal or silently fix issues
 - **Demo leaves workspace:** Demo creates temporary workspace for manual inspection/cleanup
 - **Local-only:** No cloud features or remote dashboards in v0.1
@@ -307,6 +308,18 @@ Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ens
 ```bash
 pytest
 ```
+
+## Desktop UI
+
+An experimental read-only desktop dashboard is available under `ui/desktop/`. It uses Tauri to display live Policy Scout CLI data locally.
+
+- Experimental v0.2.x — not production-ready
+- **Policy Scout CLI remains the authority.** The desktop UI is a read-only preview surface only.
+- Shows: doctor status, data status, reports, audit events, cleanup dry-run, eval results, quick sweep, project sweep
+- No command execution, approval resolution, sandbox migration, or cleanup deletion UI
+- Native Tauri runtime required for live data (`npm run tauri dev`)
+
+See [`ui/desktop/README.md`](ui/desktop/README.md) for the full card list, Rust command wrappers, safety boundaries, dev workflow, and known limitations.
 
 ## Documentation
 
