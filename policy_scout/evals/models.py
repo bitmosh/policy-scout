@@ -114,6 +114,7 @@ class EvalResult:
             "actual_risk_score": self.actual_risk_score,
             "failure_reasons": self.failure_reasons,
             "execution_time_ms": self.execution_time_ms,
+            "duration_ms": self.execution_time_ms,  # Backward-compatible alias
         }
 
 
@@ -138,5 +139,6 @@ class EvalSummary:
             "pass_rate": self.pass_rate,
             "failed_case_ids": self.failed_case_ids,
             "execution_time_ms": self.execution_time_ms,
+            "duration_ms": self.execution_time_ms,  # Backward-compatible alias
             "timestamp": self.timestamp,
         }

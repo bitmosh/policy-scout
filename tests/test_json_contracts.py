@@ -715,6 +715,44 @@ def test_eval_run_json_has_required_fields(temp_state_paths):
         assert data["summary"]["passed"] == data["summary"]["total_cases"]
 
 
+def test_eval_run_json_has_duration_ms_alias(temp_state_paths):
+    """Test that eval run --json has backward-compatible duration_ms alias alongside execution_time_ms."""
+    tmpdir, report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        ["python", "-m", "policy_scout.cli.main", "eval", "run", "--json"],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    # Should run (may exit 1 if any tests fail, but JSON should still be emitted)
+    assert result.returncode in [0, 1]
+
+    data = json.loads(result.stdout)
+
+    # Assert both fields exist in summary
+    assert "summary" in data
+    assert "execution_time_ms" in data["summary"]
+    assert "duration_ms" in data["summary"]
+
+    # Assert values are equal
+    assert data["summary"]["execution_time_ms"] == data["summary"]["duration_ms"]
+
+    # Assert value is numeric and non-negative
+    assert isinstance(data["summary"]["execution_time_ms"], (int, type(None)))
+    if data["summary"]["execution_time_ms"] is not None:
+        assert data["summary"]["execution_time_ms"] >= 0
+
+    # Assert results also have both fields if they include execution_time_ms
+    if len(data["results"]) > 0:
+        result_item = data["results"][0]
+        if "execution_time_ms" in result_item:
+            assert "duration_ms" in result_item
+            assert result_item["execution_time_ms"] == result_item["duration_ms"]
+
+
 def test_data_status_json_has_required_fields(temp_state_paths):
     """Test that data status --json has required fields. Current behavior; JSON API v1 candidate."""
     tmpdir, report_root, env = temp_state_paths
