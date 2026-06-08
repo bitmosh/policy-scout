@@ -226,6 +226,10 @@ The strip summarizes loaded state across cards.
 - [ ] Detail header shows a close/back control
 - [ ] Report content renders without crash
 - [ ] Redaction placeholders visible where expected (see §20)
+- [ ] Redaction notice appears when redaction_applied is true
+- [ ] "Could Not Verify" section appears when could_not_verify has items
+- [ ] Could-not-verify items are styled as review/unknown (not critical danger)
+- [ ] Long findings capped at 10 with message: "Showing first 10 of X findings — run from CLI for full results"
 - [ ] No export, delete, or action buttons
 - [ ] Closing the detail returns to the list
 - [ ] Detail cannot be opened for an ID that was not selected from the list

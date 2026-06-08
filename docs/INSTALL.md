@@ -286,6 +286,15 @@ The Tauri desktop UI is explicitly constrained to read-only display:
 - No arbitrary shell access
 - No direct SQLite or filesystem access from frontend
 
+### Report and evidence display
+
+The desktop UI displays reports and evidence with these safeguards:
+- **Redaction placeholders** (`<redacted:possible_token>`, etc.) are styled distinctly as "Protected evidence placeholder" — this is intentional privacy protection, not a broken output
+- **Could-not-verify states** appear as review/unknown sections (amber/neutral tone), not critical danger — this avoids creating false certainty about unverified aspects
+- **Long findings are previewed** (first 10 findings, first 5 could-not-verify checks) with message "Showing first X of Y — run from CLI for full results" — this keeps UI responsive while directing users to CLI for complete results
+- Report detail shows report ID, type, title, created_at, findings, could_not_verify, recommended_actions, and credential_exposure_assessment
+- No raw JSON dumps in the UI — structured display only
+
 ### Cleanup is dry-run only
 
 The `policy-scout data cleanup` command is preview-only in v0.1:

@@ -31,6 +31,26 @@ On a fresh install with no data:
 - Audit events list shows empty state
 - These are normal — run `policy-scout check --json <command>` to generate audit events, or run sandbox/sweep workflows to generate reports
 
+## Report and Evidence Display
+
+**Redaction placeholders are protected evidence, not errors.**
+- Redacted values appear as `<redacted:possible_token>`, `<redacted:ssh_private_key>`, etc.
+- These are styled distinctly with a "Protected evidence placeholder" tooltip
+- A "⚠️ Redaction Applied" notice appears when redaction is present
+- This is intentional privacy protection, not a broken output
+
+**Could-not-verify states are distinct from errors.**
+- "Could Not Verify" sections show checks that could not be confirmed locally
+- These appear in sweep results and report details
+- They are styled as review/unknown states (amber/neutral), not critical danger
+- This avoids creating false certainty about unverified aspects
+
+**Long findings are previewed, not truncated arbitrarily.**
+- Report detail shows first 10 findings with message: "Showing first 10 of X findings — run from CLI for full results"
+- Sweep results show first 10 findings with similar messaging
+- Could-not-verify checks are capped at 5 with similar messaging
+- This keeps the UI responsive while directing users to CLI for complete results
+
 ## Development Modes
 
 ### Browser/Vite Preview (Static Layout Only)
