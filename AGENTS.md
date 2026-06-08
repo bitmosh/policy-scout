@@ -26,7 +26,7 @@ Policy Scout v0.1 alpha is in active development. Key implementation milestones:
 - Eval suite: 44 test cases
 - Command registry: 15 entries
 - Default policy: 11 entries
-- Full test suite: 591 passed
+- Full test suite: 621 passed
 - Report list Created fields fixed
 - GitHub gate scaffolding added (CI workflow, PR template, commit/bump gate)
 
@@ -261,10 +261,10 @@ Current main modules:
 
 ## Tests
 
-* Full test suite: `python -m pytest` (591 passed as of latest run)
+* Full test suite: `python -m pytest` (621/621 from repo root)
 * Focused test file: `python -m pytest tests/test_cli_smoke.py`
 * Single test: `python -m pytest tests/test_cli_smoke.py::test_cli_eval_run`
-* Many CLI tests invoke `python -m policy_scout.cli.main` and set `PYTHONPATH` so subprocesses import this checkout.
+* Many CLI tests invoke `python -m policy_scout.cli.main` and set `PYTHONPATH` so subprocesses import this checkout. Smoke tests (`test_cli_smoke.py`) do not set `PYTHONPATH` and inherit CWD — always run the full suite from the repo root (`cd /home/boop/Projects/policy-scout && python -m pytest`).
 * Security-relevant bug fixes require regression tests.
 * Tests should verify granular signals, not just final decisions.
 * Tests for command behavior should cover categories, capabilities, registry hits, risk components, policy hits, reasons, confidence, audit IDs, and exit codes when relevant.

@@ -85,7 +85,7 @@ All JSON outputs are agent/script-readable and redact secret-like values using c
 ## Current alpha status
 
 - **Eval suite:** 44/44 cases passing
-- **Full test suite:** 576 tests passing
+- **Full test suite:** 621 tests passing
 - **Implemented:** doctor, demo, quick sweep, registry validation, report/audit polish, JSON contracts
 - **Local-first:** No cloud required, state lives on your machine
 - **Not packaged:** This is a private alpha, not on PyPI
@@ -305,9 +305,14 @@ Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ens
 
 ### Running tests
 
+Run from the repo root:
+
 ```bash
+cd /home/boop/Projects/policy-scout
 pytest
 ```
+
+Some subprocess-based smoke tests inherit CWD and will fail if invoked from `ui/desktop/` or subdirectories. Always run the full suite from the project root.
 
 ## Desktop UI
 

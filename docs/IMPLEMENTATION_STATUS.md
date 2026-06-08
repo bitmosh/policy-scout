@@ -340,11 +340,11 @@ v0.1-alpha
 - **Module invocation from repo root:** `python -m policy_scout.cli.main <command>` - Works from repo root only (current directory in sys.path)
 - **Module invocation with PYTHONPATH:** `PYTHONPATH=/home/boop/Projects/policy-scout python -m policy_scout.cli.main <command>` - Works from any directory
 
-Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ensures tests run against the current checkout rather than a system-installed version. See README.md Development section for details.
+Most CLI tests use `PYTHONPATH` intentionally for subprocess checkout isolation. Smoke tests (`test_cli_smoke.py`) do not set `PYTHONPATH` and inherit CWD — always run the full suite from the repo root: `cd /home/boop/Projects/policy-scout && python -m pytest`.
 
 ## Test Count
 
-- Total tests: 591
+- Total tests: 621 (30 added in v0.2.x test suite expansions)
 - Policy Scout Doctor v1: 8 new tests (doctor human output, doctor JSON output, registry counts, package manager warnings, no secrets printed, audit/report paths, help message)
 - Policy Scout Data v1: 11 new tests (data human output, data JSON output, path existence, counts, override env vars)
 - Report/Audit UX Polish v1: 4 new tests (redaction section, created_at, audit redaction note, audit time range)
@@ -352,7 +352,7 @@ Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ens
 - Registry validation hardening v1 tests: 12 new tests
 - Eval suite expansion v1: 14 new eval cases (30 → 44)
 - JSON contracts v1: 12 new tests (check JSON redaction, sandbox JSON redaction_applied, sweep JSON redaction_applied, report list created_at)
-- Existing tests: 520 (no regressions)
+- Existing tests: 520 (no regressions, as of v0.1 accounting)
 
 ## Current Alpha Status
 
