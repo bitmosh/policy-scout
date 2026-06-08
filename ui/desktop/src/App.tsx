@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { CliJsonResponse } from "./types";
 import { BoundaryNote } from "./components/BoundaryNote";
+import { OverviewStatusStrip } from "./components/OverviewStatusStrip";
 import { DoctorStatusCard } from "./components/DoctorStatusCard";
 import { DataStatusCard } from "./components/DataStatusCard";
 import { ReportsListCard } from "./components/ReportsListCard";
@@ -105,6 +106,16 @@ function App() {
     <main className="container">
       <h1>Policy Scout</h1>
       <BoundaryNote />
+      <OverviewStatusStrip
+        doctorStatus={doctorStatus}
+        reportsList={reportsList}
+        auditStats={auditStats}
+        demoCleanup={demoCleanup}
+        sandboxCleanup={sandboxCleanup}
+        sandboxResultsCleanup={sandboxResultsCleanup}
+        evalResults={evalResults}
+        quickSweep={quickSweep}
+      />
 
       <div className="cards-container">
         {loading && <p className="status-message">Loading status...</p>}

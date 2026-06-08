@@ -34,6 +34,36 @@ h1 {
   font-style: italic;
 }
 
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f9f9f9;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
+.chip-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.chip-value {
+  color: #666;
+}
+
 .cards-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -479,6 +509,23 @@ button:disabled {
   }
 
   .boundary-note {
+    color: #aaa;
+  }
+
+  .status-strip {
+    background: #3f3f3f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .status-chip {
+    background: #4f4f4f;
+  }
+
+  .chip-label {
+    color: #ddd;
+  }
+
+  .chip-value {
     color: #aaa;
   }
 
