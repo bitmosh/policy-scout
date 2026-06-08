@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GuidedFaqPrompt } from "../types";
+import { invoke } from "@tauri-apps/api/core";
+import { GuidedFaqPrompt, CliJsonResponse, DecisionCheckData } from "../types";
 
 const FAQ_PROMPTS: GuidedFaqPrompt[] = [
   {
@@ -106,9 +107,27 @@ const FAQ_PROMPTS: GuidedFaqPrompt[] = [
 export function DecisionCheckCard() {
   const [commandText, setCommandText] = useState("");
   const [selectedFaq, setSelectedFaq] = useState<GuidedFaqPrompt | null>(null);
+  const [checkResult, setCheckResult] = useState<DecisionCheckData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const validateCommandText = (text: string): string | null => {
+    if (!text || text.trim() === "") {
+      return "Command cannot be empty.";
+    }
+    if (text.length > 4000) {
+      return "Command is too long (max 4000 characters).";
+    }
+    if (text.includes("\0")) {
+      return "Command contains invalid characters.";
+    }
+    return null;
+  };
 
   const handleFaqClick = (faq: GuidedFaqPrompt) => {
     setSelectedFaq(faq);
+    setCheckResult(null);
+    setError(null);
     if (faq.exampleCommand) {
       setCommandText(faq.exampleCommand);
     }
@@ -116,6 +135,74 @@ export function DecisionCheckCard() {
 
   const handleCommandChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCommandText(e.target.value);
+    setError(null);
+  };
+
+  const handleCheck = async () => {
+    const validationError = validateCommandText(commandText);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setCheckResult(null);
+
+    try {
+      const response = await invoke<CliJsonResponse<DecisionCheckData>>("check_command", {
+        commandText: commandText,
+      });
+
+      if (response.ok && response.data) {
+        setCheckResult(response.data);
+      } else {
+        setError(response.error || "Check failed.");
+      }
+    } catch (err) {
+      const errorStr = String(err);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Decision Check requires the native Tauri app. Browser preview cannot call Policy Scout.");
+      } else {
+        setError("An error occurred while checking the command.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isButtonDisabled = loading || !commandText.trim() || !!validateCommandText(commandText);
+
+  const getDecisionClass = (decision: string): string => {
+    switch (decision) {
+      case "ALLOW":
+        return "decision-allow";
+      case "REQUIRE_APPROVAL":
+        return "decision-approval";
+      case "SANDBOX_FIRST":
+        return "decision-sandbox";
+      case "DENY":
+        return "decision-deny";
+      case "DENY_AND_ALERT":
+        return "decision-deny-alert";
+      default:
+        return "";
+    }
+  };
+
+  const getRiskBandClass = (riskBand: string): string => {
+    switch (riskBand) {
+      case "low":
+        return "risk-low";
+      case "medium":
+        return "risk-medium";
+      case "high":
+        return "risk-high";
+      case "critical":
+        return "risk-critical";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -172,6 +259,7 @@ export function DecisionCheckCard() {
             placeholder="Type or paste a command to check..."
             rows={4}
           />
+          {error && <p className="validation-error">{error}</p>}
           {selectedFaq?.exampleCommand && commandText === selectedFaq.exampleCommand && (
             <p className="example-warning">
               <strong>Example only — do not run this command without review.</strong>
@@ -180,10 +268,115 @@ export function DecisionCheckCard() {
         </div>
 
         <div className="check-action-section">
-          <button className="check-button" disabled>
-            Check command (coming next)
+          <button className="check-button" onClick={handleCheck} disabled={isButtonDisabled}>
+            {loading ? "Checking..." : "Check command"}
           </button>
+          <p className="check-button-helper">This classifies only. The command is not executed.</p>
         </div>
+
+        {checkResult && (
+          <div className="check-result-panel">
+            <div className="not-executed-marker">
+              <strong>NOT EXECUTED</strong>
+            </div>
+            <div className="result-header">
+              <h3>Classification Result</h3>
+              {checkResult.request_id && (
+                <span className="request-id">ID: {checkResult.request_id}</span>
+              )}
+            </div>
+            <div className="result-section">
+              <h4>Original Command</h4>
+              <code className="command-display">{checkResult.command}</code>
+            </div>
+            <div className="result-section">
+              <h4>Decision</h4>
+              <span className={`decision-badge ${getDecisionClass(checkResult.decision)}`}>
+                {checkResult.decision}
+              </span>
+            </div>
+            <div className="result-section">
+              <h4>Risk Assessment</h4>
+              <div className="risk-row">
+                <span className={`risk-badge ${getRiskBandClass(checkResult.risk_band)}`}>
+                  {checkResult.risk_band.toUpperCase()}
+                </span>
+                <span className="risk-score">Score: {checkResult.risk_score}</span>
+              </div>
+            </div>
+            <div className="result-section">
+              <h4>Category</h4>
+              <span className="category-badge">{checkResult.category}</span>
+            </div>
+            {checkResult.confidence && (
+              <div className="result-section">
+                <h4>Confidence</h4>
+                <span className="confidence-badge">{(checkResult.confidence * 100).toFixed(0)}%</span>
+              </div>
+            )}
+            <div className="result-section">
+              <h4>Capabilities</h4>
+              {checkResult.capabilities && checkResult.capabilities.length > 0 ? (
+                <div className="capabilities-list">
+                  {checkResult.capabilities.map((cap, idx) => (
+                    <span key={idx} className="capability-tag">
+                      {cap}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="empty-value">None</span>
+              )}
+            </div>
+            <div className="result-section">
+              <h4>Reasons</h4>
+              {checkResult.reasons && checkResult.reasons.length > 0 ? (
+                <ul className="reasons-list">
+                  {checkResult.reasons.map((reason, idx) => (
+                    <li key={idx}>{reason}</li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="empty-value">None</span>
+              )}
+            </div>
+            {checkResult.recommended_next_action && (
+              <div className="result-section">
+                <h4>Recommended Next Action</h4>
+                <p className="recommended-action">{checkResult.recommended_next_action}</p>
+              </div>
+            )}
+            {checkResult.registry_hits && checkResult.registry_hits.length > 0 && (
+              <div className="result-section">
+                <h4>Registry Hits</h4>
+                <ul className="registry-hits-list">
+                  {checkResult.registry_hits.map((hit, idx) => (
+                    <li key={idx}>
+                      <span className="registry-name">{hit.registry_name}</span>
+                      {hit.entry_id && <span className="registry-entry">: {hit.entry_id}</span>}
+                      {hit.confidence && (
+                        <span className="registry-confidence">
+                          {" "}
+                          ({(hit.confidence * 100).toFixed(0)}%)
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {checkResult.policy_hits && checkResult.policy_hits.length > 0 && (
+              <div className="result-section">
+                <h4>Policy Hits</h4>
+                <ul className="policy-hits-list">
+                  {checkResult.policy_hits.map((hit, idx) => (
+                    <li key={idx}>{hit}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
