@@ -273,7 +273,36 @@ All audit events are redacted before storage to protect secrets.
 
 ## Development
 
-Run tests:
+### Installation for development
+
+```bash
+pip install -e .
+```
+
+This installs the `policy-scout` console script in your environment.
+
+### Running the CLI
+
+After editable install, use the console script from any directory:
+
+```bash
+policy-scout doctor
+policy-scout check -- npm install lodash
+```
+
+The `python -m policy_scout.cli.main` form only works from the repo root or with `PYTHONPATH` set:
+
+```bash
+# From repo root (works because current directory is in sys.path)
+python -m policy_scout.cli.main doctor
+
+# From any directory with PYTHONPATH
+PYTHONPATH=/home/boop/Projects/policy-scout python -m policy_scout.cli.main doctor
+```
+
+Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ensures tests run against the current checkout rather than a system-installed version.
+
+### Running tests
 
 ```bash
 pytest

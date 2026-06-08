@@ -269,6 +269,16 @@ v0.1-alpha
 - No performance profiling
 - No benchmarking suite
 
+## Development Notes
+
+### CLI Invocation Patterns
+
+- **Installed console script:** `policy-scout <command>` - Works from any directory after `pip install -e .`
+- **Module invocation from repo root:** `python -m policy_scout.cli.main <command>` - Works from repo root only (current directory in sys.path)
+- **Module invocation with PYTHONPATH:** `PYTHONPATH=/home/boop/Projects/policy-scout python -m policy_scout.cli.main <command>` - Works from any directory
+
+Tests use `PYTHONPATH` intentionally for subprocess checkout isolation. This ensures tests run against the current checkout rather than a system-installed version. See README.md Development section for details.
+
 ## Test Count
 
 - Total tests: 591
