@@ -276,6 +276,16 @@ button:disabled {
   padding: 0.75rem;
   border-radius: 4px;
   background: #f9f9f9;
+  cursor: default;
+}
+
+.report-item.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.report-item.clickable:hover {
+  background-color: #f0f0f0;
 }
 
 .report-info {
@@ -756,6 +766,69 @@ button:disabled {
       grid-column: span 2;
     }
   }
+
+  .report-detail-card {
+    background: #3f3f3f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .redaction-notice {
+    background: #5f4f3f;
+    border-color: #8f7f5f;
+  }
+
+  .redaction-notice strong {
+    color: #ffdb99;
+  }
+
+  .redaction-notice p {
+    color: #ffdb99;
+  }
+
+  .report-section {
+    border-top-color: #555;
+  }
+
+  .report-section h3 {
+    color: #ddd;
+  }
+
+  .report-summary {
+    color: #aaa;
+  }
+
+  .count-item {
+    background: #4f4f4f;
+  }
+
+  .finding-item {
+    background: #4f4f4f;
+  }
+
+  .finding-category {
+    color: #aaa;
+  }
+
+  .finding-title {
+    color: #ddd;
+  }
+
+  .finding-location {
+    color: #aaa;
+  }
+
+  .findings-truncated {
+    color: #aaa;
+  }
+
+  .action-item,
+  .could-not-verify-item {
+    background: #4f4f4f;
+  }
+
+  .status-text {
+    color: #aaa;
+  }
 }
 
 .card-subtitle {
@@ -870,4 +943,167 @@ button:disabled {
   .quick-sweep-card {
     grid-column: span 2;
   }
+}
+
+.report-detail-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-detail-content {
+  margin-top: 1rem;
+}
+
+.redaction-notice {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.redaction-notice strong {
+  display: block;
+  color: #856404;
+  margin-bottom: 0.25rem;
+}
+
+.redaction-notice p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.report-metadata {
+  margin-bottom: 1.5rem;
+}
+
+.report-section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.report-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.report-summary {
+  color: #555;
+  line-height: 1.6;
+}
+
+.findings-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.count-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.finding-item {
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+  border-left: 3px solid #f59e0b;
+}
+
+.finding-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.finding-severity {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.finding-severity.CRITICAL {
+  color: #dc3545;
+}
+
+.finding-severity.HIGH {
+  color: #fd7e14;
+}
+
+.finding-severity.MEDIUM {
+  color: #ffc107;
+}
+
+.finding-severity.LOW {
+  color: #28a745;
+}
+
+.finding-severity.INFO {
+  color: #17a2b8;
+}
+
+.finding-category {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.finding-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.finding-location {
+  font-size: 0.8rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.findings-truncated {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+}
+
+.actions-list,
+.could-not-verify-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.action-item,
+.could-not-verify-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+  font-size: 0.9rem;
+}
+
+.credential-exposure {
+  margin-top: 0.5rem;
+}
+
+.status-text {
+  color: #555;
+  font-size: 0.9rem;
 }

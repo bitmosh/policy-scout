@@ -11,6 +11,7 @@ import { AuditStatsCard } from "./components/AuditStatsCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 import { EvalResultsCard } from "./components/EvalResultsCard";
 import { QuickSweepCard } from "./components/QuickSweepCard";
+import { ReportDetailCard } from "./components/ReportDetailCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -23,6 +24,9 @@ function App() {
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
   const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
   const [sweepLoading, setSweepLoading] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [reportDetail, setReportDetail] = useState<CliJsonResponse | null>(null);
+  const [reportDetailLoading, setReportDetailLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,6 +106,29 @@ function App() {
     }
   }
 
+  async function handleReportClick(reportId: string) {
+    setSelectedReportId(reportId);
+    setReportDetailLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("show_report", { reportId });
+      setReportDetail(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setReportDetailLoading(false);
+    }
+  }
+
+  function handleCloseReportDetail() {
+    setSelectedReportId(null);
+    setReportDetail(null);
+  }
+
   return (
     <main className="container">
       <h1>Policy Scout</h1>
@@ -126,21 +153,31 @@ function App() {
           </div>
         )}
 
-        <DoctorStatusCard doctorStatus={doctorStatus} loading={loading} onRefresh={fetchAllStatus} />
-        <DataStatusCard dataStatus={dataStatus} />
-        <ReportsListCard reportsList={reportsList} />
-        <AuditStatsCard auditStats={auditStats} />
-        <CleanupDryRunCard
-          demoCleanup={demoCleanup}
-          sandboxCleanup={sandboxCleanup}
-          sandboxResultsCleanup={sandboxResultsCleanup}
-        />
-        <EvalResultsCard evalResults={evalResults} />
-        <QuickSweepCard
-          quickSweep={quickSweep}
-          loading={sweepLoading}
-          onRunSweep={runQuickSweep}
-        />
+        {selectedReportId ? (
+          <ReportDetailCard
+            reportDetail={reportDetail}
+            loading={reportDetailLoading}
+            onClose={handleCloseReportDetail}
+          />
+        ) : (
+          <>
+            <DoctorStatusCard doctorStatus={doctorStatus} loading={loading} onRefresh={fetchAllStatus} />
+            <DataStatusCard dataStatus={dataStatus} />
+            <ReportsListCard reportsList={reportsList} onReportClick={handleReportClick} />
+            <AuditStatsCard auditStats={auditStats} />
+            <CleanupDryRunCard
+              demoCleanup={demoCleanup}
+              sandboxCleanup={sandboxCleanup}
+              sandboxResultsCleanup={sandboxResultsCleanup}
+            />
+            <EvalResultsCard evalResults={evalResults} />
+            <QuickSweepCard
+              quickSweep={quickSweep}
+              loading={sweepLoading}
+              onRunSweep={runQuickSweep}
+            />
+          </>
+        )}
       </div>
     </main>
   );

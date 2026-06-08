@@ -103,6 +103,47 @@ fn run_sweep_quick() -> CliJsonResponse {
     run_policy_scout_json(&["sweep", "quick", "--json"])
 }
 
+#[tauri::command]
+fn show_report(report_id: String) -> CliJsonResponse {
+    // Validation: report_id must start with "report_"
+    if !report_id.starts_with("report_") {
+        return CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid report_id: must start with 'report_'".to_string()),
+            stderr_summary: None,
+        };
+    }
+
+    // Validation: reject empty string
+    if report_id.is_empty() {
+        return CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Invalid report_id: cannot be empty".to_string()),
+            stderr_summary: None,
+        };
+    }
+
+    // Validation: reject spaces, path separators, shell metacharacters
+    let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
+    for c in dangerous_chars.iter() {
+        if report_id.contains(*c) {
+            return CliJsonResponse {
+                ok: false,
+                exit_code: -1,
+                data: None,
+                error: Some(format!("Invalid report_id: contains dangerous character '{}'", c)),
+                stderr_summary: None,
+            };
+        }
+    }
+
+    run_policy_scout_json(&["report", "show", &report_id, "--json"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -116,7 +157,8 @@ pub fn run() {
             get_cleanup_dry_run_sandbox,
             get_cleanup_dry_run_sandbox_results,
             run_eval,
-            run_sweep_quick
+            run_sweep_quick,
+            show_report
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

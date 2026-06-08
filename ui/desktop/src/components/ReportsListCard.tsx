@@ -2,9 +2,10 @@ import { CliJsonResponse } from "../types";
 
 interface ReportsListCardProps {
   reportsList: CliJsonResponse | null;
+  onReportClick?: (reportId: string) => void;
 }
 
-export function ReportsListCard({ reportsList }: ReportsListCardProps) {
+export function ReportsListCard({ reportsList, onReportClick }: ReportsListCardProps) {
   return (
     <div className="reports-card">
       <div className="card-header">
@@ -16,7 +17,11 @@ export function ReportsListCard({ reportsList }: ReportsListCardProps) {
           {Array.isArray(reportsList.data) && reportsList.data.length > 0 ? (
             <div className="reports-list">
               {reportsList.data.map((report: any) => (
-                <div key={report.report_id} className="report-item">
+                <div
+                  key={report.report_id}
+                  className="report-item clickable"
+                  onClick={() => onReportClick && onReportClick(report.report_id)}
+                >
                   <div className="report-info">
                     <span className="report-id">{report.report_id}</span>
                     <span className="report-type">{report.report_type}</span>
