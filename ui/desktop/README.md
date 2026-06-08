@@ -199,12 +199,13 @@ The Tauri UI is explicitly constrained to read-only display:
 
 ## Manual Smoke Checklist
 
-A repeatable native smoke checklist for verifying all cards, selectors, detail flows, and
-safety boundaries in the native Tauri window is maintained at:
+**The authoritative native dashboard smoke checklist for v0.4 CLI-first local alpha is:**
 
 `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
 
-Run it at significant Tauri checkpoints and before v0.3.x feature expansion.
+This checklist verifies all cards, selectors, detail flows, and safety boundaries in the native Tauri window. Run it after the green checkpoint commands to validate the Tauri desktop UI.
+
+**Important:** Browser preview (`npm run dev`) is not sufficient for native invoke validation. The native Tauri runtime (`npm run tauri dev`) is required to validate live data loading and Rust adapter behavior.
 
 ## Decision Check QA
 

@@ -467,6 +467,38 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - No deletion/apply behavior added
 - Cleanup remains dry-run only
 - No fake record generation on missing data
+
+## v0.4.4 Dashboard Native Smoke Consolidation
+
+**Native smoke checklist consolidation completed.**
+
+- Consolidated `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md` as the authoritative native dashboard smoke checklist for v0.4 CLI-first local alpha
+- Reorganized checklist into ordered sections (A-M) for practical, runnable verification:
+  - A. Preflight Gates (git status, pytest, doctor, eval, npm build, cargo check/test)
+  - B. Launch Native App
+  - C. Global Visual/Readability Checks
+  - D. Overview / Doctor / Data Checks
+  - E. Decision Check Checks
+  - F. Reports Checks
+  - G. Audit Checks
+  - H. Cleanup / Eval Checks
+  - I. Sweep Checks
+  - J. Sandbox Results Checks
+  - K. Browser Preview Checks
+  - L. Negative Safety Checks
+  - M. Recording Template
+- Added explicit authoritative statement: "This is the authoritative, repeatable native QA path for the v0.4 CLI-first local alpha"
+- Emphasized browser preview is not sufficient for native invoke validation
+- Updated docs/INSTALL.md with pointer to consolidated native smoke checklist and emphasis on native runtime requirement
+- Updated ui/desktop/README.md with pointer to consolidated native smoke checklist and emphasis on native runtime requirement
+- No behavior changes — documentation consolidation only
+- No new features added
+- No CLI, Rust, or frontend code changes
+- Future documentation candidates noted (not created in this pass):
+  - Audit event anatomy detailed boundary doc
+  - Sweep boundary detailed doc
+  - Sandbox boundary detailed doc
+  - Cleanup boundary detailed doc
 - No broad cleanup of user data
 - No new behavior introduced — documentation and audit only
 - v0.4.1 focus: data path hardening, empty-state clarity, fresh install experience

@@ -260,16 +260,22 @@ In the native app:
 
 ## Native Smoke Checklist
 
-For manual verification of the desktop UI, see the native smoke checklist:
+**After the green checkpoint commands, run the native smoke checklist to validate the Tauri desktop UI.**
+
+The authoritative native dashboard smoke checklist for v0.4 CLI-first local alpha is:
 
 `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
 
 This checklist verifies:
-- Native window startup
-- Live data loading
-- Card rendering
+- Native window startup and Tauri invoke paths
+- Live data loading from CLI
+- Card rendering and selector behavior
 - Safety boundary enforcement (no execution, no mutation, no approval, no deletion UI)
 - Browser preview fallback behavior
+- Redaction and evidence styling
+- Empty/error state display
+
+**Important:** Browser preview (`npm run dev`) is not sufficient for native invoke validation. The native Tauri runtime (`npm run tauri dev`) is required to validate live data loading and Rust adapter behavior.
 
 ---
 
