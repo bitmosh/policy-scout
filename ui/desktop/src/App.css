@@ -34,7 +34,14 @@ h1 {
   font-style: italic;
 }
 
-.doctor-card {
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.doctor-card,
+.data-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -166,13 +173,58 @@ button:disabled {
   color: #666;
 }
 
+.data-data {
+  margin-top: 1rem;
+}
+
+.counts-list,
+.paths-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.count-item,
+.path-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.count-name,
+.path-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.count-value {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.path-status {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.path-status.exists {
+  color: #28a745;
+}
+
+.path-status.missing {
+  color: #dc3545;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
     background-color: #2f2f2f;
   }
 
-  .doctor-card {
+  .doctor-card,
+  .data-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -211,7 +263,16 @@ button:disabled {
     background: #4f4f4f;
   }
 
+  .count-item,
+  .path-item {
+    background: #4f4f4f;
+  }
+
   .check-message {
+    color: #aaa;
+  }
+
+  .count-value {
     color: #aaa;
   }
 
