@@ -240,6 +240,7 @@ v0.1-alpha
   - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
   - Audit event type filter validated in Rust against 12-value allowlist; no unvalidated strings reach CLI argv
   - Cleanup target validated in Rust against 3-value allowlist (demo, sandbox, sandbox-results); `--dry-run` always included; no real deletion path exposed
+  - Adapter validation test plan: `docs/compressed/TAURI_ADAPTER_VALIDATION_TEST_PLAN_SOURCE.md`
   - React/TypeScript frontend with `App.tsx` owning state and invoke calls
   - Current dashboard cards and views:
     - Overview Status Strip (cross-card summary)
