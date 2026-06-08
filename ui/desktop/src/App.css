@@ -42,7 +42,8 @@ h1 {
 
 .doctor-card,
 .data-card,
-.reports-card {
+.reports-card,
+.audit-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -271,6 +272,10 @@ button:disabled {
   padding: 1rem;
 }
 
+.audit-data {
+  margin-top: 1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -279,7 +284,8 @@ button:disabled {
 
   .doctor-card,
   .data-card,
-  .reports-card {
+  .reports-card,
+  .audit-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -353,6 +359,10 @@ button:disabled {
 
   .empty-message {
     color: #888;
+  }
+
+  .audit-data {
+    margin-top: 1rem;
   }
 
   .error-message {

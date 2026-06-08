@@ -14,6 +14,7 @@ function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
   const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
   const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
+  const [auditStats, setAuditStats] = useState<CliJsonResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,14 +22,16 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports] = await Promise.all([
+      const [doctor, data, reports, audit] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports"),
+        invoke<CliJsonResponse>("get_audit_stats"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
       setReportsList(reports);
+      setAuditStats(audit);
       if (!doctor.ok) {
         setError(doctor.error || "Unknown error");
       }
@@ -37,6 +40,9 @@ function App() {
       }
       if (!reports.ok) {
         setError(reports.error || "Unknown error");
+      }
+      if (!audit.ok) {
+        setError(audit.error || "Unknown error");
       }
     } catch (e) {
       setError(String(e));
@@ -165,6 +171,47 @@ function App() {
                 </div>
               ) : (
                 <p className="empty-message">No reports found</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="audit-card">
+          <div className="card-header">
+            <h2>Audit Stats</h2>
+          </div>
+
+          {auditStats && auditStats.ok && auditStats.data && (
+            <div className="audit-data">
+              <div className="info-row">
+                <span className="label">Total Events:</span>
+                <span className="value">{auditStats.data.total_events}</span>
+              </div>
+
+              <h3>By Type</h3>
+              {auditStats.data.by_type && (
+                <div className="counts-list">
+                  {Object.entries(auditStats.data.by_type).map(([key, value]: [string, any]) => (
+                    <div key={key} className="count-item">
+                      <span className="count-name">{key}</span>
+                      <span className="count-value">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <h3>Time Range</h3>
+              {auditStats.data.time_range && (
+                <div className="info-row">
+                  <span className="label">First Event:</span>
+                  <span className="value">{auditStats.data.time_range.first_event}</span>
+                </div>
+              )}
+              {auditStats.data.time_range && (
+                <div className="info-row">
+                  <span className="label">Last Event:</span>
+                  <span className="value">{auditStats.data.time_range.last_event}</span>
+                </div>
               )}
             </div>
           )}
