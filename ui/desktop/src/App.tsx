@@ -8,6 +8,7 @@ import { DoctorStatusCard } from "./components/DoctorStatusCard";
 import { DataStatusCard } from "./components/DataStatusCard";
 import { ReportsListCard } from "./components/ReportsListCard";
 import { AuditStatsCard } from "./components/AuditStatsCard";
+import { AuditEventsListCard } from "./components/AuditEventsListCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 import { EvalResultsCard } from "./components/EvalResultsCard";
 import { QuickSweepCard } from "./components/QuickSweepCard";
@@ -18,6 +19,7 @@ function App() {
   const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
   const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
   const [auditStats, setAuditStats] = useState<CliJsonResponse | null>(null);
+  const [auditEventsList, setAuditEventsList] = useState<CliJsonResponse | null>(null);
   const [demoCleanup, setDemoCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
@@ -34,11 +36,12 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, demo, sandbox, sandboxResults, evalResult] = await Promise.all([
+      const [doctor, data, reports, audit, auditEvents, demo, sandbox, sandboxResults, evalResult] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports"),
         invoke<CliJsonResponse>("get_audit_stats"),
+        invoke<CliJsonResponse>("list_audit_events"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
@@ -48,6 +51,7 @@ function App() {
       setDataStatus(data);
       setReportsList(reports);
       setAuditStats(audit);
+      setAuditEventsList(auditEvents);
       setDemoCleanup(demo);
       setSandboxCleanup(sandbox);
       setSandboxResultsCleanup(sandboxResults);
@@ -63,6 +67,9 @@ function App() {
       }
       if (!audit.ok) {
         setError(audit.error || "Unknown error");
+      }
+      if (!auditEvents.ok) {
+        setError(auditEvents.error || "Unknown error");
       }
       if (!demo.ok) {
         setError(demo.error || "Unknown error");
@@ -165,6 +172,7 @@ function App() {
             <DataStatusCard dataStatus={dataStatus} />
             <ReportsListCard reportsList={reportsList} onReportClick={handleReportClick} />
             <AuditStatsCard auditStats={auditStats} />
+            <AuditEventsListCard auditEventsList={auditEventsList} />
             <CleanupDryRunCard
               demoCleanup={demoCleanup}
               sandboxCleanup={sandboxCleanup}

@@ -144,6 +144,11 @@ fn show_report(report_id: String) -> CliJsonResponse {
     run_policy_scout_json(&["report", "show", &report_id, "--json"])
 }
 
+#[tauri::command]
+fn list_audit_events() -> CliJsonResponse {
+    run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -158,7 +163,8 @@ pub fn run() {
             get_cleanup_dry_run_sandbox_results,
             run_eval,
             run_sweep_quick,
-            show_report
+            show_report,
+            list_audit_events
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
