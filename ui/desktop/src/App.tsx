@@ -2,7 +2,7 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
-interface DoctorResponse {
+interface CliJsonResponse {
   ok: boolean;
   exit_code: number;
   data: any;
@@ -11,8 +11,8 @@ interface DoctorResponse {
 }
 
 function App() {
-  const [doctorStatus, setDoctorStatus] = useState<DoctorResponse | null>(null);
-  const [dataStatus, setDataStatus] = useState<DoctorResponse | null>(null);
+  const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
+  const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +21,8 @@ function App() {
     setError(null);
     try {
       const [doctor, data] = await Promise.all([
-        invoke<DoctorResponse>("get_doctor_status"),
-        invoke<DoctorResponse>("get_data_status"),
+        invoke<CliJsonResponse>("get_doctor_status"),
+        invoke<CliJsonResponse>("get_data_status"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
