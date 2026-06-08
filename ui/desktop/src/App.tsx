@@ -7,12 +7,16 @@ import { DoctorStatusCard } from "./components/DoctorStatusCard";
 import { DataStatusCard } from "./components/DataStatusCard";
 import { ReportsListCard } from "./components/ReportsListCard";
 import { AuditStatsCard } from "./components/AuditStatsCard";
+import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
   const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
   const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
   const [auditStats, setAuditStats] = useState<CliJsonResponse | null>(null);
+  const [demoCleanup, setDemoCleanup] = useState<CliJsonResponse | null>(null);
+  const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
+  const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,16 +24,22 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit] = await Promise.all([
+      const [doctor, data, reports, audit, demo, sandbox, sandboxResults] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports"),
         invoke<CliJsonResponse>("get_audit_stats"),
+        invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
+        invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
+        invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
       setReportsList(reports);
       setAuditStats(audit);
+      setDemoCleanup(demo);
+      setSandboxCleanup(sandbox);
+      setSandboxResultsCleanup(sandboxResults);
       if (!doctor.ok) {
         setError(doctor.error || "Unknown error");
       }
@@ -41,6 +51,15 @@ function App() {
       }
       if (!audit.ok) {
         setError(audit.error || "Unknown error");
+      }
+      if (!demo.ok) {
+        setError(demo.error || "Unknown error");
+      }
+      if (!sandbox.ok) {
+        setError(sandbox.error || "Unknown error");
+      }
+      if (!sandboxResults.ok) {
+        setError(sandboxResults.error || "Unknown error");
       }
     } catch (e) {
       setError(String(e));
@@ -67,6 +86,11 @@ function App() {
         <DataStatusCard dataStatus={dataStatus} />
         <ReportsListCard reportsList={reportsList} />
         <AuditStatsCard auditStats={auditStats} />
+        <CleanupDryRunCard
+          demoCleanup={demoCleanup}
+          sandboxCleanup={sandboxCleanup}
+          sandboxResultsCleanup={sandboxResultsCleanup}
+        />
       </div>
     </main>
   );

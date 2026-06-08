@@ -43,7 +43,8 @@ h1 {
 .doctor-card,
 .data-card,
 .reports-card,
-.audit-card {
+.audit-card,
+.cleanup-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -276,6 +277,112 @@ button:disabled {
   margin-top: 1rem;
 }
 
+.cleanup-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cleanup-section {
+  margin-top: 1rem;
+}
+
+.cleanup-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.cleanup-section h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #555;
+}
+
+.cleanup-info {
+  margin-bottom: 1rem;
+}
+
+.dry-run-notice {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dry-run-notice strong {
+  display: block;
+  color: #856404;
+  margin-bottom: 0.25rem;
+}
+
+.dry-run-notice p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.planned-items {
+  margin-top: 1rem;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.item-path {
+  font-size: 0.85rem;
+  color: #333;
+  word-break: break-all;
+}
+
+.item-meta {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+}
+
+.items-remaining {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+}
+
+.cleanup-warnings,
+.cleanup-unverified {
+  margin-top: 1rem;
+}
+
+.warning-item,
+.unverified-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.unverified-item {
+  background: #f8d7da;
+  color: #721c24;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -285,7 +392,8 @@ button:disabled {
   .doctor-card,
   .data-card,
   .reports-card,
-  .audit-card {
+  .audit-card,
+  .cleanup-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -371,6 +479,53 @@ button:disabled {
   }
 
   .error-message p {
+    color: #ff9999;
+  }
+
+  .cleanup-section h3 {
+    color: #ddd;
+  }
+
+  .cleanup-section h4 {
+    color: #aaa;
+  }
+
+  .dry-run-notice {
+    background: #5f4f3f;
+    border-color: #8f7f5f;
+  }
+
+  .dry-run-notice strong {
+    color: #ffdb99;
+  }
+
+  .dry-run-notice p {
+    color: #ffdb99;
+  }
+
+  .item-row {
+    background: #4f4f4f;
+  }
+
+  .item-path {
+    color: #ddd;
+  }
+
+  .item-meta {
+    color: #aaa;
+  }
+
+  .items-remaining {
+    color: #aaa;
+  }
+
+  .warning-item {
+    background: #5f4f3f;
+    color: #ffdb99;
+  }
+
+  .unverified-item {
+    background: #5f3f3f;
     color: #ff9999;
   }
 }

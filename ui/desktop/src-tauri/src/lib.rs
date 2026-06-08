@@ -78,11 +78,34 @@ fn get_audit_stats() -> CliJsonResponse {
     run_policy_scout_json(&["audit", "stats", "--json"])
 }
 
+#[tauri::command]
+fn get_cleanup_dry_run_demo() -> CliJsonResponse {
+    run_policy_scout_json(&["data", "cleanup", "--target", "demo", "--dry-run", "--json"])
+}
+
+#[tauri::command]
+fn get_cleanup_dry_run_sandbox() -> CliJsonResponse {
+    run_policy_scout_json(&["data", "cleanup", "--target", "sandbox", "--dry-run", "--json"])
+}
+
+#[tauri::command]
+fn get_cleanup_dry_run_sandbox_results() -> CliJsonResponse {
+    run_policy_scout_json(&["data", "cleanup", "--target", "sandbox-results", "--dry-run", "--json"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_doctor_status, get_data_status, list_reports, get_audit_stats])
+        .invoke_handler(tauri::generate_handler![
+            get_doctor_status,
+            get_data_status,
+            list_reports,
+            get_audit_stats,
+            get_cleanup_dry_run_demo,
+            get_cleanup_dry_run_sandbox,
+            get_cleanup_dry_run_sandbox_results
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
