@@ -1346,27 +1346,27 @@ button:disabled {
 .finding-category {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-muted);
   margin-bottom: 0.25rem;
 }
 
 .finding-title {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .finding-location {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--color-text-muted);
   font-family: monospace;
 }
 
 .findings-truncated,
 .could-not-verify-truncated {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-text-muted);
   font-style: italic;
   padding: 0.5rem 0.75rem;
 }
@@ -1374,13 +1374,13 @@ button:disabled {
 .could-not-verify-check {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .could-not-verify-reason {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 @media (min-width: 900px) {
@@ -1390,16 +1390,16 @@ button:disabled {
 }
 
 .report-detail-card {
-  background: white;
+  background: var(--color-panel);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .detail-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-muted);
 }
 
 .detail-breadcrumb {
@@ -1408,15 +1408,15 @@ button:disabled {
   gap: 0.5rem;
   margin-bottom: 1rem;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .breadcrumb-text {
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .breadcrumb-separator {
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .detail-title-row {
@@ -1441,7 +1441,7 @@ button:disabled {
 .detail-id {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #666;
+  color: var(--color-text-muted);
   font-family: monospace;
   word-break: break-all;
 }
@@ -1449,35 +1449,35 @@ button:disabled {
 .read-only-badge {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #28a745;
-  background: #e8f5e9;
+  color: var(--color-success);
+  background: rgba(94, 224, 139, 0.08);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
 
 .detail-subtitle {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--color-text-muted);
   font-style: italic;
   margin: 0;
 }
 
 .close-button {
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
+  color: var(--color-text-primary);
+  background-color: var(--color-elevated);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .close-button:hover:not(:disabled) {
-  border-color: #396cd8;
-  background-color: #f0f0f0;
+  border-color: var(--color-info);
+  background-color: var(--color-border);
 }
 
 .report-detail-content {
@@ -1511,18 +1511,18 @@ button:disabled {
 .report-section {
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border-muted);
 }
 
 .report-section h3 {
   margin-top: 0;
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--color-text-secondary);
 }
 
 .report-summary {
-  color: #555;
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
@@ -1536,9 +1536,10 @@ button:disabled {
 .count-item {
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
-  background: #f9f9f9;
+  background: var(--color-elevated);
   font-size: 0.9rem;
   font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .findings-list {
@@ -1550,7 +1551,7 @@ button:disabled {
 .finding-item {
   padding: 0.75rem;
   border-radius: 4px;
-  background: #f9f9f9;
+  background: var(--color-elevated);
   border-left: 3px solid #f59e0b;
 }
 
@@ -1607,7 +1608,7 @@ button:disabled {
 
 .findings-truncated {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-text-muted);
   font-style: italic;
   padding: 0.5rem 0.75rem;
 }
@@ -1623,8 +1624,9 @@ button:disabled {
 .could-not-verify-item {
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
-  background: #f9f9f9;
+  background: var(--color-elevated);
   font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }
 
 .credential-exposure {
@@ -1632,7 +1634,7 @@ button:disabled {
 }
 
 .status-text {
-  color: #555;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
@@ -1661,37 +1663,22 @@ button:disabled {
   font-family: inherit;
   padding: 0.15rem 0.35rem;
   border-radius: var(--radius-sm);
-  border: 1px solid #ccc;
-  background: #f5f5f5;
-  color: #333;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-primary);
   cursor: pointer;
   outline: none;
+  color-scheme: dark;
 }
 
 .list-control-select:focus {
-  border-color: #90caf9;
-}
-
-@media (prefers-color-scheme: dark) {
-  .list-control-label {
-    color: var(--color-text-muted);
-  }
-
-  .list-control-select {
-    background: var(--color-background);
-    color: var(--color-text-primary);
-    border-color: var(--color-border);
-  }
-
-  .list-control-select:focus {
-    border-color: var(--color-info);
-  }
+  border-color: var(--color-info);
 }
 
 /* ── Card header read-only label ──────────────────────────────── */
 .read-only-label {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--color-text-muted);
   font-style: italic;
   white-space: nowrap;
 }
@@ -1718,21 +1705,21 @@ button:disabled {
   letter-spacing: 0.03em;
   padding: 0.1rem 0.35rem;
   border-radius: var(--radius-sm);
-  background: #e3f2fd;
-  color: #1565c0;
-  border: 1px solid #90caf9;
+  background: rgba(66, 217, 255, 0.08);
+  color: var(--color-info);
+  border: 1px solid rgba(66, 217, 255, 0.25);
 }
 
 /* ── Evidence JSON block ──────────────────────────────────────── */
 .evidence-json {
-  background: #f5f5f5;
+  background: var(--color-background);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
   overflow-x: auto;
   font-size: 0.82rem;
   font-family: var(--font-mono);
-  color: #444;
-  border: 1px solid #ddd;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-muted);
   border-left: 3px solid var(--color-audit);
   white-space: pre-wrap;
   word-break: break-all;
@@ -1742,150 +1729,26 @@ button:disabled {
 /* ── Sandbox detail read-only notice ─────────────────────────── */
 .sandbox-readonly-notice {
   font-size: 0.82rem;
-  color: #555;
+  color: var(--color-text-muted);
   font-style: italic;
   margin-bottom: 1rem;
   padding: 0.4rem 0.75rem;
-  background: #f0f7ff;
+  background: rgba(66, 217, 255, 0.04);
   border-radius: var(--radius-sm);
-  border: 1px solid #c8dff5;
+  border: 1px solid rgba(66, 217, 255, 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  .read-only-label {
-    color: var(--color-text-muted);
-  }
-
-  .format-badge {
-    background: rgba(66, 217, 255, 0.08);
-    color: var(--color-info);
-    border-color: rgba(66, 217, 255, 0.25);
-  }
-
-  .evidence-json {
-    background: var(--color-background);
-    color: var(--color-text-secondary);
-    border-color: var(--color-border-muted);
-    border-left-color: var(--color-audit);
-  }
-
-  .sandbox-readonly-notice {
-    background: rgba(66, 217, 255, 0.04);
-    color: var(--color-text-muted);
-    border-color: rgba(66, 217, 255, 0.12);
-  }
-
-  .report-item.clickable:hover {
-    background: var(--color-border);
-  }
-}
-
-/* ── Dark theme: cascade fixes for base styles added after first dark block ── */
+/* ── Dark theme: consolidated overrides ── */
+/* Note: Dashboard components use CSS variables in base rules for dark-mode compatibility.
+   Future additions: keep base rules variable-based, or add dark overrides after all base rules
+   to avoid source-order cascade regressions. */
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
   }
 
-  /* Report detail card — base rule at ~l.1393 sets background: white */
-  .report-detail-card {
-    background: var(--color-panel);
-    box-shadow: var(--shadow-md);
-  }
-
-  /* Detail header border — base rule uses #eee */
-  .detail-header {
-    border-bottom-color: var(--color-border-muted);
-  }
-
-  /* Breadcrumb text — base rules use #666/#999 */
-  .detail-breadcrumb,
-  .breadcrumb-text {
-    color: var(--color-text-muted);
-  }
-
-  .breadcrumb-separator {
-    color: var(--color-text-muted);
-  }
-
-  /* Read-only badge — base rule uses light green bg */
-  .read-only-badge {
-    color: var(--color-success);
-    background: rgba(94, 224, 139, 0.08);
-  }
-
-  /* Close button — base rule sets background: white, color: #0f0f0f */
-  .close-button {
-    color: var(--color-text-primary);
-    background-color: var(--color-elevated);
-    border-color: var(--color-border);
-  }
-
-  .close-button:hover:not(:disabled) {
-    background-color: var(--color-border);
-  }
-
-  /* Report section divider — base rule uses border #eee, heading color #333 */
-  .report-section {
-    border-top-color: var(--color-border-muted);
-  }
-
-  .report-section h3 {
-    color: var(--color-text-secondary);
-  }
-
-  .report-summary {
-    color: var(--color-text-secondary);
-  }
-
-  /* count-item: DataStatus counts, AuditStats by-type, ReportDetail findings-count
-     Base rule at ~l.1536 sets background: #f9f9f9 (outside media queries — overrides dark). */
-  .count-item {
-    background: var(--color-elevated);
-    color: var(--color-text-primary);
-  }
-
-  .count-name {
-    color: var(--color-text-secondary);
-  }
-
-  /* finding-item: SweepResultPreview, ReportDetailCard
-     Base rule at ~l.1553 sets background: #f9f9f9 */
-  .finding-item {
-    background: var(--color-elevated);
-  }
-
-  .finding-category {
-    color: var(--color-text-muted);
-  }
-
-  .finding-title {
-    color: var(--color-text-secondary);
-  }
-
-  .finding-location {
-    color: var(--color-text-muted);
-  }
-
-  .findings-truncated,
-  .could-not-verify-truncated {
-    color: var(--color-text-muted);
-  }
-
-  /* action-item / could-not-verify-item — base rule sets background: #f9f9f9 */
-  .action-item,
-  .could-not-verify-item {
-    background: var(--color-elevated);
-    color: var(--color-text-secondary);
-  }
-
-  /* status-text — base rule uses color: #555 */
-  .status-text {
-    color: var(--color-text-secondary);
-  }
-
-  /* list-control-select: add color-scheme so native <option> elements
-     inherit dark styling from the OS/browser */
-  .list-control-select {
-    color-scheme: dark;
+  /* report-item.clickable:hover — base rule uses #f5f5f5 */
+  .report-item.clickable:hover {
+    background: var(--color-border);
   }
 }
