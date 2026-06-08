@@ -1636,27 +1636,27 @@ button:disabled {
   font-size: 0.9rem;
 }
 
-/* ── Reports List bounded controls ───────────────────────────── */
-.reports-controls {
+/* ── Shared list bounded controls ───────────────────────────── */
+.list-controls {
   display: flex;
   gap: 0.6rem;
   align-items: center;
 }
 
-.reports-control-group {
+.list-control-group {
   display: flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-.reports-control-label {
+.list-control-label {
   font-size: 0.72rem;
   color: #888;
   white-space: nowrap;
   user-select: none;
 }
 
-.reports-control-select {
+.list-control-select {
   font-size: 0.72rem;
   font-family: inherit;
   padding: 0.15rem 0.35rem;
@@ -1668,22 +1668,22 @@ button:disabled {
   outline: none;
 }
 
-.reports-control-select:focus {
+.list-control-select:focus {
   border-color: #90caf9;
 }
 
 @media (prefers-color-scheme: dark) {
-  .reports-control-label {
+  .list-control-label {
     color: var(--color-text-muted);
   }
 
-  .reports-control-select {
+  .list-control-select {
     background: var(--color-background);
     color: var(--color-text);
     border-color: var(--color-border);
   }
 
-  .reports-control-select:focus {
+  .list-control-select:focus {
     border-color: var(--color-info);
   }
 }

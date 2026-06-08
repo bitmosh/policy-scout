@@ -23,11 +23,11 @@ export function ReportsListCard({
     <div className="reports-card">
       <div className="card-header">
         <h2>Reports List</h2>
-        <div className="reports-controls">
-          <div className="reports-control-group">
-            <label className="reports-control-label">Limit</label>
+        <div className="list-controls">
+          <div className="list-control-group">
+            <label className="list-control-label">Limit</label>
             <select
-              className="reports-control-select"
+              className="list-control-select"
               value={limit}
               onChange={(e) => onLimitChange(Number(e.target.value))}
             >
@@ -37,10 +37,10 @@ export function ReportsListCard({
               <option value={50}>50</option>
             </select>
           </div>
-          <div className="reports-control-group">
-            <label className="reports-control-label">Type</label>
+          <div className="list-control-group">
+            <label className="list-control-label">Type</label>
             <select
-              className="reports-control-select"
+              className="list-control-select"
               value={reportType}
               onChange={(e) => onTypeChange(e.target.value as ReportTypeFilter)}
             >

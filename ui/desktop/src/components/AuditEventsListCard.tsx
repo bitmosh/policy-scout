@@ -31,11 +31,11 @@ export function AuditEventsListCard({ auditEventsList, onEventClick, auditEventT
     <div className="audit-events-card">
       <div className="card-header">
         <h2>Audit Events List</h2>
-        <div className="reports-controls">
-          <div className="reports-control-group">
-            <label className="reports-control-label">Type:</label>
+        <div className="list-controls">
+          <div className="list-control-group">
+            <label className="list-control-label">Type:</label>
             <select
-              className="reports-control-select"
+              className="list-control-select"
               value={auditEventType}
               onChange={(e) => onTypeChange(e.target.value as AuditEventTypeFilter)}
               disabled={loading}
