@@ -80,6 +80,7 @@ ID arguments (`report_id`, `event_id`) are validated in Rust before being passed
 | `run_eval` | `policy-scout eval run --json` |
 | `run_sweep_quick` | `policy-scout sweep quick --json` |
 | `run_sweep_project` | `policy-scout sweep project --json` |
+| `check_command(command_text)` | `policy-scout check --json <command_text>` (check-only; never executes command) |
 | `list_sandbox_results` | `policy-scout report list --json --type sandbox_result --limit 5` |
 | `show_sandbox_result(report_id)` | `policy-scout report show --json <report_id>` |
 

