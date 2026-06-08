@@ -30,6 +30,24 @@ export type ReportType =
 // Empty string = no filter (all report types)
 export type ReportTypeFilter = ReportType | "";
 
+// Audit event type allowlist (mirrors Rust ALLOWED_AUDIT_EVENT_TYPES)
+export type AuditEventType =
+  | "SweepCompleted"
+  | "SweepError"
+  | "SandboxInstallCompleted"
+  | "SandboxInstallStarted"
+  | "SandboxResultWritten"
+  | "ScoutReportGenerated"
+  | "CommandExecutionCompleted"
+  | "CommandExecutionBlocked"
+  | "ApprovalRequested"
+  | "ApprovalApprovedOnce"
+  | "ApprovalDeniedOnce"
+  | "DecisionIssued";
+
+// "all" = no filter (recent audit list)
+export type AuditEventTypeFilter = AuditEventType | "all";
+
 // Doctor Status
 export interface DoctorStatusData {
   policy_scout_version?: string;

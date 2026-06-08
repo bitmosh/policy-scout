@@ -216,8 +216,47 @@ fn list_reports_filtered(limit: u32, report_type: Option<String>) -> CliJsonResp
     run_policy_scout_json(&["report", "list", "--json", "--limit", &limit_str])
 }
 
+fn validate_audit_event_type(event_type: &str) -> Result<(), CliJsonResponse> {
+    const ALLOWED: &[&str] = &[
+        "SweepCompleted",
+        "SweepError",
+        "SandboxInstallCompleted",
+        "SandboxInstallStarted",
+        "SandboxResultWritten",
+        "ScoutReportGenerated",
+        "CommandExecutionCompleted",
+        "CommandExecutionBlocked",
+        "ApprovalRequested",
+        "ApprovalApprovedOnce",
+        "ApprovalDeniedOnce",
+        "DecisionIssued",
+    ];
+    if ALLOWED.contains(&event_type) {
+        Ok(())
+    } else {
+        Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!(
+                "Invalid event_type: '{}'. Must be one of the allowlisted audit event types.",
+                event_type
+            )),
+            stderr_summary: None,
+        })
+    }
+}
+
 #[tauri::command]
-fn list_audit_events() -> CliJsonResponse {
+fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
+    if let Some(ref et) = event_type {
+        if !et.is_empty() && et != "all" {
+            if let Err(e) = validate_audit_event_type(et.as_str()) {
+                return e;
+            }
+            return run_policy_scout_json(&["audit", "type", "--json", et.as_str()]);
+        }
+    }
     run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"])
 }
 
@@ -280,7 +319,7 @@ pub fn run() {
             list_reports_filtered,
             show_report,
             show_sandbox_result,
-            list_audit_events,
+            list_audit_events_filtered,
             show_audit_event
         ])
         .run(tauri::generate_context!())

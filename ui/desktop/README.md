@@ -65,7 +65,7 @@ cd src-tauri && cargo check
 ## Rust Backend Command Wrappers
 
 All Tauri commands are defined in `src-tauri/src/lib.rs` and invoke the installed `policy-scout` CLI binary.
-ID arguments (`report_id`, `event_id`) are validated in Rust before being passed to the CLI (prefix check, character allowlist, rejection of shell metacharacters).
+ID arguments (`report_id`, `event_id`) are validated in Rust before being passed to the CLI (prefix check, character allowlist, rejection of shell metacharacters). Event type filter (`event_type`) is validated against a 12-value allowlist in Rust before any CLI call.
 
 | Tauri Command | CLI Invocation |
 |---|---|
@@ -74,7 +74,7 @@ ID arguments (`report_id`, `event_id`) are validated in Rust before being passed
 | `list_reports_filtered(limit, report_type?)` | `policy-scout report list --json --limit <n> [--type <type>]` |
 | `show_report(report_id)` | `policy-scout report show --json <report_id>` |
 | `get_audit_stats` | `policy-scout audit stats --json` |
-| `list_audit_events` | `policy-scout audit list --json --limit 10` |
+| `list_audit_events_filtered(event_type?)` | `policy-scout audit list --json --limit 10` (default) or `policy-scout audit type --json <event_type>` (filtered); event_type allowlisted in Rust |
 | `show_audit_event(event_id)` | `policy-scout audit show --json <event_id>` |
 | `get_cleanup_dry_run_demo` | `policy-scout data cleanup --target demo --dry-run --json` |
 | `get_cleanup_dry_run_sandbox` | `policy-scout data cleanup --target sandbox --dry-run --json` |

@@ -229,7 +229,7 @@ v0.1-alpha
     - `list_reports_filtered(limit, report_type?)` → `policy-scout report list --json --limit <n> [--type <type>]`
     - `show_report(report_id)` → `policy-scout report show --json <report_id>`
     - `get_audit_stats` → `policy-scout audit stats --json`
-    - `list_audit_events` → `policy-scout audit list --json --limit 10`
+    - `list_audit_events_filtered(event_type?)` → `policy-scout audit list --json --limit 10` (default) or `policy-scout audit type --json <event_type>` (filtered)
     - `show_audit_event(event_id)` → `policy-scout audit show --json <event_id>`
     - `get_cleanup_dry_run_demo` → `policy-scout data cleanup --target demo --dry-run --json`
     - `get_cleanup_dry_run_sandbox` → `policy-scout data cleanup --target sandbox --dry-run --json`
@@ -240,6 +240,7 @@ v0.1-alpha
     - `list_sandbox_results` → `policy-scout report list --json --type sandbox_result --limit 5`
     - `show_sandbox_result(report_id)` → `policy-scout report show --json <report_id>`
   - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
+  - Audit event type filter validated in Rust against 12-value allowlist; no unvalidated strings reach CLI argv
   - React/TypeScript frontend with `App.tsx` owning state and invoke calls
   - Current dashboard cards and views:
     - Overview Status Strip (cross-card summary)

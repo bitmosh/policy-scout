@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { CliJsonResponse, ReportTypeFilter } from "./types";
+import { CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter } from "./types";
 import { BoundaryNote } from "./components/BoundaryNote";
 import { OverviewStatusStrip } from "./components/OverviewStatusStrip";
 import { DoctorStatusCard } from "./components/DoctorStatusCard";
@@ -45,6 +45,8 @@ function App() {
   const [reportLimit, setReportLimit] = useState<number>(5);
   const [reportType, setReportType] = useState<ReportTypeFilter>("");
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [auditEventType, setAuditEventType] = useState<AuditEventTypeFilter>("all");
+  const [auditEventsLoading, setAuditEventsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +59,7 @@ function App() {
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
         invoke<CliJsonResponse>("get_audit_stats"),
-        invoke<CliJsonResponse>("list_audit_events"),
+        invoke<CliJsonResponse>("list_audit_events_filtered", { eventType: auditEventType === "all" ? null : auditEventType }),
         invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
@@ -143,6 +145,37 @@ function App() {
   function handleReportLimitChange(limit: number) {
     setReportLimit(limit);
     fetchReports(limit, reportType);
+  }
+
+  async function fetchAuditEvents(type: AuditEventTypeFilter) {
+    setAuditEventsLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse>("list_audit_events_filtered", {
+        eventType: type === "all" ? null : type,
+      });
+      setAuditEventsList(result);
+      if (!result.ok) {
+        setError(result.error || "Unknown error");
+      }
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setAuditEventsLoading(false);
+    }
+  }
+
+  function handleAuditEventTypeChange(type: AuditEventTypeFilter) {
+    setAuditEventType(type);
+    if (selectedAuditEventId) {
+      setSelectedAuditEventId(null);
+      setAuditEventDetail(null);
+    }
+    fetchAuditEvents(type);
   }
 
   function handleReportTypeChange(type: ReportTypeFilter) {
@@ -319,7 +352,13 @@ function App() {
               loading={reportsLoading}
             />
             <AuditStatsCard auditStats={auditStats} />
-            <AuditEventsListCard auditEventsList={auditEventsList} onEventClick={handleAuditEventClick} />
+            <AuditEventsListCard
+              auditEventsList={auditEventsList}
+              onEventClick={handleAuditEventClick}
+              auditEventType={auditEventType}
+              onTypeChange={handleAuditEventTypeChange}
+              loading={auditEventsLoading}
+            />
             <CleanupDryRunCard
               demoCleanup={demoCleanup}
               sandboxCleanup={sandboxCleanup}

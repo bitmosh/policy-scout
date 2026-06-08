@@ -1,17 +1,51 @@
-import { CliJsonResponse, AuditEventListData, asArray } from "../types";
+import { CliJsonResponse, AuditEventListData, AuditEventTypeFilter, asArray } from "../types";
+
+const AUDIT_EVENT_TYPE_OPTIONS: { value: AuditEventTypeFilter; label: string }[] = [
+  { value: "all", label: "All recent events" },
+  { value: "SweepCompleted", label: "Sweep Completed" },
+  { value: "SweepError", label: "Sweep Error" },
+  { value: "SandboxInstallCompleted", label: "Sandbox Install Completed" },
+  { value: "SandboxInstallStarted", label: "Sandbox Install Started" },
+  { value: "SandboxResultWritten", label: "Sandbox Result Written" },
+  { value: "ScoutReportGenerated", label: "Scout Report Generated" },
+  { value: "CommandExecutionCompleted", label: "Command Execution Completed" },
+  { value: "CommandExecutionBlocked", label: "Command Execution Blocked" },
+  { value: "ApprovalRequested", label: "Approval Requested" },
+  { value: "ApprovalApprovedOnce", label: "Approval Approved Once" },
+  { value: "ApprovalDeniedOnce", label: "Approval Denied Once" },
+  { value: "DecisionIssued", label: "Decision Issued" },
+];
 
 interface AuditEventsListCardProps {
   auditEventsList: CliJsonResponse<AuditEventListData> | null;
   onEventClick?: (eventId: string) => void;
+  auditEventType: AuditEventTypeFilter;
+  onTypeChange: (type: AuditEventTypeFilter) => void;
+  loading?: boolean;
 }
 
-export function AuditEventsListCard({ auditEventsList, onEventClick }: AuditEventsListCardProps) {
+export function AuditEventsListCard({ auditEventsList, onEventClick, auditEventType, onTypeChange, loading }: AuditEventsListCardProps) {
   const events = asArray(auditEventsList?.data?.events);
 
   return (
     <div className="audit-events-card">
       <div className="card-header">
         <h2>Audit Events List</h2>
+        <div className="reports-controls">
+          <div className="reports-control-group">
+            <label className="reports-control-label">Type:</label>
+            <select
+              className="reports-control-select"
+              value={auditEventType}
+              onChange={(e) => onTypeChange(e.target.value as AuditEventTypeFilter)}
+              disabled={loading}
+            >
+              {AUDIT_EVENT_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {auditEventsList && auditEventsList.ok && auditEventsList.data && (
