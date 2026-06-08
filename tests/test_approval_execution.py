@@ -5,6 +5,7 @@ import os
 import subprocess
 import tempfile
 import pytest
+from datetime import datetime, timedelta
 from policy_scout.approvals.models import can_resolve_approval
 
 
@@ -47,12 +48,18 @@ def create_fixture_approval(
     """Create a fixture approval for testing."""
     if actor is None:
         actor = {"type": "human", "name": "test_user"}
+
+    # Use dynamic timestamps to avoid expiration issues
+    now = datetime.utcnow()
+    created_at = now.isoformat() + "Z"
+    expires_at = (now + timedelta(hours=24)).isoformat() + "Z"
+
     approval = {
         "approval_id": approval_id,
         "request_id": "req_test",
         "decision_id": "dec_test",
-        "created_at": "2026-06-07T00:00:00Z",
-        "expires_at": "2026-06-08T00:00:00Z",
+        "created_at": created_at,
+        "expires_at": expires_at,
         "status": status,
         "actor": actor,
         "command": command,
