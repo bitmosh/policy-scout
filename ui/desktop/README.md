@@ -51,6 +51,35 @@ On a fresh install with no data:
 - Could-not-verify checks are capped at 5 with similar messaging
 - This keeps the UI responsive while directing users to CLI for complete results
 
+## Audit Events Display
+
+**Audit Stats shows total events and counts by event type.**
+- Total events count is displayed prominently
+- Events are grouped by type with individual counts
+- Time range shows first and last event timestamps when data exists
+
+**Audit Events List shows recent events with filtering.**
+- Events display with event ID, type, summary, and timestamp
+- Event type filter allows filtering by 13 specific event types:
+  - All recent events (unfiltered)
+  - SweepCompleted, SweepError
+  - SandboxInstallCompleted, SandboxInstallStarted, SandboxResultWritten
+  - ScoutReportGenerated
+  - CommandExecutionCompleted, CommandExecutionBlocked
+  - ApprovalRequested, ApprovalApprovedOnce, ApprovalDeniedOnce
+  - DecisionIssued
+- "All recent events" shows unfiltered list (no event type filter applied)
+- Empty state message: "No audit events found. Run a check, sweep, or report command to generate audit entries."
+
+**Audit Event Detail shows full event information.**
+- Event ID, event type, timestamp, request ID
+- Actor information (type and name) if present
+- Summary with redaction styling applied
+- Structured data payload as formatted JSON
+- Additional fields: decision_id, approval_id, sandbox_id, sweep_id, report_id, execution_id, schema_version, created_at
+- Redaction notice appears when redaction is applied
+- Audit surfaces are read-only — no deletion, export, or mutation controls
+
 ## Development Modes
 
 ### Browser/Vite Preview (Static Layout Only)

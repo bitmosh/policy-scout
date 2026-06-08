@@ -295,6 +295,17 @@ The desktop UI displays reports and evidence with these safeguards:
 - Report detail shows report ID, type, title, created_at, findings, could_not_verify, recommended_actions, and credential_exposure_assessment
 - No raw JSON dumps in the UI — structured display only
 
+### Audit events display
+
+The desktop UI displays audit events with these safeguards:
+- **Audit Stats** shows total events and counts by event type, with time range (first/last event timestamps)
+- **Audit Events List** shows recent events with event ID, type, summary, and timestamp
+- **Event type filter** allows filtering by 13 specific event types (All recent events, SweepCompleted, SweepError, SandboxInstallCompleted, SandboxInstallStarted, SandboxResultWritten, ScoutReportGenerated, CommandExecutionCompleted, CommandExecutionBlocked, ApprovalRequested, ApprovalApprovedOnce, ApprovalDeniedOnce, DecisionIssued)
+- **Empty state** explains how to generate events: "No audit events found. Run a check, sweep, or report command to generate audit entries."
+- **Event detail** shows event ID, event type, timestamp, request ID, actor (if present), summary, structured data payload, and additional fields (decision_id, approval_id, sandbox_id, sweep_id, report_id, execution_id, schema_version, created_at)
+- **Redaction is respected** in event detail with redaction notice when applicable
+- **Audit surfaces are read-only** — no deletion, export, or mutation controls
+
 ### Cleanup is dry-run only
 
 The `policy-scout data cleanup` command is preview-only in v0.1:

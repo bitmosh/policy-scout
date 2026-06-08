@@ -167,7 +167,7 @@ function App() {
     setAuditEventsLoading(true);
     try {
       const result = await invoke<CliJsonResponse>("list_audit_events_filtered", {
-        eventType: type === "all" ? null : type,
+        event_type: type === "all" ? null : type,
       });
       setAuditEventsList(result);
       if (!result.ok) {
