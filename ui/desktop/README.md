@@ -61,6 +61,7 @@ cd src-tauri && cargo check
 | Project Sweep | `policy-scout sweep project --json` |
 | Sandbox Results List | `policy-scout report list --json --type sandbox_result --limit 5` |
 | Sandbox Result Detail | `policy-scout report show --json <report_id>` |
+| Decision Check | `policy-scout check --json <command_text>` (check-only; never executes command) — static shell only, backend invoke not wired yet |
 
 ## Rust Backend Command Wrappers
 

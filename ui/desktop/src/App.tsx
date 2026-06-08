@@ -17,6 +17,7 @@ import { ProjectSweepCard } from "./components/ProjectSweepCard";
 import { ReportDetailCard } from "./components/ReportDetailCard";
 import { SandboxResultsListCard } from "./components/SandboxResultsListCard";
 import { SandboxResultDetailCard } from "./components/SandboxResultDetailCard";
+import { DecisionCheckCard } from "./components/DecisionCheckCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -329,6 +330,8 @@ function App() {
             <p>Error: {error}</p>
           </div>
         )}
+
+        <DecisionCheckCard />
 
         {selectedReportId ? (
           <ReportDetailCard

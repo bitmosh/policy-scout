@@ -295,3 +295,59 @@ export interface SweepData {
   schema_version?: number;
   [key: string]: unknown;
 }
+
+// Decision Check
+export type DecisionCheckDecision =
+  | "ALLOW"
+  | "REQUIRE_APPROVAL"
+  | "SANDBOX_FIRST"
+  | "DENY"
+  | "DENY_AND_ALERT";
+
+export type DecisionCheckRiskBand = "low" | "medium" | "high" | "critical";
+
+export interface DecisionCheckRegistryHit {
+  registry_name?: string;
+  entry_id?: string;
+  confidence?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface DecisionCheckData {
+  request_id?: string;
+  command: string;
+  decision: DecisionCheckDecision;
+  risk_score: number;
+  risk_band: DecisionCheckRiskBand;
+  category: string;
+  capabilities: string[];
+  reasons: string[];
+  recommended_next_action?: string;
+  confidence?: number;
+  registry_hits?: DecisionCheckRegistryHit[];
+  policy_hits?: string[];
+  [key: string]: unknown;
+}
+
+// Guided FAQ
+export type GuidedFaqCategory =
+  | "command_safety"
+  | "package_installs"
+  | "sandbox_workflow"
+  | "cleanup_dry_run"
+  | "sweep_findings"
+  | "reports_audit"
+  | "approvals"
+  | "credential_hygiene"
+  | "troubleshooting"
+  | "dashboard_navigation";
+
+export interface GuidedFaqPrompt {
+  id: string;
+  category: GuidedFaqCategory;
+  label: string;
+  description: string;
+  exampleCommand?: string;
+  explanation: string;
+  safetyNote?: string;
+}
