@@ -23,6 +23,14 @@ Native Tauri runtime required for live data. Browser/Vite preview shows static l
 - **Browser preview** — static layout only, no live CLI data
 - **Native app required** — `npm run tauri dev` for real invoke data
 
+## Empty State Behavior
+
+On a fresh install with no data:
+- Reports list shows "No reports found"
+- Sandbox results list shows "No sandbox results found"
+- Audit events list shows empty state
+- These are normal — run `policy-scout check --json <command>` to generate audit events, or run sandbox/sweep workflows to generate reports
+
 ## Development Modes
 
 ### Browser/Vite Preview (Static Layout Only)

@@ -178,16 +178,21 @@ Policy Scout stores all data locally under `~/.local/share/policy-scout/` by def
 
 ### Empty states
 
-If no data exists yet:
-- `policy-scout audit list` will show no events
-- `policy-scout report list` will show no reports
-- `policy-scout data status` will show zero counts
+On a fresh install with no data yet:
+- `policy-scout doctor --json` will pass with a warning for report directory (not created until first report)
+- `policy-scout audit stats --json` will return `{"total_events": 0, "by_type": {}}`
+- `policy-scout audit list --json` will return an empty array `[]`
+- `policy-scout report list --json` will return an error: "No Scout Reports found. Run a Policy Scout command with --report, sandbox, or sweep first."
+- `policy-scout data status --json` will show zero counts for all categories
 
-Generate some data by running:
+This is normal behavior. Generate safe demo data by running:
 ```bash
-policy-scout sweep quick
-policy-scout check -- ls
+policy-scout check --json "git status"
+policy-scout check --json "npm install left-pad"
+policy-scout check --json "rm -rf /"
 ```
+
+These check commands create audit events without executing any commands. After running checks, `policy-scout audit list --json` will show events and `policy-scout audit stats --json` will show counts.
 
 ---
 

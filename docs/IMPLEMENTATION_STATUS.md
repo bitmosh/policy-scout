@@ -439,3 +439,34 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - Added Desktop Dogfood Checklist to docs/INSTALL.md
 - No new behavior introduced — documentation and audit only
 - v0.4 focus remains shipping hardening (install/docs, data path clarity, repeatable verification)
+
+## v0.4.1 Data Path + Empty-State Hardening Audit
+
+**Data path and empty-state audit completed.**
+
+- Verified canonical data directory: `~/.local/share/policy-scout/` by default
+- Confirmed all environment variable overrides are documented and consistent with code:
+  - `POLICY_SCOUT_AUDIT_DB_PATH` - SQLite database path
+  - `POLICY_SCOUT_AUDIT_PATH` - JSONL file path
+  - `POLICY_SCOUT_APPROVAL_PATH` - Approvals storage path
+  - `POLICY_SCOUT_REPORT_ROOT` - Reports directory path
+  - `POLICY_SCOUT_SANDBOX_ROOT` - Sandbox workspaces path
+  - `POLICY_SCOUT_SWEEP_ROOT` - Sweep outputs path
+  - `POLICY_SCOUT_MIGRATION_ROOT` - Migration backups path
+  - `POLICY_SCOUT_BACKUP_ROOT` - General backups path
+- Verified fresh install behavior with isolated temp data home:
+  - `doctor --json` passes with warning for report directory (not created until first report)
+  - `audit stats --json` returns `{"total_events": 0, "by_type": {}}`
+  - `audit list --json` returns empty array `[]`
+  - `report list --json` returns error: "No Scout Reports found. Run a Policy Scout command with --report, sandbox, or sweep first."
+  - `data cleanup --dry-run` works safely on empty state
+- Updated docs/INSTALL.md with detailed empty-state guidance and safe demo data generation commands
+- Updated ui/desktop/README.md with empty-state behavior section
+- Verified mature data behavior on current developer machine (18,330 audit events, reports list correctly)
+- Verified UI empty-state copy is actionable and calm ("No reports found", "No sandbox results found")
+- No deletion/apply behavior added
+- Cleanup remains dry-run only
+- No fake record generation on missing data
+- No broad cleanup of user data
+- No new behavior introduced — documentation and audit only
+- v0.4.1 focus: data path hardening, empty-state clarity, fresh install experience
