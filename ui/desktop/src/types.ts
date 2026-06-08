@@ -68,6 +68,17 @@ export interface ReportListData {
   [key: string]: unknown;
 }
 
+// Sandbox Result List
+export interface SandboxResultListItem {
+  report_id?: string;
+  report_type?: string;
+  title?: string;
+  created_at?: string;
+  has_json?: boolean;
+  has_markdown?: boolean;
+  [key: string]: unknown;
+}
+
 // Report Detail
 export interface SweepFinding {
   finding_id?: string;

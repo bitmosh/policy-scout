@@ -15,6 +15,7 @@ import { EvalResultsCard } from "./components/EvalResultsCard";
 import { QuickSweepCard } from "./components/QuickSweepCard";
 import { ProjectSweepCard } from "./components/ProjectSweepCard";
 import { ReportDetailCard } from "./components/ReportDetailCard";
+import { SandboxResultsListCard } from "./components/SandboxResultsListCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -26,6 +27,7 @@ function App() {
   const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
   const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
+  const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse | null>(null);
   const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
   const [sweepLoading, setSweepLoading] = useState(false);
   const [projectSweep, setProjectSweep] = useState<CliJsonResponse | null>(null);
@@ -43,7 +45,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, auditEvents, demo, sandbox, sandboxResults, evalResult] = await Promise.all([
+      const [doctor, data, reports, audit, auditEvents, demo, sandbox, sandboxResults, evalResult, sbxList] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports"),
@@ -53,6 +55,7 @@ function App() {
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
         invoke<CliJsonResponse>("run_eval"),
+        invoke<CliJsonResponse>("list_sandbox_results"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
@@ -63,6 +66,7 @@ function App() {
       setSandboxCleanup(sandbox);
       setSandboxResultsCleanup(sandboxResults);
       setEvalResults(evalResult);
+      setSandboxResultsList(sbxList);
       if (!doctor.ok) {
         setError(doctor.error || "Unknown error");
       }
@@ -89,6 +93,9 @@ function App() {
       }
       if (!evalResult.ok) {
         setError(evalResult.error || "Unknown error");
+      }
+      if (!sbxList.ok) {
+        setError(sbxList.error || "Unknown error");
       }
     } catch (e) {
       const errorStr = String(e);
@@ -246,6 +253,7 @@ function App() {
               loading={projectSweepLoading}
               onRunSweep={runProjectSweep}
             />
+            <SandboxResultsListCard sandboxResults={sandboxResultsList} />
           </>
         )}
       </div>
