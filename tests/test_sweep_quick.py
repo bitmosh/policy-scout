@@ -18,7 +18,6 @@ from policy_scout.sweep.processes import (
 )
 from policy_scout.sweep.shell_profiles import check_shell_profiles
 from policy_scout.sweep.package_manager_config import check_package_manager_configs
-from policy_scout.sweep.temp_files import check_suspicious_temp_files
 from policy_scout.sweep.environment import check_environment_variables
 from policy_scout.sweep.quick_engine import run_quick_system_sweep
 from policy_scout.sweep.models import Finding, SweepResult
@@ -400,7 +399,7 @@ def test_check_suspicious_temp_files_no_temp(tmp_path, monkeypatch):
 
     monkeypatch.setattr(temp_module, "check_suspicious_temp_files", mock_check)
 
-    findings = check_suspicious_temp_files("sweep_test")
+    findings = temp_module.check_suspicious_temp_files("sweep_test")
 
     # Should return empty list
     assert len(findings) == 0
