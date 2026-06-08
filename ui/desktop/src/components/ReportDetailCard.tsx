@@ -1,6 +1,8 @@
 import { CliJsonResponse } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { StatusPill, severityToTone } from "./StatusPill";
+import { RedactionNotice } from "./RedactionNotice";
+import { EvidenceText } from "./EvidenceText";
 
 interface ReportDetailCardProps {
   reportDetail: CliJsonResponse | null;
@@ -42,12 +44,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
       <DetailHeader detailType="Scout Report" selectedId={reportId} onClose={onClose} />
 
       <div className="report-detail-content">
-        {redactionApplied && (
-          <div className="redaction-notice">
-            <strong>⚠️ Redaction Applied</strong>
-            <p>Some data has been redacted for privacy. Redacted values are displayed as placeholders.</p>
-          </div>
-        )}
+        <RedactionNotice show={redactionApplied} />
 
         <div className="report-metadata">
           <div className="info-row">
@@ -79,7 +76,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
         {data.summary && (
           <div className="report-section">
             <h3>Summary</h3>
-            <p className="report-summary">{data.summary}</p>
+            <p className="report-summary"><EvidenceText text={data.summary} /></p>
           </div>
         )}
 
@@ -111,9 +108,9 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
                     />
                     <span className="finding-category">{finding.category}</span>
                   </div>
-                  <div className="finding-title">{finding.title}</div>
+                  <div className="finding-title"><EvidenceText text={finding.title} /></div>
                   {finding.location && (
-                    <div className="finding-location">{finding.location}</div>
+                    <div className="finding-location"><EvidenceText text={finding.location} className="finding-location" /></div>
                   )}
                 </div>
               ))}
@@ -129,7 +126,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
             <h3>Recommended Actions</h3>
             <ul className="actions-list">
               {recommendedActions.map((action: any, index: number) => (
-                <li key={index} className="action-item">{action}</li>
+                <li key={index} className="action-item"><EvidenceText text={typeof action === "string" ? action : JSON.stringify(action)} /></li>
               ))}
             </ul>
           </div>
@@ -140,7 +137,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
             <h3>Could Not Verify</h3>
             <ul className="could-not-verify-list">
               {couldNotVerify.map((item: any, index: number) => (
-                <li key={index} className="could-not-verify-item">{item}</li>
+                <li key={index} className="could-not-verify-item"><EvidenceText text={typeof item === "string" ? item : JSON.stringify(item)} /></li>
               ))}
             </ul>
           </div>
@@ -157,7 +154,7 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
               {credentialExposure.notes && (
                 <div className="info-row">
                   <span className="info-label">Notes:</span>
-                  <span className="info-value">{credentialExposure.notes}</span>
+                  <span className="info-value"><EvidenceText text={credentialExposure.notes} /></span>
                 </div>
               )}
             </div>
@@ -167,28 +164,28 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
         {data.host_mutation_status && (
           <div className="report-section">
             <h3>Host Mutation Status</h3>
-            <p className="status-text">{data.host_mutation_status}</p>
+            <p className="status-text"><EvidenceText text={data.host_mutation_status} /></p>
           </div>
         )}
 
         {data.migration_status && (
           <div className="report-section">
             <h3>Migration Status</h3>
-            <p className="status-text">{data.migration_status}</p>
+            <p className="status-text"><EvidenceText text={data.migration_status} /></p>
           </div>
         )}
 
         {data.sweep_id && (
           <div className="report-section">
             <h3>Sweep ID</h3>
-            <p className="status-text">{data.sweep_id}</p>
+            <p className="status-text"><EvidenceText text={data.sweep_id} /></p>
           </div>
         )}
 
         {data.project_root && (
           <div className="report-section">
             <h3>Project Root</h3>
-            <p className="status-text">{data.project_root}</p>
+            <p className="status-text"><EvidenceText text={data.project_root} /></p>
           </div>
         )}
       </div>

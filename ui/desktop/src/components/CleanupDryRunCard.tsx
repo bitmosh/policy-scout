@@ -1,4 +1,5 @@
 import { CliJsonResponse } from "../types";
+import { EvidenceText } from "./EvidenceText";
 
 interface CleanupDryRunCardProps {
   demoCleanup: CliJsonResponse | null;
@@ -50,7 +51,7 @@ function CleanupSection({ title, data }: { title: string; data: any }) {
           <div className="items-list">
             {previewItems.map((item: any, index: number) => (
               <div key={index} className="item-row">
-                <span className="item-path">{item.path}</span>
+                <span className="item-path"><EvidenceText text={item.path} className="item-path" /></span>
                 <span className="item-meta">
                   {item.type} · {formatBytes(item.size_bytes)}
                 </span>
@@ -78,7 +79,7 @@ function CleanupSection({ title, data }: { title: string; data: any }) {
         <div className="cleanup-unverified">
           <h4>Could Not Verify</h4>
           {cleanup.could_not_verify.map((item: string, index: number) => (
-            <div key={index} className="unverified-item">{item}</div>
+            <div key={index} className="unverified-item"><EvidenceText text={typeof item === "string" ? item : JSON.stringify(item)} /></div>
           ))}
         </div>
       )}

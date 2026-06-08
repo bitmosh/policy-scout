@@ -1,5 +1,7 @@
 import { CliJsonResponse } from "../types";
 import { DetailHeader } from "./DetailHeader";
+import { RedactionNotice } from "./RedactionNotice";
+import { EvidenceText } from "./EvidenceText";
 
 interface AuditEventDetailCardProps {
   auditEventDetail: CliJsonResponse | null;
@@ -10,6 +12,7 @@ interface AuditEventDetailCardProps {
 export function AuditEventDetailCard({ auditEventDetail, loading, onClose }: AuditEventDetailCardProps) {
   const event = auditEventDetail?.data;
   const eventId = event?.event_id || "N/A";
+  const redactionApplied = event?.redaction_applied as boolean || false;
 
   if (loading) {
     return (
@@ -36,6 +39,11 @@ export function AuditEventDetailCard({ auditEventDetail, loading, onClose }: Aud
       <DetailHeader detailType="Audit Event" selectedId={eventId} onClose={onClose} />
 
       <div className="event-detail-content">
+        <RedactionNotice
+          show={redactionApplied}
+          message="Audit event data has been redacted. Sensitive values are shown as protected placeholders."
+        />
+
         <div className="event-detail-section">
           <h3>Event ID</h3>
           <p className="event-detail-value">{event.event_id || "N/A"}</p>
@@ -72,14 +80,14 @@ export function AuditEventDetailCard({ auditEventDetail, loading, onClose }: Aud
         {event.summary && (
           <div className="event-detail-section">
             <h3>Summary</h3>
-            <p className="event-detail-value">{event.summary}</p>
+            <p className="event-detail-value"><EvidenceText text={event.summary} /></p>
           </div>
         )}
 
         {event.data_json && (
           <div className="event-detail-section">
             <h3>Data</h3>
-            <pre className="event-detail-json">
+            <pre className="event-detail-json evidence-json">
               <code>{JSON.stringify(JSON.parse(event.data_json), null, 2)}</code>
             </pre>
           </div>

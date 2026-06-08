@@ -1,5 +1,6 @@
 import { CliJsonResponse } from "../types";
 import { StatusPill, severityToTone, confidenceToTone } from "./StatusPill";
+import { EvidenceText } from "./EvidenceText";
 
 interface QuickSweepCardProps {
   quickSweep: CliJsonResponse | null;
@@ -84,9 +85,9 @@ export function QuickSweepCard({ quickSweep, loading, onRunSweep }: QuickSweepCa
                       />
                     </div>
                     <div className="finding-category">{finding.category}</div>
-                    <div className="finding-title">{finding.title}</div>
+                    <div className="finding-title"><EvidenceText text={finding.title} /></div>
                     {finding.location && (
-                      <div className="finding-location">{finding.location}</div>
+                      <div className="finding-location"><EvidenceText text={finding.location} className="finding-location" /></div>
                     )}
                   </div>
                 ))}
@@ -105,8 +106,8 @@ export function QuickSweepCard({ quickSweep, loading, onRunSweep }: QuickSweepCa
               <div className="could-not-verify-list">
                 {couldNotVerify.slice(0, 5).map((item: any, index: number) => (
                   <div key={index} className="could-not-verify-item">
-                    <div className="could-not-verify-check">{item.check || "Unknown check"}</div>
-                    <div className="could-not-verify-reason">{item.reason || "No reason provided"}</div>
+                    <div className="could-not-verify-check"><EvidenceText text={item.check || "Unknown check"} /></div>
+                    <div className="could-not-verify-reason"><EvidenceText text={item.reason || "No reason provided"} /></div>
                   </div>
                 ))}
                 {couldNotVerifyCount > 5 && (

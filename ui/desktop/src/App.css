@@ -1129,6 +1129,10 @@ button:disabled {
     border-left-color: #f59e0b;
   }
 
+  .could-not-verify-item {
+    border-left-color: var(--color-review);
+  }
+
   .finding-category {
     color: #aaa;
   }
@@ -1321,6 +1325,10 @@ button:disabled {
 
 .finding-item {
   border-left-color: #f59e0b;
+}
+
+.could-not-verify-item {
+  border-left-color: var(--color-review);
 }
 
 .finding-header {
