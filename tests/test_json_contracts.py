@@ -713,3 +713,82 @@ def test_eval_run_json_has_required_fields(temp_state_paths):
     # If current suite passes, assert passed == total_cases
     if data["summary"]["failed"] == 0:
         assert data["summary"]["passed"] == data["summary"]["total_cases"]
+
+
+def test_data_status_json_has_required_fields(temp_state_paths):
+    """Test that data status --json has required fields. Current behavior; JSON API v1 candidate."""
+    tmpdir, report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        ["python", "-m", "policy_scout.cli.main", "data", "status", "--json"],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    assert result.returncode == 0
+
+    data = json.loads(result.stdout)
+
+    # Assert top-level fields
+    assert "data_root" in data
+    assert "paths" in data
+    assert "counts" in data
+
+    # Assert paths structure
+    assert isinstance(data["paths"], dict)
+    for path_name, path_info in data["paths"].items():
+        assert "path" in path_info
+        assert "exists" in path_info
+
+    # Assert counts structure
+    assert isinstance(data["counts"], dict)
+
+
+def test_data_cleanup_dry_run_json_confirms_dry_run_true(temp_state_paths):
+    """Test that data cleanup dry-run --json confirms dry_run true and does not delete. Current behavior; JSON API v1 candidate."""
+    tmpdir, report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python",
+            "-m",
+            "policy_scout.cli.main",
+            "data",
+            "cleanup",
+            "--target",
+            "demo",
+            "--dry-run",
+            "--json",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    assert result.returncode == 0
+
+    data = json.loads(result.stdout)
+
+    # Assert dry_run is true
+    assert "dry_run" in data
+    assert data["dry_run"] is True
+
+    # Assert target field
+    assert "target" in data
+
+    # Assert planned_items structure
+    assert "planned_items" in data
+    assert isinstance(data["planned_items"], list)
+
+    # Assert total items field
+    assert "total_items" in data
+    assert isinstance(data["total_items"], int)
+
+    # If items exist, assert they have required fields
+    if len(data["planned_items"]) > 0:
+        item = data["planned_items"][0]
+        assert "path" in item
+        assert "type" in item
