@@ -54,7 +54,8 @@ h1 {
 .data-card,
 .reports-card,
 .audit-card,
-.cleanup-card {
+.cleanup-card,
+.eval-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -393,6 +394,52 @@ button:disabled {
   color: #721c24;
 }
 
+.eval-summary {
+  margin-top: 1rem;
+}
+
+.eval-status {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.eval-failed {
+  margin-top: 1rem;
+}
+
+.eval-failed h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #555;
+}
+
+.failed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.failed-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: #f8d7da;
+  color: #721c24;
+  font-size: 0.85rem;
+}
+
+.failed-remaining {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -403,7 +450,8 @@ button:disabled {
   .data-card,
   .reports-card,
   .audit-card,
-  .cleanup-card {
+  .cleanup-card,
+  .eval-card {
     background: #3f3f3f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -543,5 +591,51 @@ button:disabled {
   .unverified-item {
     background: #5f3f3f;
     color: #ff9999;
+  }
+
+  .eval-summary {
+    margin-top: 1rem;
+  }
+
+  .eval-status {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 4px;
+    background: #4f4f4f;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .eval-failed {
+    margin-top: 1rem;
+  }
+
+  .eval-failed h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #aaa;
+  }
+
+  .failed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .failed-item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    background: #5f3f3f;
+    color: #ff9999;
+    font-size: 0.85rem;
+  }
+
+  .failed-remaining {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-style: italic;
+    padding: 0.5rem 0.75rem;
   }
 }

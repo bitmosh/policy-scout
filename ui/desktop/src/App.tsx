@@ -8,6 +8,7 @@ import { DataStatusCard } from "./components/DataStatusCard";
 import { ReportsListCard } from "./components/ReportsListCard";
 import { AuditStatsCard } from "./components/AuditStatsCard";
 import { CleanupDryRunCard } from "./components/CleanupDryRunCard";
+import { EvalResultsCard } from "./components/EvalResultsCard";
 
 function App() {
   const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
@@ -17,6 +18,7 @@ function App() {
   const [demoCleanup, setDemoCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxCleanup, setSandboxCleanup] = useState<CliJsonResponse | null>(null);
   const [sandboxResultsCleanup, setSandboxResultsCleanup] = useState<CliJsonResponse | null>(null);
+  const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +26,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, demo, sandbox, sandboxResults] = await Promise.all([
+      const [doctor, data, reports, audit, demo, sandbox, sandboxResults, evalResult] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports"),
@@ -32,6 +34,7 @@ function App() {
         invoke<CliJsonResponse>("get_cleanup_dry_run_demo"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox"),
         invoke<CliJsonResponse>("get_cleanup_dry_run_sandbox_results"),
+        invoke<CliJsonResponse>("run_eval"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
@@ -40,6 +43,7 @@ function App() {
       setDemoCleanup(demo);
       setSandboxCleanup(sandbox);
       setSandboxResultsCleanup(sandboxResults);
+      setEvalResults(evalResult);
       if (!doctor.ok) {
         setError(doctor.error || "Unknown error");
       }
@@ -60,6 +64,9 @@ function App() {
       }
       if (!sandboxResults.ok) {
         setError(sandboxResults.error || "Unknown error");
+      }
+      if (!evalResult.ok) {
+        setError(evalResult.error || "Unknown error");
       }
     } catch (e) {
       setError(String(e));
@@ -91,6 +98,7 @@ function App() {
           sandboxCleanup={sandboxCleanup}
           sandboxResultsCleanup={sandboxResultsCleanup}
         />
+        <EvalResultsCard evalResults={evalResults} />
       </div>
     </main>
   );
