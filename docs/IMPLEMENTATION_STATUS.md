@@ -226,7 +226,7 @@ v0.1-alpha
   - Rust backend (`src-tauri/src/lib.rs`) with 13 command wrappers:
     - `get_doctor_status` → `policy-scout doctor --json`
     - `get_data_status` → `policy-scout data status --json`
-    - `list_reports` → `policy-scout report list --json --limit 5`
+    - `list_reports_filtered(limit, report_type?)` → `policy-scout report list --json --limit <n> [--type <type>]`
     - `show_report(report_id)` → `policy-scout report show --json <report_id>`
     - `get_audit_stats` → `policy-scout audit stats --json`
     - `list_audit_events` → `policy-scout audit list --json --limit 10`

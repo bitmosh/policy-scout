@@ -69,11 +69,6 @@ fn get_data_status() -> CliJsonResponse {
 }
 
 #[tauri::command]
-fn list_reports() -> CliJsonResponse {
-    run_policy_scout_json(&["report", "list", "--json", "--limit", "5"])
-}
-
-#[tauri::command]
 fn get_audit_stats() -> CliJsonResponse {
     run_policy_scout_json(&["audit", "stats", "--json"])
 }
@@ -274,7 +269,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_doctor_status,
             get_data_status,
-            list_reports,
             get_audit_stats,
             get_cleanup_dry_run_demo,
             get_cleanup_dry_run_sandbox,
