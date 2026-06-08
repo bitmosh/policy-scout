@@ -551,6 +551,6 @@ Use this checklist to confirm the adapter validation layer is complete and corre
 - [x] Rust unit tests for `validate_report_id` — **done** (v0.2.39)
 - [x] `validate_audit_event_id` extracted — **done** (v0.2.37)
 - [x] Unit tests for `validate_audit_event_id` — **done** (v0.2.39)
-- [ ] Native smoke checklist run — **pending** (see §13)
+- [ ] Native smoke checklist run — **pending** — full checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md` (created v0.2.41)
 - [x] TypeScript compile check via `npm run build` — active
 - [x] CLI JSON contract tests via `pytest tests/test_json_contracts.py` — active

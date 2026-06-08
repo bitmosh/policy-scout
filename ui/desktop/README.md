@@ -124,6 +124,15 @@ The Tauri UI is explicitly constrained to read-only display:
 - Cleanup is dry-run preview only — no actual deletion
 - Report and audit detail IDs are selected from loaded lists and validated in Rust before CLI invocation
 
+## Manual Smoke Checklist
+
+A repeatable native smoke checklist for verifying all cards, selectors, detail flows, and
+safety boundaries in the native Tauri window is maintained at:
+
+`docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
+
+Run it at significant Tauri checkpoints and before v0.3.x feature expansion.
+
 ## Known Limitations
 
 - Native click-level interaction requires manual or GUI automation verification (not automated)

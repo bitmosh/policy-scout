@@ -379,7 +379,7 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 
 **Next Milestones**:
 1. Add pnpm/yarn/bun sandbox execution
-2. Manual native click verification of Tauri UI cards
+2. Manual native click verification of Tauri UI cards — checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
 3. Tauri audit/report list pagination or filters
 4. Add MCP server
 5. Add editor integrations
