@@ -5,7 +5,7 @@ import os
 import subprocess
 import tempfile
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from policy_scout.approvals.models import can_resolve_approval
 
 
@@ -50,9 +50,9 @@ def create_fixture_approval(
         actor = {"type": "human", "name": "test_user"}
 
     # Use dynamic timestamps to avoid expiration issues
-    now = datetime.utcnow()
-    created_at = now.isoformat() + "Z"
-    expires_at = (now + timedelta(hours=24)).isoformat() + "Z"
+    now = datetime.now(UTC)
+    created_at = now.isoformat()
+    expires_at = (now + timedelta(hours=24)).isoformat()
 
     approval = {
         "approval_id": approval_id,
