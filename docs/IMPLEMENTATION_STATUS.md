@@ -220,14 +220,18 @@ v0.1-alpha
 - Quick sweep is evidence-gathering, not malware confirmation
 
 ### UI/Integration
-- Experimental Tauri UI scaffold (Doctor Card only, read-only)
+- Experimental Tauri UI scaffold (v0.2.x, read-only)
   - Located in ui/desktop/
-  - Rust backend with get_doctor_status() command
-  - React frontend with Overview screen/card
+  - Rust backend with commands: get_doctor_status, get_data_status, list_reports, get_audit_stats, get_cleanup_dry_run_demo, get_cleanup_dry_run_sandbox, get_cleanup_dry_run_sandbox_results, run_eval
+  - React frontend with Overview screen and cards
+  - Current cards: Doctor Status, Data Status, Reports List, Audit Stats, Cleanup Dry-Run, Eval Results
   - Boundary note: "Read-only preview. Policy Scout CLI remains the authority."
   - No command execution UI, approval UI, sandbox migration UI, or cleanup deletion
   - No arbitrary shell access or frontend-provided argv arrays
   - No direct SQLite or filesystem access from frontend
+  - Browser/Vite preview limitation: Cannot load live data through Tauri invoke APIs
+  - Browser preview shows friendly message: "Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data."
+  - Native Tauri runtime required for live CLI-backed data cards
 - No MCP/editor integrations yet
 - No VS Code extension
 - No Cursor extension
