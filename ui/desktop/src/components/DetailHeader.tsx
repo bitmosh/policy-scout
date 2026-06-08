@@ -1,3 +1,5 @@
+import { StatusPill } from "./StatusPill";
+
 interface DetailHeaderProps {
   detailType: "Scout Report" | "Audit Event";
   selectedId: string;
@@ -16,7 +18,7 @@ export function DetailHeader({ detailType, selectedId, onClose }: DetailHeaderPr
         <div className="detail-title-group">
           <h2>{detailType} Detail</h2>
           <span className="detail-id">{selectedId}</span>
-          <span className="read-only-badge">Read-only</span>
+          <StatusPill label="" tone="success" value="Read-only" className="read-only-pill" />
         </div>
         <button onClick={onClose} className="close-button">Close</button>
       </div>

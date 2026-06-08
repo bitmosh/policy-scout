@@ -1,5 +1,6 @@
 import { CliJsonResponse } from "../types";
 import { DetailHeader } from "./DetailHeader";
+import { StatusPill, severityToTone } from "./StatusPill";
 
 interface ReportDetailCardProps {
   reportDetail: CliJsonResponse | null;
@@ -102,7 +103,12 @@ export function ReportDetailCard({ reportDetail, loading, onClose }: ReportDetai
               {findings.slice(0, 10).map((finding: any, index: number) => (
                 <div key={index} className="finding-item">
                   <div className="finding-header">
-                    <span className="finding-severity">{finding.severity?.toUpperCase()}</span>
+                    <StatusPill
+                      label=""
+                      tone={severityToTone(finding.severity)}
+                      value={finding.severity?.toUpperCase()}
+                      className="finding-severity-pill"
+                    />
                     <span className="finding-category">{finding.category}</span>
                   </div>
                   <div className="finding-title">{finding.title}</div>

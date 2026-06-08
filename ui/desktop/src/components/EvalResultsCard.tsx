@@ -1,4 +1,5 @@
 import { CliJsonResponse } from "../types";
+import { StatusPill, evalStatusToTone } from "./StatusPill";
 
 interface EvalResultsCardProps {
   evalResults: CliJsonResponse | null;
@@ -20,9 +21,6 @@ export function EvalResultsCard({ evalResults }: EvalResultsCardProps) {
   const passRate = summary.pass_rate !== undefined ? (summary.pass_rate * 100).toFixed(1) + "%" : "N/A";
   const duration = summary.duration_ms || summary.execution_time_ms || 0;
   const failedCaseIds = summary.failed_case_ids || [];
-
-  const statusColor = failed === 0 ? "#28a745" : "#dc3545";
-  const statusText = failed === 0 ? "All Passed" : `${failed} Failed`;
 
   return (
     <div className="eval-card">
@@ -53,8 +51,13 @@ export function EvalResultsCard({ evalResults }: EvalResultsCardProps) {
         </div>
       </div>
 
-      <div className="eval-status" style={{ color: statusColor }}>
-        <strong>{statusText}</strong>
+      <div className="eval-status">
+        <StatusPill
+          label=""
+          tone={evalStatusToTone(failed)}
+          value={failed === 0 ? "All Passed" : `${failed} Failed`}
+          className="eval-status-pill"
+        />
       </div>
 
       {failedCaseIds.length > 0 && (

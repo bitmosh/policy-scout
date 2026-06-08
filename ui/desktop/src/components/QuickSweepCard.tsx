@@ -1,4 +1,5 @@
 import { CliJsonResponse } from "../types";
+import { StatusPill, severityToTone, confidenceToTone } from "./StatusPill";
 
 interface QuickSweepCardProps {
   quickSweep: CliJsonResponse | null;
@@ -12,24 +13,6 @@ export function QuickSweepCard({ quickSweep, loading, onRunSweep }: QuickSweepCa
   const couldNotVerify = data?.could_not_verify as any[] || [];
   const findingsCount = findings.length;
   const couldNotVerifyCount = couldNotVerify.length;
-
-  const severityColor = (severity: string) => {
-    switch (severity) {
-      case "high": return "#dc2626";
-      case "medium": return "#f59e0b";
-      case "low": return "#10b981";
-      default: return "#6b7280";
-    }
-  };
-
-  const confidenceColor = (confidence: string) => {
-    switch (confidence) {
-      case "high": return "#10b981";
-      case "moderate": return "#f59e0b";
-      case "low": return "#dc2626";
-      default: return "#6b7280";
-    }
-  };
 
   return (
     <div className="card quick-sweep-card">
@@ -87,18 +70,18 @@ export function QuickSweepCard({ quickSweep, loading, onRunSweep }: QuickSweepCa
                 {findings.slice(0, 10).map((finding: any, index: number) => (
                   <div key={index} className="finding-item">
                     <div className="finding-header">
-                      <span
-                        className="finding-severity"
-                        style={{ color: severityColor(finding.severity) }}
-                      >
-                        {finding.severity?.toUpperCase()}
-                      </span>
-                      <span
-                        className="finding-confidence"
-                        style={{ color: confidenceColor(finding.confidence) }}
-                      >
-                        {finding.confidence?.toUpperCase()} confidence
-                      </span>
+                      <StatusPill
+                        label=""
+                        tone={severityToTone(finding.severity)}
+                        value={finding.severity?.toUpperCase()}
+                        className="finding-severity-pill"
+                      />
+                      <StatusPill
+                        label=""
+                        tone={confidenceToTone(finding.confidence)}
+                        value={`${finding.confidence?.toUpperCase()} confidence`}
+                        className="finding-confidence-pill"
+                      />
                     </div>
                     <div className="finding-category">{finding.category}</div>
                     <div className="finding-title">{finding.title}</div>

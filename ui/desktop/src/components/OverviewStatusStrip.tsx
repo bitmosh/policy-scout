@@ -1,4 +1,5 @@
 import { CliJsonResponse } from "../types";
+import { StatusPill, healthStatusToTone } from "./StatusPill";
 
 interface OverviewStatusStripProps {
   doctorStatus: CliJsonResponse | null;
@@ -126,43 +127,14 @@ export function OverviewStatusStrip({
   const cleanupTotal = getCleanupTotal();
   const quickSweepStatus = getQuickSweepStatus();
 
-  const getHealthColor = () => {
-    switch (healthStatus) {
-      case "OK": return "#28a745";
-      case "Warning": return "#ffc107";
-      case "Error": return "#dc3545";
-      default: return "#6b7280";
-    }
-  };
-
   return (
     <div className="status-strip">
-      <div className="status-chip">
-        <span className="chip-label">Health:</span>
-        <span className="chip-value" style={{ color: getHealthColor() }}>
-          {healthStatus}
-        </span>
-      </div>
-      <div className="status-chip">
-        <span className="chip-label">Reports:</span>
-        <span className="chip-value">{reportsCount}</span>
-      </div>
-      <div className="status-chip">
-        <span className="chip-label">Audit Events:</span>
-        <span className="chip-value">{auditEvents}</span>
-      </div>
-      <div className="status-chip">
-        <span className="chip-label">Eval:</span>
-        <span className="chip-value">{evalStatus}</span>
-      </div>
-      <div className="status-chip">
-        <span className="chip-label">Cleanup Preview:</span>
-        <span className="chip-value">{cleanupTotal} items</span>
-      </div>
-      <div className="status-chip">
-        <span className="chip-label">Quick Sweep:</span>
-        <span className="chip-value">{quickSweepStatus}</span>
-      </div>
+      <StatusPill label="Health" tone={healthStatusToTone(healthStatus)} value={healthStatus} />
+      <StatusPill label="Reports" tone="neutral" value={reportsCount} />
+      <StatusPill label="Audit Events" tone="neutral" value={auditEvents} />
+      <StatusPill label="Eval" tone="neutral" value={evalStatus} />
+      <StatusPill label="Cleanup Preview" tone="neutral" value={`${cleanupTotal} items`} />
+      <StatusPill label="Quick Sweep" tone="neutral" value={quickSweepStatus} />
     </div>
   );
 }

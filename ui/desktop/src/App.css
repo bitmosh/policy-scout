@@ -64,6 +64,78 @@ h1 {
   color: #666;
 }
 
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f9f9f9;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
+.status-pill__label {
+  font-weight: 600;
+  color: #333;
+}
+
+.status-pill__value {
+  color: #666;
+}
+
+.status-pill--neutral .status-pill__value {
+  color: #6b7280;
+}
+
+.status-pill--info .status-pill__value {
+  color: #17a2b8;
+}
+
+.status-pill--success .status-pill__value {
+  color: #28a745;
+}
+
+.status-pill--warning .status-pill__value {
+  color: #ffc107;
+}
+
+.status-pill--danger .status-pill__value {
+  color: #dc3545;
+}
+
+.status-pill--review .status-pill__value {
+  color: #f59e0b;
+}
+
+.status-pill.read-only-pill {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.status-pill.read-only-pill .status-pill__label {
+  display: none;
+}
+
+.status-pill.finding-severity-pill,
+.status-pill.finding-confidence-pill {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.status-pill.finding-severity-pill .status-pill__label,
+.status-pill.finding-confidence-pill .status-pill__label {
+  display: none;
+}
+
+.status-pill.eval-status-pill {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.status-pill.eval-status-pill .status-pill__label {
+  display: none;
+}
+
 .cards-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -648,6 +720,71 @@ button:disabled {
 
   .chip-value {
     color: #aaa;
+  }
+
+  .status-pill {
+    background: #4f4f4f;
+  }
+
+  .status-pill__label {
+    color: #ddd;
+  }
+
+  .status-pill__value {
+    color: #aaa;
+  }
+
+  .status-pill--neutral .status-pill__value {
+    color: #9ca3af;
+  }
+
+  .status-pill--info .status-pill__value {
+    color: #22d3ee;
+  }
+
+  .status-pill--success .status-pill__value {
+    color: #4caf50;
+  }
+
+  .status-pill--warning .status-pill__value {
+    color: #fbbf24;
+  }
+
+  .status-pill--danger .status-pill__value {
+    color: #f87171;
+  }
+
+  .status-pill--review .status-pill__value {
+    color: #fbbf24;
+  }
+
+  .status-pill.read-only-pill {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .status-pill.read-only-pill .status-pill__label {
+    display: none;
+  }
+
+  .status-pill.finding-severity-pill,
+  .status-pill.finding-confidence-pill {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .status-pill.finding-severity-pill .status-pill__label,
+  .status-pill.finding-confidence-pill .status-pill__label {
+    display: none;
+  }
+
+  .status-pill.eval-status-pill {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+
+  .status-pill.eval-status-pill .status-pill__label {
+    display: none;
   }
 
   .info-row {
