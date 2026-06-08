@@ -76,7 +76,8 @@ v0.1-alpha
 - No network access
 
 ### policy-scout data
-- Show local data status
+- `status` - Show local data status
+- `cleanup` - Preview-only cleanup planning for low-risk temporary local state (v1 dry-run only)
 - Reports data root path, all local state paths, and existence status
 - Reports counts for reports, sandbox results, demo workspaces, approvals, audit events
 - Human-readable output by default, JSON with --json
@@ -248,7 +249,7 @@ v0.1-alpha
 - Tauri UI
 - MCP server
 - Editor integrations
-- Data cleanup command (planned)
+- Data cleanup deletion path (v1 dry-run planning implemented)
 
 ### Future
 - Docker containment for sandbox
@@ -291,13 +292,13 @@ v0.1-alpha
 **Known Issues**:
 - Sandbox is npm-only (pnpm/yarn/bun sandbox execution deferred)
 - Redaction is regex-based only
-- No automated data cleanup (manual cleanup only)
+- Data cleanup is preview-only (no deletion path in v1)
 
 **Next Milestones**:
 1. Add pnpm/yarn/bun sandbox execution
 2. Add Tauri UI prototype
 3. Add MCP server
 4. Add editor integrations
-5. Add data cleanup command
+5. Add data cleanup deletion path (v1 dry-run planning implemented)
 
 **Recommendation**: Use for development and testing only. Not recommended for production use without additional hardening.

@@ -223,6 +223,16 @@ policy-scout report export <report_id> --format json
 
 Add `--json` to report list/show for machine-readable output.
 
+### Preview data cleanup (dry-run only)
+
+```bash
+policy-scout data cleanup --target demo --dry-run
+policy-scout data cleanup --target sandbox --dry-run
+policy-scout data cleanup --target sandbox-results --dry-run
+```
+
+The cleanup command is preview-only in v1. It reports planned items, estimated sizes, and warnings for low-risk temporary local state (demo workspaces, sandbox workspaces, sandbox result JSON artifacts). No deletion path exists, no `--yes` flag exists, and high-risk targets (audit, reports, approvals, migrations, backups) are not supported. Add `--json` for machine-readable output.
+
 ## Demo Sequence
 
 ```bash
