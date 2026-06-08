@@ -351,20 +351,20 @@ for bad in ["report_a/b", "report_ x", "report_a;b", "report_a|b",
 }
 ```
 
-### `show_audit_event` (inline validation)
+### `validate_audit_event_id`
 
 ```rust
 // acceptance
-assert!(validate_event_id("evt_abc123").is_ok());
+assert!(validate_audit_event_id("evt_abc123").is_ok());
 
 // rejection — wrong prefix
-assert!(validate_event_id("report_abc").is_err());
-assert!(validate_event_id("abc123").is_err());
-assert!(validate_event_id("").is_err());
+assert!(validate_audit_event_id("report_abc").is_err());
+assert!(validate_audit_event_id("abc123").is_err());
+assert!(validate_audit_event_id("").is_err());
 
 // rejection — shell metacharacters
 for bad in ["evt_a/b", "evt_ x", "evt_a;b", "evt_a|b", "evt_a&b"] {
-    assert!(validate_event_id(bad).is_err(), "should reject: {}", bad);
+    assert!(validate_audit_event_id(bad).is_err(), "should reject: {}", bad);
 }
 ```
 
@@ -482,6 +482,11 @@ The following are explicitly not in scope for Tauri adapter testing:
 2. **Add Rust `#[cfg(test)]` module** to `lib.rs` (or a dedicated test file) with unit tests
    for all six validators using the cases in §11.
 
+   **Test readiness (verified v0.2.38):** `cargo test` already runs cleanly in `src-tauri`
+   with 0 tests and 0 failures. Crate type includes `rlib`, so internal `#[cfg(test)]`
+   modules in `lib.rs` will compile and run without any additional setup. No new
+   dependencies or test framework required. This step is unblocked.
+
 3. **Add minimal frontend component tests** only if Vitest or another test framework is
    already introduced for another reason. Do not add a test framework solely for selector tests.
 
@@ -510,7 +515,7 @@ Use this checklist to confirm the adapter validation layer is complete and corre
 - [x] Audit event type allowlist: 12 values — implemented in `validate_audit_event_type`
 - [x] Cleanup target allowlist: 3 values — implemented in `validate_cleanup_target`
 - [x] Report ID prefix + metachar check — implemented in `validate_report_id`
-- [x] Audit event ID prefix + metachar check — implemented inline in `show_audit_event`
+- [x] Audit event ID prefix + metachar check — implemented in `validate_audit_event_id`
 
 ### Invalid input behavior
 
