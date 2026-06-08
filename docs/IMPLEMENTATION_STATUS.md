@@ -381,7 +381,7 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 1. Add pnpm/yarn/bun sandbox execution
 2. Manual native click verification of Tauri UI cards — checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
 3. Tauri audit/report list pagination or filters
-4. Decision Check + Guided FAQ UI (check-only, not run) — boundary spec at `docs/compressed/TAURI_DECISION_CHECK_GUIDED_FAQ_BOUNDARY_SOURCE.md`
+4. Decision Check + Guided FAQ UI (check-only, not run) — boundary spec at `docs/compressed/TAURI_DECISION_CHECK_GUIDED_FAQ_BOUNDARY_SOURCE.md`, CLI contract probe at `docs/compressed/TAURI_DECISION_CHECK_CLI_CONTRACT_SOURCE.md`
 5. Add MCP server
 6. Add editor integrations
 7. Add data cleanup deletion path (v1 dry-run planning implemented)

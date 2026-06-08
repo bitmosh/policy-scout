@@ -94,6 +94,8 @@ policy-scout check --json <command_text>
 - Exit codes: 0 (success), 10 (risky/approval/sandbox), 20 (denied), 30 (error)
 - JSON response includes: request_id, command, decision, risk_score, risk_band, category, capabilities, reasons, recommended_next_action, confidence, registry_hits, policy_hits
 
+**Note:** For detailed CLI contract probe results and JSON shape documentation, see `docs/compressed/TAURI_DECISION_CHECK_CLI_CONTRACT_SOURCE.md`.
+
 ### Example Outputs
 
 **Safe example:**
