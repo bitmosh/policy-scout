@@ -1,10 +1,10 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, CleanupDryRunData } from "../types";
 import { EvidenceText } from "./EvidenceText";
 
 interface CleanupDryRunCardProps {
-  demoCleanup: CliJsonResponse | null;
-  sandboxCleanup: CliJsonResponse | null;
-  sandboxResultsCleanup: CliJsonResponse | null;
+  demoCleanup: CliJsonResponse<CleanupDryRunData> | null;
+  sandboxCleanup: CliJsonResponse<CleanupDryRunData> | null;
+  sandboxResultsCleanup: CliJsonResponse<CleanupDryRunData> | null;
 }
 
 function formatBytes(bytes: number): string {
@@ -15,12 +15,12 @@ function formatBytes(bytes: number): string {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
 }
 
-function CleanupSection({ title, data }: { title: string; data: any }) {
+function CleanupSection({ title, data }: { title: string; data: CliJsonResponse<CleanupDryRunData> | null }) {
   if (!data || !data.ok || !data.data) {
     return null;
   }
 
-  const cleanup = data.data;
+  const cleanup = data.data as CleanupDryRunData;
   const previewItems = cleanup.planned_items ? cleanup.planned_items.slice(0, 5) : [];
 
   return (
@@ -41,7 +41,7 @@ function CleanupSection({ title, data }: { title: string; data: any }) {
         </div>
         <div className="info-row">
           <span className="label">Total Size:</span>
-          <span className="value">{formatBytes(cleanup.total_bytes)}</span>
+          <span className="value">{cleanup.total_bytes !== undefined ? formatBytes(cleanup.total_bytes) : "N/A"}</span>
         </div>
       </div>
 
@@ -57,7 +57,7 @@ function CleanupSection({ title, data }: { title: string; data: any }) {
                 </span>
               </div>
             ))}
-            {cleanup.planned_items.length > 5 && (
+            {cleanup.planned_items && cleanup.planned_items.length > 5 && (
               <div className="items-remaining">
                 ... and {cleanup.planned_items.length - 5} more
               </div>
@@ -66,19 +66,10 @@ function CleanupSection({ title, data }: { title: string; data: any }) {
         </div>
       )}
 
-      {cleanup.warnings && cleanup.warnings.length > 0 && (
-        <div className="cleanup-warnings">
-          <h4>Warnings</h4>
-          {cleanup.warnings.map((warning: string, index: number) => (
-            <div key={index} className="warning-item">{warning}</div>
-          ))}
-        </div>
-      )}
-
       {cleanup.could_not_verify && cleanup.could_not_verify.length > 0 && (
         <div className="cleanup-unverified">
           <h4>Could Not Verify</h4>
-          {cleanup.could_not_verify.map((item: string, index: number) => (
+          {cleanup.could_not_verify.map((item: any, index: number) => (
             <div key={index} className="unverified-item"><EvidenceText text={typeof item === "string" ? item : JSON.stringify(item)} /></div>
           ))}
         </div>

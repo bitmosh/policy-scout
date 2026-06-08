@@ -1,19 +1,19 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, AuditEventDetailData } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { RedactionNotice } from "./RedactionNotice";
 import { EvidenceText } from "./EvidenceText";
 
 interface AuditEventDetailCardProps {
-  auditEventDetail: CliJsonResponse | null;
+  auditEventDetail: CliJsonResponse<AuditEventDetailData> | null;
   loading: boolean;
   selectedId: string;
   onClose: () => void;
 }
 
 export function AuditEventDetailCard({ auditEventDetail, loading, selectedId, onClose }: AuditEventDetailCardProps) {
-  const event = auditEventDetail?.data;
+  const event = auditEventDetail?.data as AuditEventDetailData | undefined;
   const eventId = event?.event_id || selectedId;
-  const redactionApplied = event?.redaction_applied as boolean || false;
+  const redactionApplied = event?.redaction_applied || false;
 
   if (loading) {
     return (
@@ -24,7 +24,7 @@ export function AuditEventDetailCard({ auditEventDetail, loading, selectedId, on
     );
   }
 
-  if (!auditEventDetail || !auditEventDetail.ok || !auditEventDetail.data) {
+  if (!auditEventDetail || !auditEventDetail.ok || !event) {
     return (
       <div className="audit-event-detail-card">
         <DetailHeader detailType="Audit Event" selectedId={selectedId} onClose={onClose} />
@@ -47,7 +47,7 @@ export function AuditEventDetailCard({ auditEventDetail, loading, selectedId, on
 
         <div className="event-detail-section">
           <h3>Event ID</h3>
-          <p className="event-detail-value">{event.event_id || "N/A"}</p>
+          <p className="event-detail-value">{event?.event_id || "N/A"}</p>
         </div>
 
         <div className="event-detail-section">

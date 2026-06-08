@@ -41,11 +41,14 @@ export interface DoctorStatusData {
 // Data Status
 export interface DataStatusData {
   data_directory?: string;
+  data_root?: string;
   audit_db_path?: string;
   audit_db_size_bytes?: number;
   audit_db_record_count?: number;
   report_directory?: string;
   report_count?: number;
+  counts?: Record<string, number>;
+  paths?: Record<string, { exists?: boolean; [key: string]: unknown }>;
   [key: string]: unknown;
 }
 
@@ -122,6 +125,12 @@ export interface AuditStatsData {
   total_events?: number;
   events_by_decision?: Record<string, number>;
   events_by_category?: Record<string, number>;
+  by_type?: Record<string, number>;
+  time_range?: {
+    first_event?: string;
+    last_event?: string;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -143,6 +152,7 @@ export interface AuditEventListData {
 // Audit Event Detail
 export interface AuditEventDetailData {
   event_id?: string;
+  event_type?: string;
   timestamp?: string;
   decision?: string;
   category?: string;
@@ -150,6 +160,16 @@ export interface AuditEventDetailData {
   data_json?: string;
   redaction_applied?: boolean;
   schema_version?: number;
+  request_id?: string;
+  actor_type?: string;
+  actor_name?: string;
+  decision_id?: string;
+  approval_id?: string;
+  sandbox_id?: string;
+  sweep_id?: string;
+  report_id?: string;
+  execution_id?: string;
+  created_at?: string;
   [key: string]: unknown;
 }
 

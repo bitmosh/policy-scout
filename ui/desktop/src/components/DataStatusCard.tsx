@@ -1,7 +1,7 @@
-import { CliJsonResponse } from "../types";
+import { CliJsonResponse, DataStatusData } from "../types";
 
 interface DataStatusCardProps {
-  dataStatus: CliJsonResponse | null;
+  dataStatus: CliJsonResponse<DataStatusData> | null;
 }
 
 export function DataStatusCard({ dataStatus }: DataStatusCardProps) {
