@@ -150,7 +150,7 @@ Run it at significant Tauri checkpoints and before v0.3.x feature expansion.
 2. Audit/report list pagination or filter controls
 3. Visual polish continuation
 4. Sandbox results read-only list/detail view
-5. Decision Check UI (check-only, not run)
+5. Decision Check UI (check-only, not run) — boundary spec at `docs/compressed/TAURI_DECISION_CHECK_GUIDED_FAQ_BOUNDARY_SOURCE.md`
 
 ## Recommended IDE Setup
 
