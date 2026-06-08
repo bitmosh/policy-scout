@@ -217,7 +217,35 @@ def cli():
 
     # data command
     data_parser = subparsers.add_parser("data", help="Show local data status")
-    data_parser.add_argument(
+    data_subparsers = data_parser.add_subparsers(
+        dest="data_subcommand", help="Data commands"
+    )
+
+    # data status (default)
+    data_status_parser = data_subparsers.add_parser(
+        "status", help="Show local data status"
+    )
+    data_status_parser.add_argument(
+        "--json", action="store_true", help="Output JSON instead of human-readable text"
+    )
+
+    # data cleanup
+    data_cleanup_parser = data_subparsers.add_parser(
+        "cleanup", help="Plan cleanup of temporary local data (dry-run only)"
+    )
+    data_cleanup_parser.add_argument(
+        "--target",
+        required=True,
+        choices=["demo", "sandbox", "sandbox-results"],
+        help="Target to clean up (demo, sandbox, sandbox-results)",
+    )
+    data_cleanup_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=True,
+        help="Dry-run mode (no deletion, always true in v1)",
+    )
+    data_cleanup_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
 
@@ -445,12 +473,28 @@ def cli():
         output = run_demo()
         print(output)
     elif args.subcommand == "data":
-        status = get_data_status()
-        if args.json:
-            output = format_data_status_json(status)
+        # Handle data subcommands
+        if args.data_subcommand == "cleanup":
+            from policy_scout.data_cleanup import (
+                plan_cleanup,
+                format_cleanup_plan_human,
+                format_cleanup_plan_json,
+            )
+
+            plan = plan_cleanup(args.target)
+            if args.json:
+                output = format_cleanup_plan_json(plan)
+            else:
+                output = format_cleanup_plan_human(plan)
+            print(output)
         else:
-            output = format_data_status_human(status)
-        print(output)
+            # Default to status for backward compatibility
+            status = get_data_status()
+            if args.json:
+                output = format_data_status_json(status)
+            else:
+                output = format_data_status_human(status)
+            print(output)
     elif args.subcommand == "run":
         if not args.command:
             print("Error: No command provided to run", file=sys.stderr)
