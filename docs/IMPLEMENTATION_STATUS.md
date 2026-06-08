@@ -220,7 +220,14 @@ v0.1-alpha
 - Quick sweep is evidence-gathering, not malware confirmation
 
 ### UI/Integration
-- No Tauri UI yet
+- Experimental Tauri UI scaffold (Doctor Card only, read-only)
+  - Located in ui/desktop/
+  - Rust backend with get_doctor_status() command
+  - React frontend with Overview screen/card
+  - Boundary note: "Read-only preview. Policy Scout CLI remains the authority."
+  - No command execution UI, approval UI, sandbox migration UI, or cleanup deletion
+  - No arbitrary shell access or frontend-provided argv arrays
+  - No direct SQLite or filesystem access from frontend
 - No MCP/editor integrations yet
 - No VS Code extension
 - No Cursor extension

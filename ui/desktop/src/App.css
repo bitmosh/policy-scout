@@ -1,0 +1,226 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+.container {
+  margin: 0;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.boundary-note {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.doctor-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+button {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) {
+  border-color: #396cd8;
+  background-color: #f0f0f0;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.error-message {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  margin: 0;
+  color: #c33;
+}
+
+.doctor-data {
+  margin-top: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row .label {
+  font-weight: 600;
+  color: #333;
+}
+
+.info-row .value {
+  color: #666;
+}
+
+.doctor-data h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.checks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.check-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.check-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.check-status {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.check-status.ok {
+  color: #28a745;
+}
+
+.check-status.warning {
+  color: #ffc107;
+}
+
+.check-status.error {
+  color: #dc3545;
+}
+
+.check-message {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+
+  .doctor-card {
+    background: #3f3f3f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-header {
+    border-bottom-color: #555;
+  }
+
+  button {
+    color: #ffffff;
+    background-color: #4f4f4f;
+    border-color: #666;
+  }
+
+  button:hover:not(:disabled) {
+    background-color: #5f5f5f;
+  }
+
+  .boundary-note {
+    color: #aaa;
+  }
+
+  .info-row {
+    border-bottom-color: #555;
+  }
+
+  .info-row .label {
+    color: #ddd;
+  }
+
+  .info-row .value {
+    color: #aaa;
+  }
+
+  .check-item {
+    background: #4f4f4f;
+  }
+
+  .check-message {
+    color: #aaa;
+  }
+
+  .error-message {
+    background: #5f3f3f;
+    border-color: #8f5f5f;
+  }
+
+  .error-message p {
+    color: #ff9999;
+  }
+}
