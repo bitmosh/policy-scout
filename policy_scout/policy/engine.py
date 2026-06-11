@@ -1,9 +1,20 @@
 """Policy engine for making authorization decisions."""
 
-from typing import Optional
+from __future__ import annotations
+
+import re
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal, Optional
+
 from ..core.decision import PolicyDecision, RiskScore
 from ..classify.command_classifier import ClassificationResult
 from ..registry.models import PolicyRegistry
+
+# project_override is imported lazily inside _load_override() to avoid a
+# circular import: engine → management.project_override → management.__init__
+# → simulator → engine.
+if TYPE_CHECKING:
+    from ..policy.management.project_override import ProjectOverride
 
 
 class PolicyEngine:
@@ -32,17 +43,82 @@ class PolicyEngine:
         },
     ]
 
-    def __init__(self, policy_registry: Optional[PolicyRegistry] = None):
-        """Initialize policy engine with optional policy registry."""
+    def __init__(
+        self,
+        policy_registry: Optional[PolicyRegistry] = None,
+        config_override: Optional[Path | Literal["none"]] = None,
+    ):
         self.policy_registry = policy_registry
+        self._override_violation: Optional[str] = None  # set if override was rejected
+        self._project_override: Optional[ProjectOverride] = self._load_override(config_override)
+
+    def _load_override(
+        self,
+        config_override: Optional[Path | Literal["none"]],
+    ):
+        if config_override == "none":
+            return None
+        from ..policy.management.project_override import (
+            load_project_override,
+            PolicyOverrideViolation,
+        )
+        try:
+            if isinstance(config_override, Path):
+                return load_project_override(
+                    cwd=config_override.parent if config_override.is_file() else config_override
+                )
+            return load_project_override()
+        except PolicyOverrideViolation as exc:
+            self._override_violation = str(exc)
+            return None
+        except Exception:
+            return None
+
+    @property
+    def project_override(self) -> Optional[ProjectOverride]:
+        return self._project_override
+
+    @property
+    def override_violation(self) -> Optional[str]:
+        """Non-None if a project override was found but rejected (tighten-only violation)."""
+        return self._override_violation
 
     def evaluate(
         self,
         classification: ClassificationResult,
         risk_score: RiskScore,
         request_id: str = "",
+        command: str = "",
     ) -> PolicyDecision:
         """Evaluate classification and risk to produce a decision."""
+        # Lockdown check: when active, force DENY for everything except safe reads
+        try:
+            from ..response.lockdown import is_lockdown_active
+            if is_lockdown_active():
+                decision = PolicyDecision(request_id=request_id)
+                decision.category = (
+                    classification.categories[0] if classification.categories else "unknown"
+                )
+                decision.risk_score = risk_score.risk_score
+                decision.confidence = classification.confidence
+                if "safe_read" in classification.categories:
+                    decision.decision = "ALLOW_LOGGED"
+                    decision.reasons = ["Lockdown active — safe reads logged."]
+                    decision.recommended_next_action = "Deactivate lockdown when investigation is complete."
+                else:
+                    decision.decision = "DENY"
+                    decision.reasons = [
+                        "Policy Scout is in lockdown mode.",
+                        "All non-read operations are blocked until lockdown is deactivated.",
+                    ]
+                    decision.recommended_next_action = (
+                        "Run 'policy-scout clearance' to check system state, "
+                        "then 'policy-scout lockdown off' to deactivate."
+                    )
+                return decision
+        except Exception:
+            pass  # lockdown module unavailable — continue normal evaluation
+
         decision = PolicyDecision(request_id=request_id)
         decision.category = (
             classification.categories[0] if classification.categories else "unknown"
@@ -50,20 +126,31 @@ class PolicyEngine:
         decision.risk_score = risk_score.risk_score
         decision.confidence = classification.confidence
 
-        # Find matching policy rules from registry first
+        # Build combined rule list:
+        #   1. project override additional_rules (prepended — fire first)
+        #   2. global registry rules
+        # Falls back to hardcoded fallback rules if neither matched.
         matched_rules = []
-        if self.policy_registry:
-            matched_rules = self._match_from_registry(classification)
 
-        # If no registry matches, try fallback rules
+        if self._project_override:
+            matched_rules.extend(
+                self._match_override_rules(classification, command)
+            )
+
+        if self.policy_registry:
+            matched_rules.extend(self._match_from_registry(classification))
+
         if not matched_rules:
             matched_rules = self._match_fallback_rules(classification)
 
         # Sort by priority (higher priority first)
         matched_rules.sort(key=lambda r: r["priority"], reverse=True)
 
+        # Apply override_decisions strengthening before selecting the winner
+        if self._project_override and matched_rules:
+            matched_rules = self._apply_decision_strengthening(matched_rules)
+
         if matched_rules:
-            # Use highest priority matching rule
             decisive_rule = matched_rules[0]
             decision.decision = decisive_rule["decision"]
             decision.reasons = decisive_rule["reasons"]
@@ -72,7 +159,6 @@ class PolicyEngine:
             )
             decision.policy_hits = [rule["id"] for rule in matched_rules]
         else:
-            # No rule matched - deny by default for safety
             decision.decision = "DENY"
             decision.reasons = ["No policy rule matched this command."]
             decision.recommended_next_action = (
@@ -81,7 +167,6 @@ class PolicyEngine:
 
         # Override for specific destructive patterns
         if "destructive" in classification.categories:
-            # Check if it's a system-level destructive command
             if "/" in classification.command_family or classification.structure.get(
                 "has_pipe"
             ):
@@ -92,6 +177,79 @@ class PolicyEngine:
                 )
 
         return decision
+
+    def _match_override_rules(
+        self,
+        classification: ClassificationResult,
+        command: str,
+    ) -> list:
+        """Match project override additional_rules against classification + raw command."""
+        if not self._project_override:
+            return []
+
+        matched = []
+        for rule in self._project_override.additional_rules:
+            match_spec = rule.match
+
+            # Empty match dict → matches everything
+            if not match_spec:
+                matched.append({
+                    "id": rule.id,
+                    "priority": rule.priority,
+                    "decision": rule.decision,
+                    "reasons": rule.reasons or [rule.description or rule.id],
+                    "recommended_next_action": "",
+                })
+                continue
+
+            # command_pattern matching (requires raw command string)
+            if "command_pattern" in match_spec:
+                if not command:
+                    continue  # can't match without command; skip this rule
+                try:
+                    if not re.search(match_spec["command_pattern"], command):
+                        continue
+                except re.error:
+                    continue
+
+            # categories matching (same semantics as global registry)
+            if "categories" in match_spec:
+                if not any(
+                    cat in match_spec["categories"]
+                    for cat in classification.categories
+                ):
+                    continue
+
+            matched.append({
+                "id": rule.id,
+                "priority": rule.priority,
+                "decision": rule.decision,
+                "reasons": rule.reasons or [rule.description or rule.id],
+                "recommended_next_action": "",
+            })
+
+        return matched
+
+    def _apply_decision_strengthening(self, matched_rules: list) -> list:
+        """Apply override_decisions strengthening to matched rules."""
+        if not self._project_override or not self._project_override.override_decisions:
+            return matched_rules
+
+        strengthening_map = {
+            od.rule_id: od.strengthen_to
+            for od in self._project_override.override_decisions
+        }
+
+        result = []
+        for rule in matched_rules:
+            if rule["id"] in strengthening_map:
+                rule = dict(rule)  # copy before mutating
+                rule["decision"] = strengthening_map[rule["id"]]
+                rule["reasons"] = rule["reasons"] + [
+                    f"Project override strengthened decision to {rule['decision']}"
+                ]
+            result.append(rule)
+        return result
 
     def _match_from_registry(self, classification: ClassificationResult) -> list:
         """Match policies from registry."""
@@ -133,7 +291,6 @@ class PolicyEngine:
                 ):
                     exclude_match = False
 
-            # Policy matches if categories match AND (no capabilities specified OR capabilities match) AND not excluded
             if category_match and capability_match and exclude_match:
                 matched.append(
                     {
