@@ -1,8 +1,9 @@
-"""Data cleanup planning for Policy Scout (dry-run only)."""
+"""Data cleanup for Policy Scout — plan (dry-run) and execute (--apply)."""
 
 import os
+import shutil
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 
 def get_data_root() -> Path:
@@ -18,7 +19,7 @@ def normalize_path_for_human(path: Path) -> str:
     try:
         home = Path.home()
         if path.is_relative_to(home):
-            return "~" / path.relative_to(home)
+            return str(Path("~") / path.relative_to(home))
         return str(path)
     except ValueError:
         return str(path)
@@ -280,3 +281,144 @@ def format_cleanup_plan_json(plan: Dict[str, Any]) -> str:
         output["could_not_verify"] = plan["could_not_verify"]
 
     return json.dumps(output, indent=2)
+
+
+def execute_cleanup(plan: Dict[str, Any]) -> Dict[str, Any]:
+    """Execute a cleanup plan, deleting all planned items.
+
+    Safety invariants:
+    - Every path is re-validated under data root at execution time.
+    - Symlinks that escape the data root are skipped.
+    - Only items listed in plan["planned_items"] are touched.
+    - Returns a result dict regardless of individual item errors.
+    """
+    if plan.get("dry_run", True):
+        return {
+            "target": plan.get("target", ""),
+            "executed": False,
+            "error": "Cannot execute: plan is marked dry_run=True",
+            "deleted_items": [],
+            "failed_items": [],
+            "deleted_count": 0,
+            "failed_count": 0,
+            "freed_bytes": 0,
+        }
+
+    if "error" in plan:
+        return {
+            "target": plan.get("target", ""),
+            "executed": False,
+            "error": plan["error"],
+            "deleted_items": [],
+            "failed_items": [],
+            "deleted_count": 0,
+            "failed_count": 0,
+            "freed_bytes": 0,
+        }
+
+    data_root = get_data_root()
+    target_root_str = plan.get("target_root", "")
+    if not target_root_str:
+        return {
+            "target": plan.get("target", ""),
+            "executed": False,
+            "error": "Plan has no target_root",
+            "deleted_items": [],
+            "failed_items": [],
+            "deleted_count": 0,
+            "failed_count": 0,
+            "freed_bytes": 0,
+        }
+
+    deleted_items: List[Dict[str, Any]] = []
+    failed_items: List[Dict[str, Any]] = []
+    freed_bytes = 0
+
+    for item in plan.get("planned_items", []):
+        item_path = Path(item["path"])
+
+        # Re-validate under data root at execution time (TOCTOU defence)
+        if not validate_path_under_root(item_path, data_root):
+            failed_items.append({
+                "path": str(item_path),
+                "reason": "Path escaped data root — skipped",
+            })
+            continue
+
+        # Skip symlinks that resolve outside data root
+        if item_path.is_symlink() and not validate_path_under_root(item_path, data_root):
+            failed_items.append({
+                "path": str(item_path),
+                "reason": "Symlink resolves outside data root — skipped",
+            })
+            continue
+
+        try:
+            size = item.get("size_bytes", 0)
+            if item_path.is_symlink() or item_path.is_file():
+                item_path.unlink()
+            elif item_path.is_dir():
+                shutil.rmtree(item_path)
+            else:
+                # Already gone — count as success
+                pass
+            deleted_items.append({"path": str(item_path), "size_bytes": size})
+            freed_bytes += size
+        except (PermissionError, OSError) as exc:
+            failed_items.append({"path": str(item_path), "reason": str(exc)})
+
+    return {
+        "target": plan.get("target", ""),
+        "executed": True,
+        "target_root": target_root_str,
+        "deleted_items": deleted_items,
+        "failed_items": failed_items,
+        "deleted_count": len(deleted_items),
+        "failed_count": len(failed_items),
+        "freed_bytes": freed_bytes,
+    }
+
+
+def format_cleanup_result_human(result: Dict[str, Any]) -> str:
+    lines = ["Policy Scout Data Cleanup Result", "=" * 50, ""]
+    lines.append(f"Target: {result['target']}")
+
+    if not result.get("executed"):
+        lines.append(f"Error: {result.get('error', 'unknown')}")
+        return "\n".join(lines)
+
+    lines.append(
+        f"Target Root: {normalize_path_for_human(Path(result['target_root']))}"
+    )
+    lines.append("")
+
+    if result["deleted_count"] == 0 and result["failed_count"] == 0:
+        lines.append("Nothing to delete.")
+    else:
+        lines.append(f"Deleted: {result['deleted_count']} item(s), "
+                     f"{result['freed_bytes']:,} bytes freed")
+        if result["failed_count"]:
+            lines.append(f"Failed:  {result['failed_count']} item(s)")
+
+    if result["deleted_items"]:
+        lines += ["", "Deleted:"]
+        for item in result["deleted_items"]:
+            lines.append(
+                f"  {normalize_path_for_human(Path(item['path']))} "
+                f"({item['size_bytes']:,} bytes)"
+            )
+
+    if result["failed_items"]:
+        lines += ["", "Errors:"]
+        for item in result["failed_items"]:
+            lines.append(
+                f"  {normalize_path_for_human(Path(item['path']))}: {item['reason']}"
+            )
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def format_cleanup_result_json(result: Dict[str, Any]) -> str:
+    import json
+    return json.dumps(result, indent=2)

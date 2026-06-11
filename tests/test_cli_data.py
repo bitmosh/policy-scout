@@ -261,7 +261,7 @@ def test_cleanup_help_shows_usage():
     assert "demo" in help_output
     assert "sandbox" in help_output
     assert "sandbox-results" in help_output
-    assert "--dry-run" in help_output
+    assert "--apply" in help_output
     assert "--json" in help_output
 
 
@@ -287,7 +287,6 @@ def test_cleanup_demo_dry_run_shows_planned_items():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -322,7 +321,6 @@ def test_cleanup_sandbox_dry_run_shows_planned_items():
                 "cleanup",
                 "--target",
                 "sandbox",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -357,7 +355,6 @@ def test_cleanup_sandbox_results_dry_run_shows_planned_items():
                 "cleanup",
                 "--target",
                 "sandbox-results",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -387,7 +384,6 @@ def test_cleanup_missing_target_returns_zero_items():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -410,7 +406,6 @@ def test_cleanup_unsupported_target_errors():
             "cleanup",
             "--target",
             "reports",
-            "--dry-run",
         ],
         capture_output=True,
         text=True,
@@ -442,7 +437,6 @@ def test_cleanup_json_output_has_expected_shape():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
                 "--json",
             ],
             capture_output=True,
@@ -476,7 +470,6 @@ def test_cleanup_human_output_normalizes_home_paths():
             "cleanup",
             "--target",
             "demo",
-            "--dry-run",
         ],
         capture_output=True,
         text=True,
@@ -512,7 +505,6 @@ def test_cleanup_symlink_escaping_outside_root_is_excluded_and_warned():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -548,7 +540,6 @@ def test_cleanup_dry_run_does_not_delete_files_or_directories():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,
@@ -579,7 +570,6 @@ def test_cleanup_no_directories_created_for_missing_roots():
                 "cleanup",
                 "--target",
                 "demo",
-                "--dry-run",
             ],
             capture_output=True,
             text=True,

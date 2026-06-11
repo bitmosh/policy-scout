@@ -270,7 +270,7 @@ def cli():
 
     # data cleanup
     data_cleanup_parser = data_subparsers.add_parser(
-        "cleanup", help="Plan cleanup of temporary local data (dry-run only)"
+        "cleanup", help="Plan or execute cleanup of temporary local data"
     )
     data_cleanup_parser.add_argument(
         "--target",
@@ -279,10 +279,16 @@ def cli():
         help="Target to clean up (demo, sandbox, sandbox-results)",
     )
     data_cleanup_parser.add_argument(
-        "--dry-run",
+        "--apply",
         action="store_true",
-        default=True,
-        help="Dry-run mode (no deletion, always true in v1)",
+        default=False,
+        help="Execute deletion (default is dry-run preview only)",
+    )
+    data_cleanup_parser.add_argument(
+        "--yes",
+        action="store_true",
+        default=False,
+        help="Skip confirmation prompt (only applies with --apply)",
     )
     data_cleanup_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
@@ -957,14 +963,83 @@ def cli():
                 plan_cleanup,
                 format_cleanup_plan_human,
                 format_cleanup_plan_json,
+                execute_cleanup,
+                format_cleanup_result_human,
+                format_cleanup_result_json,
             )
 
             plan = plan_cleanup(args.target)
-            if args.json:
-                output = format_cleanup_plan_json(plan)
+
+            if not getattr(args, "apply", False):
+                # Dry-run: show plan only
+                if args.json:
+                    output = format_cleanup_plan_json(plan)
+                else:
+                    output = format_cleanup_plan_human(plan)
+                print(output)
             else:
-                output = format_cleanup_plan_human(plan)
-            print(output)
+                # Execution path
+                if "error" in plan:
+                    print(f"Error: {plan['error']}", file=__import__("sys").stderr)
+                    raise SystemExit(1)
+
+                if plan["total_items"] == 0:
+                    print("Nothing to delete.")
+                    raise SystemExit(0)
+
+                # Show plan before confirming
+                if not args.json:
+                    print(format_cleanup_plan_human(plan))
+
+                confirmed = getattr(args, "yes", False)
+                if not confirmed:
+                    try:
+                        answer = input(
+                            f"Delete {plan['total_items']} item(s) "
+                            f"({plan['total_bytes']:,} bytes)? [y/N] "
+                        ).strip().lower()
+                        confirmed = answer in ("y", "yes")
+                    except (EOFError, KeyboardInterrupt):
+                        confirmed = False
+
+                if not confirmed:
+                    print("Aborted.")
+                    raise SystemExit(0)
+
+                # Execute
+                plan["dry_run"] = False
+                result = execute_cleanup(plan)
+
+                # Audit event
+                try:
+                    from policy_scout.audit.store import AuditStore
+                    from policy_scout.audit.events import AuditEvent, EventType
+                    _store = AuditStore()
+                    _store.write(AuditEvent(
+                        event_type=EventType.DATA_CLEANUP_EXECUTED,
+                        summary=(
+                            f"Data cleanup executed: target={args.target}, "
+                            f"deleted={result['deleted_count']}, "
+                            f"failed={result['failed_count']}, "
+                            f"freed={result['freed_bytes']} bytes"
+                        ),
+                        data={
+                            "target": args.target,
+                            "deleted_count": result["deleted_count"],
+                            "failed_count": result["failed_count"],
+                            "freed_bytes": result["freed_bytes"],
+                        },
+                    ))
+                except Exception:
+                    pass
+
+                if args.json:
+                    output = format_cleanup_result_json(result)
+                else:
+                    output = format_cleanup_result_human(result)
+                print(output)
+                if result["failed_count"]:
+                    raise SystemExit(1)
         else:
             # Default to status for backward compatibility
             status = get_data_status()

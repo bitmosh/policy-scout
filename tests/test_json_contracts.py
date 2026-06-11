@@ -976,7 +976,6 @@ def test_data_cleanup_dry_run_json_confirms_dry_run_true(temp_state_paths):
             "cleanup",
             "--target",
             "demo",
-            "--dry-run",
             "--json",
         ],
         env=env,

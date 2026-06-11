@@ -122,6 +122,8 @@ class EventType:
     SUPPLY_CHAIN_ANALYSIS_COMPLETED = "SupplyChainAnalysisCompleted"
     DEPENDENCY_CONFUSION_SUSPECTED = "DependencyConfusionSuspected"
     PUBLISH_ANOMALY_DETECTED = "PublishAnomalyDetected"
+    # Data cleanup
+    DATA_CLEANUP_EXECUTED = "DataCleanupExecuted"
 
 
 def create_command_requested_event(
