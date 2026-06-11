@@ -19,6 +19,7 @@ def generate_id(
         "find",
         "evt",
         "report",
+        "scan",
     ],
 ) -> str:
     """Generate a unique ID with the given prefix."""

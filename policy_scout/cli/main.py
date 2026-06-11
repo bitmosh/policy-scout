@@ -319,6 +319,75 @@ def cli():
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
 
+    # audit verify-chain
+    audit_verify_chain_parser = audit_subparsers.add_parser(
+        "verify-chain", help="Verify HMAC chain integrity of the JSONL audit log"
+    )
+    audit_verify_chain_parser.add_argument(
+        "--json", action="store_true", help="Output JSON instead of human-readable text"
+    )
+
+    # integrity command
+    integrity_parser = subparsers.add_parser(
+        "integrity", help="Verify Policy Scout self-integrity"
+    )
+    integrity_subparsers = integrity_parser.add_subparsers(
+        dest="integrity_subcommand", help="Integrity commands"
+    )
+    integrity_check_parser = integrity_subparsers.add_parser(
+        "check", help="Verify registry file checksums against manifest"
+    )
+    integrity_check_parser.add_argument(
+        "--verbose", action="store_true", help="Show per-file results"
+    )
+    integrity_check_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    integrity_update_manifest_parser = integrity_subparsers.add_parser(
+        "update-manifest",
+        help="Regenerate manifest from current data files (dev/post-update only)",
+    )
+    integrity_update_manifest_parser.add_argument(
+        "--version", default="dev", help="Version string to embed in manifest"
+    )
+
+    # lockdown command
+    lockdown_parser = subparsers.add_parser(
+        "lockdown", help="Manage Policy Scout lockdown mode"
+    )
+    lockdown_subparsers = lockdown_parser.add_subparsers(
+        dest="lockdown_subcommand", help="Lockdown commands"
+    )
+    lockdown_on_parser = lockdown_subparsers.add_parser(
+        "on", help="Activate lockdown (denies all non-read operations)"
+    )
+    lockdown_on_parser.add_argument(
+        "--reason", default="", help="Reason for activating lockdown"
+    )
+    lockdown_subparsers.add_parser("off", help="Deactivate lockdown")
+    lockdown_subparsers.add_parser(
+        "status", help="Show current lockdown status"
+    )
+
+    # preserve command
+    preserve_parser = subparsers.add_parser(
+        "preserve", help="Capture system state evidence archive"
+    )
+    preserve_parser.add_argument(
+        "--output-dir", help="Directory to write archive to"
+    )
+    preserve_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    # clearance command
+    clearance_parser = subparsers.add_parser(
+        "clearance", help="Run post-incident clearance checks before deactivating lockdown"
+    )
+    clearance_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
     # report command
     report_parser = subparsers.add_parser("report", help="Query Scout Reports")
     report_subparsers = report_parser.add_subparsers(
@@ -357,6 +426,228 @@ def cli():
     report_export_parser.add_argument("report_id", help="Report ID to export")
     report_export_parser.add_argument(
         "--format", choices=["markdown", "json"], required=True, help="Export format"
+    )
+
+    # scan command
+    scan_parser = subparsers.add_parser(
+        "scan", help="Scan for exposed secrets and credentials"
+    )
+    scan_subparsers = scan_parser.add_subparsers(
+        dest="scan_subcommand", help="Scan commands"
+    )
+
+    # scan dir
+    scan_dir_parser = scan_subparsers.add_parser(
+        "dir", help="Scan a directory for secrets"
+    )
+    scan_dir_parser.add_argument(
+        "path", nargs="?", default=".", help="Directory to scan (default: current)"
+    )
+    scan_dir_parser.add_argument(
+        "--entropy", action="store_true", help="Enable entropy-based detection on .env files"
+    )
+    scan_dir_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    scan_dir_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # scan file
+    scan_file_parser = scan_subparsers.add_parser(
+        "file", help="Scan a single file for secrets"
+    )
+    scan_file_parser.add_argument("path", help="File to scan")
+    scan_file_parser.add_argument(
+        "--entropy", action="store_true", help="Enable entropy-based detection"
+    )
+    scan_file_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    scan_file_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # scan staged
+    scan_staged_parser = scan_subparsers.add_parser(
+        "staged", help="Scan git staged files for secrets (pre-commit)"
+    )
+    scan_staged_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    scan_staged_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    scan_staged_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # scan history
+    scan_history_parser = scan_subparsers.add_parser(
+        "history", help="Scan git commit history for secrets"
+    )
+    scan_history_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    scan_history_parser.add_argument(
+        "--max-commits", type=int, default=200, help="Max commits to scan (default: 200)"
+    )
+    scan_history_parser.add_argument(
+        "--since", help="Only scan commits since this ref (e.g. origin/main)"
+    )
+    scan_history_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    scan_history_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # git command
+    git_parser = subparsers.add_parser(
+        "git", help="Git integration: hooks, lockfile checks, context"
+    )
+    git_subparsers = git_parser.add_subparsers(
+        dest="git_subcommand", help="Git commands"
+    )
+
+    # git context
+    git_context_parser = git_subparsers.add_parser(
+        "context", help="Show git context for the current directory"
+    )
+    git_context_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    git_context_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # git hooks
+    git_hooks_parser = git_subparsers.add_parser(
+        "hooks", help="Manage git hooks installed by policy-scout"
+    )
+    git_hooks_subparsers = git_hooks_parser.add_subparsers(
+        dest="git_hooks_subcommand", help="Hook commands"
+    )
+
+    # git hooks install
+    hooks_install_parser = git_hooks_subparsers.add_parser(
+        "install", help="Install policy-scout pre-commit hook"
+    )
+    hooks_install_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    hooks_install_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # git hooks uninstall
+    hooks_uninstall_parser = git_hooks_subparsers.add_parser(
+        "uninstall", help="Remove policy-scout pre-commit hook"
+    )
+    hooks_uninstall_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    hooks_uninstall_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # git hooks status
+    hooks_status_parser = git_hooks_subparsers.add_parser(
+        "status", help="Show hook installation status"
+    )
+    hooks_status_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    hooks_status_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # git lockfile-check
+    git_lockfile_parser = git_subparsers.add_parser(
+        "lockfile-check", help="Check lockfiles for unexpected changes vs HEAD"
+    )
+    git_lockfile_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    git_lockfile_parser.add_argument(
+        "--ref", default="HEAD", help="Git ref to compare against (default: HEAD)"
+    )
+    git_lockfile_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # git staged-check
+    git_staged_check_parser = git_subparsers.add_parser(
+        "staged-check",
+        help="Full pre-commit check: secrets + sensitive files + CI workflow changes",
+    )
+    git_staged_check_parser.add_argument(
+        "--repo", help="Path to git repo root (default: current directory)"
+    )
+    git_staged_check_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    git_staged_check_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # policy — simulation, validation, history testing, project overrides
+    policy_parser = subparsers.add_parser(
+        "policy", help="Policy simulation, validation, and management"
+    )
+    policy_subparsers = policy_parser.add_subparsers(dest="policy_subcommand")
+
+    policy_simulate_parser = policy_subparsers.add_parser(
+        "simulate", help="Simulate a command and show the full rule trace"
+    )
+    policy_simulate_parser.add_argument(
+        "command", nargs="+", help="Command to simulate (use -- to separate from flags)"
+    )
+    policy_simulate_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    policy_simulate_parser.add_argument(
+        "--cwd", help="Working directory for project override discovery (default: current dir)"
+    )
+
+    policy_show_parser = policy_subparsers.add_parser(
+        "show", help="Show effective policy rules"
+    )
+    policy_show_parser.add_argument(
+        "--effective", action="store_true",
+        help="Include project override layers in output"
+    )
+    policy_show_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    policy_show_parser.add_argument(
+        "--cwd", help="Working directory for project override discovery (default: current dir)"
+    )
+
+    policy_test_parser = policy_subparsers.add_parser(
+        "test", help="Test current policy against recent audit history"
+    )
+    policy_test_parser.add_argument(
+        "--against-history", action="store_true",
+        help="Re-simulate historical decisions against current policy"
+    )
+    policy_test_parser.add_argument(
+        "--days", type=int, default=7,
+        help="Number of days of history to test (default: 7)"
+    )
+    policy_test_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    policy_test_parser.add_argument(
+        "--cwd", help="Working directory for project override discovery"
+    )
+
+    policy_validate_parser = policy_subparsers.add_parser(
+        "validate", help="Validate policy registry for unreachable rules, contradictions, coverage gaps"
+    )
+    policy_validate_parser.add_argument(
+        "--strict", action="store_true",
+        help="Treat warnings as errors (non-zero exit if any warnings)"
+    )
+    policy_validate_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    policy_commit_parser = policy_subparsers.add_parser(
+        "commit", help="Snapshot current policy registry state into git"
+    )
+    policy_commit_parser.add_argument(
+        "--message", "-m", help="Commit message (default: auto-generated)"
     )
 
     args = parser.parse_args()
@@ -516,8 +807,22 @@ def cli():
         )
     elif args.subcommand == "audit":
         handle_audit_command(args)
+    elif args.subcommand == "integrity":
+        handle_integrity_command(args)
+    elif args.subcommand == "lockdown":
+        handle_lockdown_command(args)
+    elif args.subcommand == "preserve":
+        handle_preserve_command(args)
+    elif args.subcommand == "clearance":
+        handle_clearance_command(args)
+    elif args.subcommand == "scan":
+        handle_scan_command(args)
+    elif args.subcommand == "git":
+        handle_git_command(args)
     elif args.subcommand == "report":
         handle_report_command(args)
+    elif args.subcommand == "policy":
+        handle_policy_command(args)
     else:
         parser.print_help()
         sys.exit(1)
@@ -585,7 +890,30 @@ def check_command(
 
     # Evaluate policy with registry
     policy_engine = PolicyEngine(policy_registry=policy_registry)
-    decision = policy_engine.evaluate(classification, risk_score, request.request_id)
+    decision = policy_engine.evaluate(
+        classification, risk_score, request.request_id, command=request.command
+    )
+
+    # Write audit events for project override
+    if audit_store.enabled:
+        if policy_engine.project_override:
+            from ..audit.events import EventType
+            from ..audit.store import AuditEvent
+            audit_store.write(AuditEvent(
+                event_type=EventType.PROJECT_OVERRIDE_LOADED,
+                request_id=request.request_id,
+                summary=f"Project override loaded from {policy_engine.project_override.config_path}",
+                data=policy_engine.project_override.to_dict(),
+            ))
+        elif policy_engine.override_violation:
+            from ..audit.events import EventType
+            from ..audit.store import AuditEvent
+            audit_store.write(AuditEvent(
+                event_type=EventType.PROJECT_OVERRIDE_VIOLATED,
+                request_id=request.request_id,
+                summary="Project override rejected (tighten-only violation)",
+                data={"violation": policy_engine.override_violation, "fallback": "global policy"},
+            ))
 
     # Write PolicyMatched event
     if audit_store.enabled and decision.policy_hits:
@@ -1625,7 +1953,9 @@ def handle_run_command(
 
     # Evaluate policy with registry
     policy_engine = PolicyEngine(policy_registry=policy_registry)
-    decision = policy_engine.evaluate(classification, risk_score, request.request_id)
+    decision = policy_engine.evaluate(
+        classification, risk_score, request.request_id, command=request.command
+    )
 
     # Write PolicyMatched event
     if audit_store.enabled and decision.policy_hits:
@@ -1797,6 +2127,7 @@ def handle_run_command(
                 classification=classification,
                 risk_score=risk_score,
                 request_id=request.request_id,
+                command=command,
             )
 
             # Only proceed if current decision is REQUIRE_APPROVAL
@@ -2114,6 +2445,161 @@ def handle_run_command(
         sys.exit(30)
 
 
+def handle_lockdown_command(args):
+    """Handle lockdown subcommands."""
+    from ..response.lockdown import (
+        activate_lockdown,
+        deactivate_lockdown,
+        is_lockdown_active,
+        get_lockdown_reason,
+    )
+    from ..audit.store import AuditStore
+
+    audit_store = AuditStore()
+
+    if args.lockdown_subcommand == "on":
+        reason = getattr(args, "reason", "")
+        if is_lockdown_active():
+            print("Lockdown is already active.")
+            return
+        success = activate_lockdown(reason=reason, audit_store=audit_store)
+        if success:
+            print("Lockdown activated. All non-read operations will be DENIED.")
+            if reason:
+                print(f"Reason: {reason}")
+        else:
+            print("Error: Failed to activate lockdown.", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.lockdown_subcommand == "off":
+        if not is_lockdown_active():
+            print("Lockdown is not active.")
+            return
+        success = deactivate_lockdown(cleared_by="cli", audit_store=audit_store)
+        if success:
+            print("Lockdown deactivated. Normal policy evaluation restored.")
+        else:
+            print("Error: Failed to deactivate lockdown.", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.lockdown_subcommand == "status":
+        if is_lockdown_active():
+            reason = get_lockdown_reason()
+            print("Status: LOCKDOWN ACTIVE")
+            if reason:
+                print(f"Reason: {reason}")
+        else:
+            print("Status: Lockdown inactive (normal operation)")
+
+    else:
+        print("Error: No lockdown subcommand provided", file=sys.stderr)
+        sys.exit(1)
+
+
+def handle_preserve_command(args):
+    """Handle preserve command."""
+    from pathlib import Path as _Path
+    from ..response.preserve import preserve_evidence
+    from ..audit.store import AuditStore
+
+    audit_store = AuditStore()
+    output_dir = None
+    if getattr(args, "output_dir", None):
+        output_dir = _Path(args.output_dir)
+
+    result = preserve_evidence(output_dir=output_dir, audit_store=audit_store)
+
+    if getattr(args, "json", False):
+        print(json.dumps({
+            "path": result.path,
+            "artifact_count": result.artifact_count,
+            "artifacts": result.artifacts,
+            "errors": result.errors,
+        }, indent=2))
+    else:
+        print(f"Evidence archive created: {result.path}")
+        print(f"  Artifacts: {result.artifact_count}")
+        for artifact in result.artifacts:
+            print(f"    + {artifact}")
+        if result.errors:
+            print(f"  Errors ({len(result.errors)}):")
+            for err in result.errors:
+                print(f"    ! {err}")
+
+
+def handle_clearance_command(args):
+    """Handle clearance command."""
+    from ..response.clearance import run_clearance_check
+    from ..audit.store import AuditStore
+
+    audit_store = AuditStore()
+    result = run_clearance_check(audit_store=audit_store)
+
+    if getattr(args, "json", False):
+        print(json.dumps({
+            "cleared": result.cleared,
+            "summary": result.summary,
+            "checks": [
+                {"name": c.name, "passed": c.passed, "message": c.message}
+                for c in result.checks
+            ],
+        }, indent=2))
+    else:
+        print("Post-Incident Clearance Check")
+        print("=" * 40)
+        for check in result.checks:
+            sym = "✓" if check.passed else "✗"
+            print(f"  {sym} {check.name}: {check.message}")
+        print()
+        print(f"Result: {result.summary}")
+        if not result.cleared:
+            sys.exit(1)
+
+
+def handle_integrity_command(args):
+    """Handle integrity subcommands."""
+    from ..integrity.registry_manifest import (
+        verify_registry_integrity,
+        generate_manifest,
+        write_manifest,
+    )
+
+    if args.integrity_subcommand == "check":
+        result = verify_registry_integrity()
+
+        if args.json:
+            out = {
+                "passed": result.passed,
+                "files_checked": result.files_checked,
+                "reason": result.reason,
+                "errors": result.errors,
+            }
+            print(json.dumps(out, indent=2))
+        else:
+            status_sym = "✓" if result.passed else "✗"
+            print(f"Registry integrity: {status_sym}")
+            print(f"  {result.reason}")
+            if result.errors and (getattr(args, "verbose", False) or not result.passed):
+                for err in result.errors:
+                    print(f"  - {err}")
+
+        if not result.passed:
+            sys.exit(1)
+
+    elif args.integrity_subcommand == "update-manifest":
+        version = getattr(args, "version", "dev")
+        manifest = generate_manifest(version=version)
+        write_manifest(manifest)
+        files = manifest["files"]
+        print(f"Manifest updated: {len(files)} file(s) hashed.")
+        for name in files:
+            print(f"  {name}")
+
+    else:
+        print("Error: No integrity subcommand provided", file=sys.stderr)
+        sys.exit(1)
+
+
 def handle_audit_command(args):
     """Handle audit subcommands."""
     from pathlib import Path
@@ -2267,6 +2753,59 @@ def handle_audit_command(args):
                 print("By Event Type:")
                 for event_type, count in type_counts.items():
                     print(f"  {event_type}: {count}")
+
+    elif args.audit_subcommand == "verify-chain":
+        from pathlib import Path as _Path
+        from ..audit.chain_verifier import verify_chain
+        from ..audit.events import create_chain_verification_event
+
+        # Resolve the JSONL path the same way JSONLWriter does
+        jsonl_path = _Path.home() / ".local" / "share" / "policy-scout" / "audit.jsonl"
+        env_path = os.environ.get("POLICY_SCOUT_AUDIT_PATH")
+        if env_path:
+            jsonl_path = _Path(env_path)
+
+        result = verify_chain(jsonl_path)
+
+        # Write the outcome to the audit log (best-effort)
+        try:
+            store = AuditStore()
+            store.write(
+                create_chain_verification_event(
+                    verified=result.verified,
+                    total_entries=result.total_entries,
+                    error_count=len(result.errors),
+                )
+            )
+        except Exception:
+            pass
+
+        if args.json:
+            out = {
+                "verified": result.verified,
+                "total_entries": result.total_entries,
+                "message": result.message,
+                "errors": [
+                    {"lineno": e.lineno, "kind": e.kind, "detail": e.detail}
+                    for e in result.errors
+                ],
+            }
+            print(json.dumps(out, indent=2))
+        else:
+            status_sym = "✓" if result.verified else "✗"
+            print(f"Audit chain verification: {status_sym}")
+            print(f"  File: {jsonl_path}")
+            print(f"  {result.message}")
+            if result.errors:
+                print()
+                print("  Errors:")
+                for err in result.errors[:20]:
+                    print(f"    line {err.lineno}: [{err.kind}] {err.detail}")
+                if len(result.errors) > 20:
+                    print(f"    ... and {len(result.errors) - 20} more")
+
+        if not result.verified:
+            sys.exit(1)
 
     else:
         print("Error: No audit subcommand provided", file=sys.stderr)
@@ -2442,6 +2981,510 @@ def handle_report_command(args):
     else:
         print("Error: No report subcommand provided", file=sys.stderr)
         sys.exit(1)
+
+
+def handle_scan_command(args) -> None:
+    """Handle all scan subcommands."""
+    from ..scan.engine import SecretScanner
+    from ..audit.events import create_secret_scan_completed_event, create_secret_finding_event
+    from pathlib import Path
+
+    audit_store = AuditStore() if not getattr(args, "no_audit", False) else None
+    scanner = SecretScanner()
+
+    sub = getattr(args, "scan_subcommand", None)
+    if not sub:
+        print("Error: No scan subcommand provided. Use: dir, file, staged, history", file=sys.stderr)
+        sys.exit(1)
+
+    if sub == "dir":
+        root = Path(getattr(args, "path", "."))
+        if not root.is_dir():
+            print(f"Error: Not a directory: {root}", file=sys.stderr)
+            sys.exit(1)
+        summary = scanner.scan_directory(root, run_entropy=getattr(args, "entropy", False))
+
+    elif sub == "file":
+        path = Path(args.path)
+        if not path.is_file():
+            print(f"Error: File not found: {path}", file=sys.stderr)
+            sys.exit(1)
+        summary = scanner.scan_file(path, run_entropy=getattr(args, "entropy", False))
+
+    elif sub == "staged":
+        repo = Path(getattr(args, "repo", None) or ".")
+        summary = scanner.scan_staged(repo_root=repo)
+
+    elif sub == "history":
+        repo = Path(getattr(args, "repo", None) or ".")
+        summary = scanner.scan_history(
+            repo_root=repo,
+            max_commits=getattr(args, "max_commits", 200),
+            since_ref=getattr(args, "since", None),
+        )
+    else:
+        print(f"Error: Unknown scan subcommand: {sub}", file=sys.stderr)
+        sys.exit(1)
+
+    # Audit
+    if audit_store:
+        for finding in summary.findings:
+            audit_store.write(
+                create_secret_finding_event(
+                    scan_id=summary.scan_id,
+                    secret_type=finding.secret_type,
+                    service=finding.service,
+                    severity=finding.severity,
+                    source=finding.source,
+                    line=finding.line,
+                )
+            )
+        audit_store.write(
+            create_secret_scan_completed_event(
+                scan_id=summary.scan_id,
+                scan_type=summary.scan_type,
+                target=summary.target,
+                finding_count=summary.finding_count,
+                severity_counts=summary.severity_counts(),
+                files_scanned=summary.files_scanned,
+                duration_ms=summary.duration_ms,
+            )
+        )
+
+    if getattr(args, "json", False):
+        print(json.dumps(summary.to_dict(), indent=2))
+    else:
+        _print_scan_summary(summary)
+
+    sys.exit(summary.severity_exit_code)
+
+
+def _print_scan_summary(summary) -> None:
+    """Print human-readable scan output."""
+    counts = summary.severity_counts()
+    print(f"\nSecret Scan — {summary.scan_type}: {summary.target}")
+    print(f"  Files scanned : {summary.files_scanned}")
+    if summary.commits_scanned:
+        print(f"  Commits scanned: {summary.commits_scanned}")
+    print(f"  Duration      : {summary.duration_ms}ms")
+    print(f"  Findings      : {summary.finding_count}")
+
+    if not summary.findings:
+        print("\n  No secrets detected.")
+        return
+
+    # Group by severity for display
+    for severity in ("critical", "high", "medium", "low"):
+        group = [f for f in summary.findings if f.severity == severity]
+        if not group:
+            continue
+        label = severity.upper()
+        print(f"\n  [{label}] {len(group)} finding(s)")
+        for f in group:
+            commit_suffix = f" (commit {f.commit[:8]})" if f.commit else ""
+            print(f"    {f.source}:{f.line}  {f.service}/{f.secret_type}{commit_suffix}")
+            print(f"      Redacted: {f.redacted_value}")
+            print(f"      Action  : {f.guidance[:120]}")
+
+    if summary.errors:
+        print(f"\n  Errors ({len(summary.errors)}):")
+        for e in summary.errors[:5]:
+            print(f"    {e}")
+
+
+def handle_git_command(args) -> None:
+    """Handle all git subcommands."""
+    from ..git.context import get_git_context
+    from ..git.hooks import get_hooks_status, install_hooks, uninstall_hooks
+    from ..git.lockfile_diff import check_lockfile_changes
+    from ..git.staged_scanner import scan_staged_full
+    from pathlib import Path
+
+    sub = getattr(args, "git_subcommand", None)
+    if not sub:
+        print(
+            "Error: No git subcommand provided. Use: context, hooks, lockfile-check, staged-check",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if sub == "context":
+        repo = Path(getattr(args, "repo", None) or ".")
+        ctx = get_git_context(cwd=repo)
+        if ctx is None:
+            print("Not a git repository.", file=sys.stderr)
+            sys.exit(1)
+        if getattr(args, "json", False):
+            print(json.dumps(ctx.to_dict(), indent=2))
+        else:
+            print(f"Branch  : {ctx.branch or '(detached)'}")
+            print(f"Commit  : {ctx.commit or '(none)'}")
+            print(f"Dirty   : {'yes' if ctx.dirty else 'no'}")
+            print(f"Remote  : {ctx.remote or '(none)'}")
+            print(f"Root    : {ctx.repo_root}")
+
+    elif sub == "hooks":
+        hooks_sub = getattr(args, "git_hooks_subcommand", None)
+        repo = Path(getattr(args, "repo", None) or ".")
+
+        if hooks_sub == "install":
+            try:
+                report = install_hooks(repo_root=repo)
+                if getattr(args, "json", False):
+                    print(json.dumps(report.to_dict(), indent=2))
+                else:
+                    print(f"Hooks installed in: {report.hooks_dir}")
+                    for h in report.hooks:
+                        status = "installed" if h.installed else "failed"
+                        print(f"  {h.name}: {status}")
+            except RuntimeError as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+
+        elif hooks_sub == "uninstall":
+            try:
+                report = uninstall_hooks(repo_root=repo)
+                if getattr(args, "json", False):
+                    print(json.dumps(report.to_dict(), indent=2))
+                else:
+                    print("Hooks uninstalled.")
+                    for h in report.hooks:
+                        status = "removed" if not h.installed else "kept (not managed)"
+                        print(f"  {h.name}: {status}")
+            except RuntimeError as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+
+        elif hooks_sub == "status":
+            report = get_hooks_status(repo_root=repo)
+            if getattr(args, "json", False):
+                print(json.dumps(report.to_dict(), indent=2))
+            else:
+                print(f"Hooks directory: {report.hooks_dir or '(not found)'}")
+                for h in report.hooks:
+                    managed_note = " (managed)" if h.managed else " (third-party)" if h.installed else ""
+                    print(f"  {h.name}: {'installed' if h.installed else 'not installed'}{managed_note}")
+        else:
+            print("Error: No hooks subcommand. Use: install, uninstall, status", file=sys.stderr)
+            sys.exit(1)
+
+    elif sub == "lockfile-check":
+        repo = Path(getattr(args, "repo", None) or ".")
+        ref = getattr(args, "ref", "HEAD")
+        result = check_lockfile_changes(repo_root=repo, compare_ref=ref)
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), indent=2))
+        else:
+            print(f"Lockfiles found: {result.lockfiles_found}")
+            print(f"Lockfiles changed: {result.lockfiles_changed}")
+            for diff in result.diffs:
+                if diff.error:
+                    print(f"  {diff.lockfile}: ERROR — {diff.error}")
+                elif diff.has_changes:
+                    print(f"  {diff.lockfile}: CHANGED (+{len(diff.added)} -{len(diff.removed)} ~{diff.modified})")
+                    for line in diff.added[:5]:
+                        print(f"    + {line}")
+                    for line in diff.removed[:5]:
+                        print(f"    - {line}")
+                else:
+                    print(f"  {diff.lockfile}: OK")
+        sys.exit(2 if result.any_changes else 0)
+
+    elif sub == "staged-check":
+        repo = Path(getattr(args, "repo", None) or ".")
+        result = scan_staged_full(repo_root=repo)
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), indent=2))
+        else:
+            _print_staged_check(result)
+        sys.exit(result.severity_exit_code)
+
+    else:
+        print(f"Error: Unknown git subcommand: {sub}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _print_staged_check(result) -> None:
+    """Print human-readable staged-check output."""
+    if result.is_clean and not result.has_ci_changes:
+        print("Pre-commit check: CLEAN — no secrets or sensitive files detected.")
+        return
+
+    if result.has_sensitive_files:
+        print(f"\n[BLOCK] {len(result.sensitive_files)} sensitive file(s) staged:")
+        for w in result.sensitive_files:
+            print(f"  {w.path}")
+            print(f"    Reason: {w.reason}")
+
+    if result.has_secrets and result.secret_scan:
+        sc = result.secret_scan
+        print(f"\n[BLOCK] {sc.finding_count} secret(s) detected in staged files:")
+        for f in sc.findings:
+            severity_label = f.severity.upper()
+            print(f"  [{severity_label}] {f.source}:{f.line}  {f.service}/{f.secret_type}")
+            print(f"    Redacted: {f.redacted_value}")
+            print(f"    Action  : {f.guidance[:120]}")
+
+    if result.has_ci_changes:
+        print(f"\n[WARN] {len(result.ci_workflow_changes)} CI workflow file(s) changed:")
+        for path in result.ci_workflow_changes:
+            print(f"  {path}")
+        print("  Review CI workflow changes carefully before committing.")
+
+    if result.errors:
+        print(f"\n[ERROR] Scan errors:")
+        for e in result.errors:
+            print(f"  {e}")
+
+
+def handle_policy_command(args) -> None:
+    """Handle all policy subcommands."""
+    from ..policy.management.simulator import simulate, SimulationResult
+    from ..registry.loader import RegistryLoader
+    from pathlib import Path as _Path
+
+    sub = getattr(args, "policy_subcommand", None)
+    if not sub:
+        print("Error: No policy subcommand provided. Use: simulate, show", file=sys.stderr)
+        sys.exit(1)
+
+    if sub == "simulate":
+        raw_parts = args.command
+        # Strip leading "--" separator if present
+        if raw_parts and raw_parts[0] == "--":
+            raw_parts = raw_parts[1:]
+        command_str = " ".join(raw_parts)
+        if not command_str:
+            print("Error: No command provided to simulate", file=sys.stderr)
+            sys.exit(1)
+
+        cwd = _Path(args.cwd) if getattr(args, "cwd", None) else None
+        result = simulate(command_str, cwd=cwd)
+
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), indent=2))
+        else:
+            _print_simulation_result(result)
+
+    elif sub == "show":
+        cwd = _Path(args.cwd) if getattr(args, "cwd", None) else None
+        effective = getattr(args, "effective", False)
+        loader = RegistryLoader()
+
+        from ..policy.management.project_override import load_project_override
+        override = load_project_override(cwd=cwd) if effective else None
+
+        if getattr(args, "json", False):
+            out: dict = {
+                "registry_version": loader.policy_registry.version if loader.policy_registry else None,
+                "rules": [],
+                "project_override": override.to_dict() if override else None,
+            }
+            if loader.policy_registry:
+                for entry in loader.policy_registry.policies:
+                    out["rules"].append({
+                        "id": entry.id,
+                        "priority": entry.priority,
+                        "decision": entry.decision,
+                        "status": entry.status,
+                        "source": "registry",
+                    })
+            if override:
+                for rule in override.additional_rules:
+                    out["rules"].append({
+                        "id": rule.id,
+                        "priority": rule.priority,
+                        "decision": rule.decision,
+                        "source": "override",
+                    })
+            print(json.dumps(out, indent=2))
+        else:
+            _print_policy_show(loader, override)
+
+    elif sub == "test":
+        if not getattr(args, "against_history", False):
+            print(
+                "Error: Specify a test mode. Currently supported: --against-history",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        from ..policy.management.history_tester import test_against_history
+        cwd = _Path(args.cwd) if getattr(args, "cwd", None) else None
+        days = getattr(args, "days", 7)
+        result = test_against_history(days=days, cwd=cwd)
+
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), indent=2))
+        else:
+            _print_history_test_result(result)
+
+    elif sub == "validate":
+        from ..policy.management.validator import validate_policy
+        strict = getattr(args, "strict", False)
+        result = validate_policy(strict=strict)
+
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), indent=2))
+        else:
+            _print_validation_result(result)
+
+        if not result.is_valid:
+            sys.exit(1)
+
+    elif sub == "commit":
+        from ..policy.management.policy_commit import commit_policy_state
+        message = getattr(args, "message", None)
+        try:
+            sha = commit_policy_state(message=message)
+            print(f"Policy snapshot committed: {sha}")
+        except RuntimeError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    else:
+        print(f"Error: Unknown policy subcommand: {sub}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _print_simulation_result(result) -> None:
+    """Print human-readable simulation output."""
+    DECISION_COLORS = {
+        "ALLOW": "ALLOW",
+        "ALLOW_LOGGED": "ALLOW_LOGGED",
+        "REQUIRE_APPROVAL": "REQUIRE_APPROVAL",
+        "SANDBOX_FIRST": "SANDBOX_FIRST",
+        "DENY": "DENY",
+        "DENY_AND_ALERT": "DENY_AND_ALERT",
+    }
+    decision = DECISION_COLORS.get(result.decision, result.decision)
+
+    print(f"\nCommand:    {result.command}")
+    print(f"Decision:   {decision}")
+    print(f"Risk:       {result.risk_score} / 10 ({result.risk_band})")
+
+    if result.matched_rule:
+        matched_index = next(
+            (i + 1 for i, t in enumerate(result.rule_traces) if t.decisive),
+            None,
+        )
+        print(
+            f"Matched:    {result.matched_rule}"
+            + (f" (rule {matched_index} of {result.total_rules_checked})" if matched_index else "")
+        )
+    else:
+        print("Matched:    (no rule matched — default DENY)")
+
+    if result.categories:
+        print(f"Categories: {', '.join(result.categories)}")
+    if result.capabilities:
+        print(f"Caps:       {', '.join(result.capabilities)}")
+
+    if result.project_override_loaded:
+        print(f"Override:   {result.project_override_path}")
+
+    print("\nRule trace:")
+    for trace in result.rule_traces:
+        source_tag = f"[{trace.source}]"
+        if trace.decisive:
+            marker = "→"
+            detail = f"MATCHED → {trace.decision}"
+            print(f"  {marker} {trace.rule_id:<40} {source_tag:<12} {detail}")
+            for reason in trace.reasons:
+                print(f"      - {reason}")
+        elif trace.matched:
+            print(f"    {trace.rule_id:<40} {source_tag:<12} matched (lower priority — not decisive)")
+        else:
+            print(f"    {trace.rule_id:<40} {source_tag:<12} no match")
+    print()
+
+
+def _print_history_test_result(result) -> None:
+    """Print human-readable history test output."""
+    print(f"\nTested {result.total} historical decisions from the last {result.days} days.\n")
+    if result.skipped:
+        print(f"  Skipped: {result.skipped} events (missing command data)\n")
+    if result.changed == 0:
+        print("  No decisions would change under the current policy.")
+    else:
+        print(f"  Changed: {result.changed} / {result.total}")
+        if result.tightened:
+            print(f"    {result.tightened} decisions became more restrictive")
+        if result.loosened:
+            print(f"    {result.loosened} decisions became less restrictive")
+        print("\nChanged decisions:")
+        for case in result.changed_cases[:20]:
+            direction = f"[{case.direction}]" if case.direction else ""
+            print(
+                f"  [{case.timestamp[:19]}] {repr(case.command)[:60]:<62} "
+                f"{case.original_decision} → {case.simulated_decision} {direction}"
+            )
+        if len(result.changed_cases) > 20:
+            print(f"  ... and {len(result.changed_cases) - 20} more")
+    print()
+
+
+def _print_validation_result(result) -> None:
+    """Print human-readable validation output."""
+    print(
+        f"\nPolicy validation: checked {result.rules_checked} rules, "
+        f"{result.eval_cases_checked} eval cases.\n"
+    )
+    if not result.issues:
+        print("  No issues found — policy is valid.")
+    else:
+        errors = [i for i in result.issues if i.severity == "error"]
+        warnings = [i for i in result.issues if i.severity == "warning"]
+        if errors:
+            print(f"  Errors ({len(errors)}):")
+            for issue in errors:
+                print(f"    [{issue.issue_type}] {issue.rule_id}: {issue.description}")
+        if warnings:
+            print(f"  Warnings ({len(warnings)}):")
+            for issue in warnings:
+                print(f"    [{issue.issue_type}] {issue.rule_id}: {issue.description}")
+    print()
+
+
+def _print_policy_show(loader, override) -> None:
+    """Print human-readable effective policy."""
+    registry = loader.policy_registry
+    print("\nEffective policy rules (sorted by priority, highest first):\n")
+
+    rules = []
+    if registry:
+        for entry in registry.policies:
+            rules.append({
+                "id": entry.id,
+                "priority": entry.priority,
+                "decision": entry.decision,
+                "status": entry.status,
+                "source": "registry",
+            })
+
+    if override:
+        for rule in override.additional_rules:
+            rules.append({
+                "id": rule.id,
+                "priority": rule.priority,
+                "decision": rule.decision,
+                "status": "active",
+                "source": "override",
+            })
+
+    rules.sort(key=lambda r: r["priority"], reverse=True)
+
+    for rule in rules:
+        status = "" if rule["status"] == "active" else f" [{rule['status']}]"
+        src = f"({rule['source']})"
+        print(f"  {rule['priority']:>4}  {rule['id']:<45} {rule['decision']:<20} {src}{status}")
+
+    if override:
+        print(f"\nProject override: {override.config_path} (version: {override.version or 'unversioned'})")
+        if override.override_decisions:
+            print("  Strengthened decisions:")
+            for od in override.override_decisions:
+                print(f"    {od.rule_id} → {od.strengthen_to}")
+    print()
 
 
 if __name__ == "__main__":
