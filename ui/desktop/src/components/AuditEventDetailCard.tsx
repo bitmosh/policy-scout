@@ -37,7 +37,7 @@ export function AuditEventDetailCard({ auditEventDetail, loading, selectedId, on
 
   return (
     <div className="audit-event-detail-card">
-      <DetailHeader detailType="Audit Event" selectedId={eventId} onClose={onClose} />
+      <DetailHeader detailType="Audit Event" selectedId={eventId} onClose={() => { onClose(); }} />
 
       <div className="event-detail-content">
         <RedactionNotice

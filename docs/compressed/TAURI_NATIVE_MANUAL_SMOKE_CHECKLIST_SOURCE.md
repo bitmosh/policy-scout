@@ -68,23 +68,23 @@ git -C /home/boop/Projects/policy-scout log --oneline -1
 
 **Launch:** `npm run tauri dev` from `ui/desktop`
 
-- [ ] Native window opens without crash
-- [ ] Window has correct title (Policy Scout or similar)
-- [ ] Dashboard loads without white screen
-- [ ] No persistent "Tauri runtime unavailable" message visible
-- [ ] No unhandled JavaScript error banner visible
-- [ ] No terminal panic
-- [ ] Cards begin loading (spinner or data visible)
-- [ ] `BoundaryNote` component is visible at bottom of dashboard ("Read-only" boundary reminder)
+- [y] Native window opens without crash
+- [n] Window has correct title (Policy Scout or similar) - it has uidesktop, change to PolicyScout
+- [y] Dashboard loads without white screen
+- [y] No persistent "Tauri runtime unavailable" message visible
+- [y] No unhandled JavaScript error banner visible
+- [y] No terminal panic
+- [y] Cards begin loading (spinner or data visible)
+- [y] `BoundaryNote` component is visible at bottom of dashboard ("Read-only" boundary reminder)
 
 ---
 
 ## C. Global Visual/Readability Checks
 
-- [ ] Dark theme readable
-- [ ] No light broken surfaces
-- [ ] Cards have readable text
-- [ ] Redaction placeholders look intentional
+- [y] Dark theme readable
+- [y] No light broken surfaces
+- [y] Cards have readable text
+- [y] Redaction placeholders look intentional
 
 ---
 
@@ -92,25 +92,25 @@ git -C /home/boop/Projects/policy-scout log --oneline -1
 
 **Overview Status Strip** — summarizes loaded state across cards
 
-- [ ] Strip is visible at the top of the dashboard
-- [ ] Updates after cards load data
-- [ ] Shows summary counts or status indicators
-- [ ] Does not show any action buttons or mutation controls
-- [ ] No free-text input in the strip
+- [y] Strip is visible at the top of the dashboard
+- [y] Updates after cards load data
+- [y] Shows summary counts or status indicators - reports and eval show 'unknown'
+- [y] Does not show any action buttons or mutation controls
+- [y] No free-text input in the strip
 
 **Doctor Status card** — invokes `policy-scout doctor --json`
 
-- [ ] Card loads without crash
-- [ ] Shows CLI version or OK status
-- [ ] Shows registry counts (commands, policies, eval cases)
-- [ ] No mutation controls
+- [y] Card loads without crash
+- [y] Shows CLI version or OK status
+- [y] Shows registry counts (commands, policies, eval cases)
+- [y] No mutation controls
 
 **Data Status card** — invokes `policy-scout data status --json`
 
-- [ ] Card loads without crash
-- [ ] Shows data directory path and counts
-- [ ] No deletion or cleanup trigger button
-- [ ] **Contrast:** Count rows (`approvals`, `audit_events`, `reports`, etc.) are readable — dark elevated background, not white/light
+- [y] Card loads without crash
+- [y] Shows data directory path and counts
+- [y] No deletion or cleanup trigger button
+- [y] **Contrast:** Count rows (`approvals`, `audit_events`, `reports`, etc.) are readable — dark elevated background, not white/light
 
 ---
 
@@ -118,20 +118,20 @@ git -C /home/boop/Projects/policy-scout log --oneline -1
 
 **Decision Check card** — invokes `policy-scout check --json <command_text>` (check-only; never executes)
 
-- [ ] Card appears near top of dashboard
-- [ ] "CHECK ONLY — commands are classified, never executed" banner visible
-- [ ] Button says "Check command" (not "Run command" or "Execute")
-- [ ] Empty/whitespace input rejected with validation error
-- [ ] `git status` returns ALLOW decision
-- [ ] `npm install left-pad` returns SANDBOX_FIRST decision
-- [ ] `rm -rf /` returns DENY decision
-- [ ] Every result shows "NOT EXECUTED" marker prominently
-- [ ] FAQ buttons populate local explanation/command only
-- [ ] FAQ buttons do not auto-check (no CLI call on FAQ click)
-- [ ] Dangerous examples (e.g., `rm -rf /`) are clearly labeled "Example only — do not run"
-- [ ] Browser preview shows native-required error if attempting check
-- [ ] Audit Events list still populates after check probes
-- [ ] DecisionIssued filter populates after check probes
+- [y] Card appears near top of dashboard
+- [y] "CHECK ONLY — commands are classified, never executed" banner visible
+- [y] Button says "Check command" (not "Run command" or "Execute")
+- [y] Empty/whitespace input rejected with validation error
+- [y] `git status` returns ALLOW decision
+- [y] `npm install left-pad` returns SANDBOX_FIRST decision
+- [y] `rm -rf /` returns DENY decision
+- [y] Every result shows "NOT EXECUTED" marker prominently
+- [y] FAQ buttons populate local explanation/command only
+- [y] FAQ buttons do not auto-check (no CLI call on FAQ click)
+- [y] Dangerous examples (e.g., `rm -rf /`) are clearly labeled "Example only — do not run"
+- [y] Browser preview shows native-required error if attempting check
+- [y] Audit Events list still populates after check probes
+- [y] DecisionIssued filter populates after check probes
 
 **v0.3.4 Native Smoke Finding Note:**
 
@@ -149,41 +149,41 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 ### Limit selector
 
-- [ ] Selector is visible
-- [ ] Options are exactly: **5, 10, 25, 50** — no other values
-- [ ] No free-text input
-- [ ] Selecting a value refreshes the list
+- [y] Selector is visible
+- [y] Options are exactly: **5, 10, 25, 50** — no other values
+- [y] No free-text input
+- [y] Selecting a value refreshes the list
 
 ### Type selector
 
-- [ ] Selector is visible
-- [ ] Options are exactly: **All, command_decision, sandbox_result, project_sweep, system_quick_sweep** — no other values
-- [ ] No free-text input
-- [ ] Selecting a type refreshes the list
+- [y] Selector is visible
+- [y] Options are exactly: **All, command_decision, sandbox_result, project_sweep, system_quick_sweep** — no other values
+- [y] No free-text input
+- [y] Selecting a type refreshes the list
 
 ### List behavior
 
-- [ ] Reports are listed with IDs
-- [ ] Changing either selector refreshes the list
-- [ ] No report deletion or export controls
-- [ ] IDs are not editable
-- [ ] Empty state is helpful if no reports exist
+- [y] Reports are listed with IDs
+- [y] Changing either selector refreshes the list
+- [y] No report deletion or export controls
+- [y] IDs are not editable
+- [y] Empty state is helpful if no reports exist
 
 **Report Detail** — triggered by clicking a report ID
 
-- [ ] Clicking a report ID opens the detail view
-- [ ] Detail header shows a close/back control
-- [ ] Report content renders without crash
-- [ ] Redaction placeholders visible where expected
-- [ ] Redaction notice readable if present
-- [ ] Protected placeholders clear
-- [ ] "Could Not Verify" section appears when could_not_verify has items
-- [ ] Could-not-verify items are styled as review/unknown (not critical danger)
-- [ ] Long findings capped at 10 with message: "Showing first 10 of X findings — run from CLI for full results"
-- [ ] No export, delete, or action buttons
-- [ ] Closing the detail returns to the list
-- [ ] Detail cannot be opened for an ID that was not selected from the list (no free-text ID input visible)
-- [ ] **Contrast:** Report detail card background is dark (not white) — finding items and action items use dark elevated background
+- [y] Clicking a report ID opens the detail view
+- [y] Detail header shows a close/back control
+- [y] Report content renders without crash
+- [y] Redaction placeholders visible where expected
+- [y] Redaction notice readable if present
+- [y] Protected placeholders clear
+- [y] "Could Not Verify" section appears when could_not_verify has items
+- [y] Could-not-verify items are styled as review/unknown (not critical danger)
+- [y] Long findings capped at 10 with message: "Showing first 10 of X findings — run from CLI for full results"
+- [y] No export, delete, or action buttons
+- [y] Closing the detail returns to the list
+- [y] Detail cannot be opened for an ID that was not selected from the list (no free-text ID input visible)
+- [y] **Contrast:** Report detail card background is dark (not white) — finding items and action items use dark elevated background
 
 ---
 
@@ -191,17 +191,17 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 **Audit Stats card** — invokes `policy-scout audit stats --json`
 
-- [ ] Card loads without crash
-- [ ] Shows event counts or summary stats
-- [ ] No deletion, export, or audit-manipulation controls
-- [ ] **Contrast:** By-type rows (e.g., `ApprovalRequested`, `SweepCompleted`) are readable — dark elevated background, event type names and counts visible
+- [y] Card loads without crash
+- [y] Shows event counts or summary stats
+- [y] No deletion, export, or audit-manipulation controls
+- [y] **Contrast:** By-type rows (e.g., `ApprovalRequested`, `SweepCompleted`) are readable — dark elevated background, event type names and counts visible
 
 **Audit Events List card** — invokes `policy-scout audit list` or `audit type` depending on filter
 
 ### Event type selector
 
-- [ ] Selector is visible
-- [ ] Options are exactly:
+- [y] Selector is visible
+- [y] Options are exactly:
 
   - All recent events
   - SweepCompleted
@@ -219,27 +219,27 @@ This validated why native smoke matters: CLI contract verification alone does no
 
   **Total: 13 options. No other values present. No free-text input.**
 
-- [ ] Selecting a type refreshes the list
-- [ ] Selecting "All recent events" returns to the unfiltered list
-- [ ] Empty state helpful on fresh data
-- [ ] DecisionIssued filter works after check probes
+- [y] Selecting a type refreshes the list
+- [y] Selecting "All recent events" returns to the unfiltered list
+- [y?] Empty state helpful on fresh data
+- [y] DecisionIssued filter works after check probes - the filtering here generally doesnt work, doesnt filter anything.
 
 ### List behavior
 
-- [ ] Changing event type clears any open event detail
-- [ ] Event IDs are listed
-- [ ] No deletion, export, or audit-manipulation controls
+- [y] Changing event type clears any open event detail
+- [y] Event IDs are listed
+- [y] No deletion, export, or audit-manipulation controls
 
 **Audit Event Detail** — triggered by clicking an event ID
 
-- [ ] Clicking an event ID opens the detail view
-- [ ] Detail header shows a close/back control
-- [ ] Event content renders without crash
-- [ ] Redaction placeholders visible where expected
-- [ ] Payload readable
-- [ ] No export, delete, or action buttons
-- [ ] Closing the detail returns to the list
-- [ ] Detail cannot be opened for an ID not selected from the list
+- [y] Clicking an event ID opens the detail view
+- [y] Detail header shows a close/back control
+- [y] Event content renders without crash
+- [y] Redaction placeholders visible where expected
+- [y] Payload readable
+- [y] No export, delete, or action buttons
+- [y] Closing the detail returns to the list
+- [?] Detail cannot be opened for an ID not selected from the list - i dont understand
 
 ---
 
@@ -247,31 +247,31 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 **Cleanup Dry-Run card** — invokes `policy-scout data cleanup --target <target> --dry-run --json`
 
-- [ ] Card header shows **"DRY RUN ONLY"** notice (or equivalent prominent label)
-- [ ] `BoundaryNote` or similar reminder is visible
-- [ ] No delete/apply cleanup control
+- [y] Card header shows **"DRY RUN ONLY"** notice (or equivalent prominent label)
+- [y] `BoundaryNote` or similar reminder is visible
+- [y] No delete/apply cleanup control
 
 ### Cleanup target selector
 
-- [ ] Selector is visible
-- [ ] Options are exactly: **Demo data, Sandbox workspaces, Sandbox results** — no other values
-- [ ] No free-text input
-- [ ] Selecting each target refreshes the dry-run result
+- [y] Selector is visible
+- [y] Options are exactly: **Demo data, Sandbox workspaces, Sandbox results** — no other values
+- [y] No free-text input
+- [y] Selecting each target refreshes the dry-run result
 
 ### Dry-run result behavior
 
-- [ ] Result shows what *would* be cleaned, not a deletion confirmation
-- [ ] No "Delete", "Apply", "Confirm", or "Execute" button visible
-- [ ] No "Undo" button (nothing was done)
-- [ ] No network or remote calls implied
+- [y] Result shows what *would* be cleaned, not a deletion confirmation
+- [y] No "Delete", "Apply", "Confirm", or "Execute" button visible
+- [y] No "Undo" button (nothing was done)
+- [y] No network or remote calls implied
 
 **Eval Results card** — invokes `policy-scout eval run --json`
 
-- [ ] Card loads without crash
-- [ ] Shows pass/fail count and pass rate
-- [ ] Eval run is triggered by user action or on load (not on a background loop)
-- [ ] No controls to modify eval cases from the UI
-- [ ] Eval errors visible if any
+- [y] Card loads without crash
+- [y] Shows pass/fail count and pass rate
+- [y] Eval run is triggered by user action or on load (not on a background loop)
+- [y] No controls to modify eval cases from the UI
+- [y] Eval errors visible if any
 
 ---
 
@@ -279,28 +279,28 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 **Quick Sweep card** — invokes `policy-scout sweep quick --json`
 
-- [ ] Card loads without crash
-- [ ] Sweep is user-triggered (button)
-- [ ] Shows findings or "no findings" state
-- [ ] Redacted values styled distinctly
-- [ ] No free-text path input
-- [ ] No controls to modify sweep behavior
-- [ ] Sweep results use evidence/uncertainty language
-- [ ] Could-not-verify not treated as confirmed compromise
-- [ ] Long finding preview cap copy visible if applicable
-- [ ] No remediation controls
+- [y] Card loads without crash
+- [y] Sweep is user-triggered (button)
+- [y] Shows findings or "no findings" state
+- [y] Redacted values styled distinctly
+- [y] No free-text path input
+- [y] No controls to modify sweep behavior
+- [y] Sweep results use evidence/uncertainty language
+- [y] Could-not-verify not treated as confirmed compromise
+- [y] Long finding preview cap copy visible if applicable
+- [y] No remediation controls
 
 **Project Sweep card** — invokes `policy-scout sweep project --json`
 
-- [ ] Card loads without crash
-- [ ] Sweep is user-triggered (button)
-- [ ] Shows findings or "no findings" / "could not verify" states
-- [ ] `SweepResultPreview` component renders findings list correctly
-- [ ] Redacted values styled distinctly
-- [ ] No project path selection input (uses CLI default working directory)
-- [ ] No controls to modify sweep behavior
-- [ ] Long finding preview cap copy visible if applicable
-- [ ] No remediation controls
+- [y] Card loads without crash
+- [y] Sweep is user-triggered (button)
+- [y] Shows findings or "no findings" / "could not verify" states
+- [y] `SweepResultPreview` component renders findings list correctly
+- [y] Redacted values styled distinctly
+- [y] No project path selection input (uses CLI default working directory)
+- [y] No controls to modify sweep behavior
+- [y] Long finding preview cap copy visible if applicable
+- [y] No remediation controls
 
 ---
 
@@ -308,20 +308,20 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 **Sandbox Results List card** — invokes `policy-scout report list --json --type sandbox_result --limit 5`
 
-- [ ] Card loads without crash
-- [ ] Lists sandbox result reports by ID
-- [ ] No pagination control yet (known limitation — limit 5, no page selector)
-- [ ] No deletion controls
-- [ ] Empty state is helpful if no sandbox results exist
+- [y] Card loads without crash
+- [y] Lists sandbox result reports by ID
+- [y] No pagination control yet (known limitation — limit 5, no page selector)
+- [y] No deletion controls
+- [y] Empty state is helpful if no sandbox results exist
 
 **Sandbox Result Detail** — triggered by clicking a result ID
 
-- [ ] Clicking a result ID opens the detail view
-- [ ] Detail renders without crash
-- [ ] Redaction placeholders visible where expected
-- [ ] No migrate/apply UI
-- [ ] No package install execution from dashboard
-- [ ] No lifecycle script execution controls
+- [y] Clicking a result ID opens the detail view
+- [y] Detail renders without crash
+- [y] Redaction placeholders visible where expected
+- [y] No migrate/apply UI
+- [y] No package install execution from dashboard
+- [y] No lifecycle script execution controls
 
 ---
 
@@ -329,13 +329,13 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 **Launch:** `npm run dev` → open `http://localhost:1420`
 
-- [ ] App loads in browser without crashing
-- [ ] Displays message: "Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data."
-- [ ] No attempt to load live CLI data visible (no spinner-forever states on cards)
-- [ ] No JavaScript console errors related to Tauri invoke (expected — invoke is unavailable)
-- [ ] Layout is visible (not blank page)
-- [ ] Tauri-only actions show friendly native-required/runtime-unavailable error
-- [ ] No stack traces to user
+- [y] App loads in browser without crashing
+- [y] Displays message: "Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data."
+- [y] No attempt to load live CLI data visible (no spinner-forever states on cards)
+- [y] No JavaScript console errors related to Tauri invoke (expected — invoke is unavailable)
+- [y] Layout is visible (not blank page)
+- [y] Tauri-only actions show friendly native-required/runtime-unavailable error
+- [y] No stack traces to user
 
 ---
 
@@ -343,15 +343,15 @@ This validated why native smoke matters: CLI contract verification alone does no
 
 Confirm absent:
 
-- [ ] Command execution UI
-- [ ] Approval approve/deny UI
-- [ ] Sandbox migration/apply UI
-- [ ] Cleanup deletion/apply UI
-- [ ] Shell plugin UI
-- [ ] Arbitrary argv input
-- [ ] Auto-remediation
-- [ ] Broad cleanup controls
-- [ ] Direct filesystem/database browsing
+- [y] Command execution UI
+- [y] Approval approve/deny UI
+- [y] Sandbox migration/apply UI
+- [y] Cleanup deletion/apply UI
+- [y] Shell plugin UI
+- [y] Arbitrary argv input
+- [y] Auto-remediation
+- [y] Broad cleanup controls
+- [y] Direct filesystem/database browsing
 
 Each of these should be **absent**. If present, it is a safety boundary regression. **Stop and report.**
 
@@ -369,101 +369,101 @@ Policy Scout CLI version (policy-scout doctor --json):
 Tauri version (npm run tauri dev output):
 
 Preflight gates:
-  git status clean:           [ ] PASS  [ ] FAIL  Notes:
-  pytest:                    [ ] PASS  [ ] FAIL  Notes:
-  doctor:                     [ ] PASS  [ ] FAIL  Notes:
-  eval:                       [ ] PASS  [ ] FAIL  Notes:
-  npm build:                  [ ] PASS  [ ] FAIL  Notes:
-  cargo check:                [ ] PASS  [ ] FAIL  Notes:
-  cargo test:                 [ ] PASS  [ ] FAIL  Notes:
+  git status clean:           [x] PASS  [ ] FAIL  Notes:
+  pytest:                    [x] PASS  [ ] FAIL  Notes:
+  doctor:                     [x] PASS  [ ] FAIL  Notes:
+  eval:                       [x] PASS  [ ] FAIL  Notes:
+  npm build:                  [x] PASS  [ ] FAIL  Notes:
+  cargo check:                [x] PASS  [ ] FAIL  Notes:
+  cargo test:                 [x] PASS  [ ] FAIL  Notes:
 
 Native launch:
-  window opens:               [ ] PASS  [ ] FAIL  Notes:
-  no blank screen:            [ ] PASS  [ ] FAIL  Notes:
-  no runtime-unavailable:     [ ] PASS  [ ] FAIL  Notes:
-  no terminal panic:          [ ] PASS  [ ] FAIL  Notes:
+  window opens:               [x] PASS  [ ] FAIL  Notes:
+  no blank screen:            [x] PASS  [ ] FAIL  Notes:
+  no runtime-unavailable:     [x] PASS  [ ] FAIL  Notes:
+  no terminal panic:          [x] PASS  [ ] FAIL  Notes:
 
 Global visual/readability:
-  dark theme readable:        [ ] PASS  [ ] FAIL  Notes:
-  no light broken surfaces:   [ ] PASS  [ ] FAIL  Notes:
-  cards readable:             [ ] PASS  [ ] FAIL  Notes:
-  redaction intentional:      [ ] PASS  [ ] FAIL  Notes:
+  dark theme readable:        [x] PASS  [ ] FAIL  Notes:
+  no light broken surfaces:   [x] PASS  [ ] FAIL  Notes:
+  cards readable:             [x] PASS  [ ] FAIL  Notes:
+  redaction intentional:      [x] PASS  [ ] FAIL  Notes:
 
 Overview / Doctor / Data:
-  Status Strip:               [ ] PASS  [ ] FAIL  Notes:
-  Doctor Status:              [ ] PASS  [ ] FAIL  Notes:
-  Data Status:                [ ] PASS  [ ] FAIL  Notes:
+  Status Strip:               [x] PASS  [ ] FAIL  Notes:
+  Doctor Status:              [x] PASS  [ ] FAIL  Notes:
+  Data Status:                [x] PASS  [ ] FAIL  Notes:
 
 Decision Check:
-  card appears:               [ ] PASS  [ ] FAIL  Notes:
-  check-only language:        [ ] PASS  [ ] FAIL  Notes:
-  button label:               [ ] PASS  [ ] FAIL  Notes:
-  empty/whitespace rejected:  [ ] PASS  [ ] FAIL  Notes:
-  git status => ALLOW:        [ ] PASS  [ ] FAIL  Notes:
-  npm install => SANDBOX:     [ ] PASS  [ ] FAIL  Notes:
-  rm -rf / => DENY:           [ ] PASS  [ ] FAIL  Notes:
-  NOT EXECUTED markers:       [ ] PASS  [ ] FAIL  Notes:
-  FAQ local-only:             [ ] PASS  [ ] FAIL  Notes:
-  dangerous examples labeled: [ ] PASS  [ ] FAIL  Notes:
+  card appears:               [x] PASS  [ ] FAIL  Notes:
+  check-only language:        [x] PASS  [ ] FAIL  Notes:
+  button label:               [x] PASS  [ ] FAIL  Notes:
+  empty/whitespace rejected:  [x] PASS  [ ] FAIL  Notes:
+  git status => ALLOW:        [x] PASS  [ ] FAIL  Notes:
+  npm install => SANDBOX:     [ ] PASS  [x] FAIL  Notes:
+  rm -rf / => DENY:           [ ] PASS  [x] FAIL  Notes:
+  NOT EXECUTED markers:       [ ] PASS  [x] FAIL  Notes:
+  FAQ local-only:             [x] PASS  [ ] FAIL  Notes:
+  dangerous examples labeled: [x] PASS  [ ] FAIL  Notes:
 
 Reports:
-  list loads/empty state:     [ ] PASS  [ ] FAIL  Notes:
-  filter/limit controls:      [ ] PASS  [ ] FAIL  Notes:
-  detail opens:               [ ] PASS  [ ] FAIL  Notes:
-  redaction notice:           [ ] PASS  [ ] FAIL  Notes:
-  protected placeholders:     [ ] PASS  [ ] FAIL  Notes:
-  could-not-verify distinct:  [ ] PASS  [ ] FAIL  Notes:
-  long finding cap copy:     [ ] PASS  [ ] FAIL  Notes:
-  no mutation controls:       [ ] PASS  [ ] FAIL  Notes:
+  list loads/empty state:     [x] PASS  [ ] FAIL  Notes:
+  filter/limit controls:      [x] PASS  [ ] FAIL  Notes:
+  detail opens:               [x] PASS  [ ] FAIL  Notes:
+  redaction notice:           [x] PASS  [ ] FAIL  Notes:
+  protected placeholders:     [x] PASS  [ ] FAIL  Notes:
+  could-not-verify distinct:  [x] PASS  [ ] FAIL  Notes:
+  long finding cap copy:     [x] PASS  [ ] FAIL  Notes:
+  no mutation controls:       [x] PASS  [ ] FAIL  Notes:
 
 Audit:
-  stats visible:              [ ] PASS  [ ] FAIL  Notes:
-  events list loads/empty:    [ ] PASS  [ ] FAIL  Notes:
-  DecisionIssued filter:      [ ] PASS  [ ] FAIL  Notes:
-  event detail opens:         [ ] PASS  [ ] FAIL  Notes:
-  payload readable:           [ ] PASS  [ ] FAIL  Notes:
-  no mutation controls:       [ ] PASS  [ ] FAIL  Notes:
+  stats visible:              [x] PASS  [ ] FAIL  Notes:
+  events list loads/empty:    [x] PASS  [ ] FAIL  Notes:
+  DecisionIssued filter:      [x] PASS  [ ] FAIL  Notes:
+  event detail opens:         [x] PASS  [ ] FAIL  Notes:
+  payload readable:           [x] PASS  [ ] FAIL  Notes:
+  no mutation controls:       [x] PASS  [ ] FAIL  Notes:
 
 Cleanup / Eval:
-  cleanup dry-run only:       [ ] PASS  [ ] FAIL  Notes:
-  no delete/apply:            [ ] PASS  [ ] FAIL  Notes:
-  eval runs allowed:          [ ] PASS  [ ] FAIL  Notes:
-  eval errors visible:        [ ] PASS  [ ] FAIL  Notes:
+  cleanup dry-run only:       [x] PASS  [ ] FAIL  Notes:
+  no delete/apply:            [x] PASS  [ ] FAIL  Notes:
+  eval runs allowed:          [x] PASS  [ ] FAIL  Notes:
+  eval errors visible:        [x] PASS  [ ] FAIL  Notes:
 
 Sweeps:
-  quick sweep user-triggered: [ ] PASS  [ ] FAIL  Notes:
-  project sweep user-triggered: [ ] PASS  [ ] FAIL  Notes:
-  evidence/uncertainty language: [ ] PASS  [ ] FAIL  Notes:
-  could-not-verify distinct:  [ ] PASS  [ ] FAIL  Notes:
-  long finding cap copy:      [ ] PASS  [ ] FAIL  Notes:
-  no remediation controls:    [ ] PASS  [ ] FAIL  Notes:
+  quick sweep user-triggered: [x] PASS  [ ] FAIL  Notes:
+  project sweep user-triggered: [x] PASS  [ ] FAIL  Notes:
+  evidence/uncertainty language: [x] PASS  [ ] FAIL  Notes:
+  could-not-verify distinct:  [x] PASS  [ ] FAIL  Notes:
+  long finding cap copy:      [x] PASS  [ ] FAIL  Notes:
+  no remediation controls:    [x] PASS  [ ] FAIL  Notes:
 
 Sandbox Results:
-  list loads/empty state:     [ ] PASS  [ ] FAIL  Notes:
-  detail opens:               [ ] PASS  [ ] FAIL  Notes:
-  no migrate/apply UI:        [ ] PASS  [ ] FAIL  Notes:
-  no package install exec:    [ ] PASS  [ ] FAIL  Notes:
+  list loads/empty state:     [x] PASS  [ ] FAIL  Notes:
+  detail opens:               [x] PASS  [ ] FAIL  Notes:
+  no migrate/apply UI:        [x] PASS  [ ] FAIL  Notes:
+  no package install exec:    [x] PASS  [ ] FAIL  Notes:
 
 Browser preview:
-  static UI renders:          [ ] PASS  [ ] FAIL  Notes:
-  native-required error:      [ ] PASS  [ ] FAIL  Notes:
-  no blank page:              [ ] PASS  [ ] FAIL  Notes:
-  no stack traces:            [ ] PASS  [ ] FAIL  Notes:
+  static UI renders:          [x] PASS  [ ] FAIL  Notes:
+  native-required error:      [x] PASS  [ ] FAIL  Notes:
+  no blank page:              [x] PASS  [ ] FAIL  Notes:
+  no stack traces:            [x] PASS  [ ] FAIL  Notes:
 
 Negative safety:
-  no command exec UI:         [ ] PASS  [ ] FAIL  Notes:
-  no approval UI:             [ ] PASS  [ ] FAIL  Notes:
-  no sandbox migration UI:     [ ] PASS  [ ] FAIL  Notes:
-  no cleanup deletion UI:     [ ] PASS  [ ] FAIL  Notes:
-  no shell plugin UI:         [ ] PASS  [ ] FAIL  Notes:
-  no arbitrary argv:          [ ] PASS  [ ] FAIL  Notes:
-  no auto-remediation:        [ ] PASS  [ ] FAIL  Notes:
-  no broad cleanup controls:   [ ] PASS  [ ] FAIL  Notes:
-  no direct fs/db browsing:   [ ] PASS  [ ] FAIL  Notes:
+  no command exec UI:         [x] PASS  [ ] FAIL  Notes:
+  no approval UI:             [x] PASS  [ ] FAIL  Notes:
+  no sandbox migration UI:     [x] PASS  [ ] FAIL  Notes:
+  no cleanup deletion UI:     [x] PASS  [ ] FAIL  Notes:
+  no shell plugin UI:         [x] PASS  [ ] FAIL  Notes:
+  no arbitrary argv:          [x] PASS  [ ] FAIL  Notes:
+  no auto-remediation:        [x] PASS  [ ] FAIL  Notes:
+  no broad cleanup controls:   [x] PASS  [ ] FAIL  Notes:
+  no direct fs/db browsing:   [x] PASS  [ ] FAIL  Notes:
 
-Overall: [ ] PASS  [ ] PASS WITH NOTES  [ ] FAIL
-Notes:
-Signed:
+Overall: [ ] PASS  [x] PASS WITH NOTES  [ ] FAIL
+Notes: i added nots earlier in the testing at each item.
+Signed: Love, boop.
 ```
 
 ---

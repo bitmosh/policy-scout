@@ -58,6 +58,64 @@ fn run_policy_scout_json(args: &[&str]) -> CliJsonResponse {
     }
 }
 
+// Check-specific helper that accepts exit codes 0, 10, 20 as valid decision statuses
+// For policy-scout check --json:
+// - exit 0 = ALLOW
+// - exit 10 = SANDBOX_FIRST
+// - exit 20 = DENY
+// - exit 30 = DENY_AND_ALERT
+// These are decision statuses, not errors. The JSON payload contains the decision.
+fn run_policy_scout_check_json(command_text: &str) -> CliJsonResponse {
+    let output = Command::new("policy-scout")
+        .args(["check", "--json", command_text])
+        .output();
+
+    match output {
+        Ok(output) => {
+            let exit_code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+            // Accept exit codes 0, 10, 20, 30 as valid check decision statuses
+            let is_valid_check_exit = exit_code == 0 || exit_code == 10 || exit_code == 20 || exit_code == 30;
+
+            if is_valid_check_exit {
+                match serde_json::from_str::<serde_json::Value>(&stdout) {
+                    Ok(data) => CliJsonResponse {
+                        ok: true,
+                        exit_code,
+                        data: Some(data),
+                        error: None,
+                        stderr_summary: None,
+                    },
+                    Err(_) => CliJsonResponse {
+                        ok: false,
+                        exit_code,
+                        data: None,
+                        error: Some("Failed to parse JSON output".to_string()),
+                        stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                    },
+                }
+            } else {
+                CliJsonResponse {
+                    ok: false,
+                    exit_code,
+                    data: None,
+                    error: Some(format!("Command failed with exit code {}", exit_code)),
+                    stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                }
+            }
+        }
+        Err(e) => CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!("Failed to execute command: {}", e)),
+            stderr_summary: None,
+        },
+    }
+}
+
 #[tauri::command]
 fn get_doctor_status() -> CliJsonResponse {
     run_policy_scout_json(&["doctor", "--json"])
@@ -172,7 +230,7 @@ fn check_command(command_text: String) -> CliJsonResponse {
     if let Err(e) = validate_command_text(&command_text) {
         return e;
     }
-    run_policy_scout_json(&["check", "--json", command_text.as_str()])
+    run_policy_scout_check_json(&command_text)
 }
 
 #[tauri::command]
@@ -326,7 +384,7 @@ fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
             if let Err(e) = validate_audit_event_type(et.as_str()) {
                 return e;
             }
-            let response = run_policy_scout_json(&["audit", "type", "--json", et.as_str()]);
+            let response = run_policy_scout_json(&["audit", "type", "--json", "--limit", "10", et.as_str()]);
             // Wrap array response in expected shape
             if response.ok {
                 if let Some(data) = response.data {

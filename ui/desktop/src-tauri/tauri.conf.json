@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "uidesktop",
+  "productName": "PolicyScout",
   "version": "0.1.0",
   "identifier": "com.boop.uidesktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "uidesktop",
+        "title": "PolicyScout",
         "width": 800,
         "height": 600
       }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter, CleanupTarget } from "./types";
@@ -51,16 +51,21 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Load audit events on mount and when filter changes
+  useEffect(() => {
+    fetchAuditEvents(auditEventType);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auditEventType]);
+
   async function fetchAllStatus() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, auditEvents, cleanup, evalResult, sbxList] = await Promise.all([
+      const [doctor, data, reports, audit, cleanup, evalResult, sbxList] = await Promise.all([
         invoke<CliJsonResponse>("get_doctor_status"),
         invoke<CliJsonResponse>("get_data_status"),
         invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
         invoke<CliJsonResponse>("get_audit_stats"),
-        invoke<CliJsonResponse>("list_audit_events_filtered", { event_type: auditEventType === "all" ? null : auditEventType }),
         invoke<CliJsonResponse>("get_cleanup_dry_run", { target: cleanupTarget }),
         invoke<CliJsonResponse>("run_eval"),
         invoke<CliJsonResponse>("list_sandbox_results"),
@@ -69,7 +74,6 @@ function App() {
       setDataStatus(data);
       setReportsList(reports);
       setAuditStats(audit);
-      setAuditEventsList(auditEvents);
       setCleanupResult(cleanup);
       setEvalResults(evalResult);
       setSandboxResultsList(sbxList);
@@ -84,9 +88,6 @@ function App() {
       }
       if (!audit.ok) {
         setError(audit.error || "Unknown error");
-      }
-      if (!auditEvents.ok) {
-        setError(auditEvents.error || "Unknown error");
       }
       if (!cleanup.ok) {
         setError(cleanup.error || "Unknown error");
@@ -187,11 +188,8 @@ function App() {
 
   function handleAuditEventTypeChange(type: AuditEventTypeFilter) {
     setAuditEventType(type);
-    if (selectedAuditEventId) {
-      setSelectedAuditEventId(null);
-      setAuditEventDetail(null);
-    }
-    fetchAuditEvents(type);
+    setSelectedAuditEventId(null);
+    setAuditEventDetail(null);
   }
 
   function handleReportTypeChange(type: ReportTypeFilter) {
