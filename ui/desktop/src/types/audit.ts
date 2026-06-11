@@ -34,6 +34,7 @@ export interface AuditEventListItem {
 export interface AuditEventListData {
   events?: AuditEventListItem[];
   total_count?: number;
+  offset?: number;
 }
 
 export interface AuditEventDetailData {

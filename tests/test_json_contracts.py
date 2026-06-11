@@ -841,10 +841,13 @@ def test_audit_type_json_has_required_fields(temp_state_paths):
 
     assert result.returncode == 0
 
-    events = json.loads(result.stdout)
+    data = json.loads(result.stdout)
 
-    # Assert array shape
-    assert isinstance(events, list)
+    # Assert paginated dict shape
+    assert isinstance(data, dict)
+    assert "events" in data
+    assert "total_count" in data
+    events = data["events"]
 
     if len(events) > 0:
         # Assert all events include required fields

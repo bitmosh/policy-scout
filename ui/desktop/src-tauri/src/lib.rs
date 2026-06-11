@@ -411,36 +411,27 @@ fn validate_audit_event_type(event_type: &str) -> Result<(), CliJsonResponse> {
 }
 
 #[tauri::command]
-fn list_audit_events_filtered(event_type: Option<String>, offset: Option<u32>) -> CliJsonResponse {
+fn list_audit_events_filtered(event_type: Option<String>, limit: u32, offset: Option<u32>) -> CliJsonResponse {
+    let validated_limit = match validate_limit(limit) {
+        Ok(l) => l,
+        Err(e) => return e,
+    };
     let validated_offset = match validate_pagination(offset.unwrap_or(0)) {
         Ok(o) => o,
         Err(e) => return e,
     };
+    let limit_str = validated_limit.to_string();
     let offset_str = validated_offset.to_string();
     if let Some(ref et) = event_type {
         if !et.is_empty() && et != "all" {
             if let Err(e) = validate_audit_event_type(et.as_str()) {
                 return e;
             }
-            // audit type returns a raw array — wrap in { events, total_count }
-            let response = run_policy_scout_json(&["audit", "type", "--json", "--limit", "20", et.as_str()]);
-            if response.ok {
-                if let Some(data) = response.data {
-                    let count = data.as_array().map(|a| a.len()).unwrap_or(0);
-                    return CliJsonResponse {
-                        ok: true,
-                        exit_code: response.exit_code,
-                        data: Some(serde_json::json!({ "events": data, "total_count": count })),
-                        error: None,
-                        stderr_summary: None,
-                    };
-                }
-            }
-            return response;
+            // audit type --json now returns { events: [...], total_count: N } directly
+            return run_policy_scout_json(&["audit", "type", "--json", "--limit", &limit_str, "--offset", &offset_str, et.as_str()]);
         }
     }
-    // audit list --json now returns { events: [...], total_count: N } directly
-    run_policy_scout_json(&["audit", "list", "--json", "--limit", "20", "--offset", &offset_str])
+    run_policy_scout_json(&["audit", "list", "--json", "--limit", &limit_str, "--offset", &offset_str])
 }
 
 fn validate_audit_event_id(event_id: &str) -> Result<(), CliJsonResponse> {

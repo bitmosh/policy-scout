@@ -77,6 +77,8 @@ function App() {
   const [reportType, setReportType] = useState<ReportTypeFilter>("");
   const [reportsLoading, setReportsLoading] = useState(false);
   const [auditEventType, setAuditEventType] = useState<AuditEventTypeFilter>("all");
+  const [auditEventsOffset, setAuditEventsOffset] = useState<number>(0);
+  const [auditEventsLimit, setAuditEventsLimit] = useState<number>(25);
   const [auditEventsLoading, setAuditEventsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -217,11 +219,14 @@ function App() {
     fetchReports(limit, reportType);
   }
 
-  async function fetchAuditEvents(type: AuditEventTypeFilter) {
+  async function fetchAuditEvents(type: AuditEventTypeFilter, limit: number = auditEventsLimit, offset: number = 0) {
     setAuditEventsLoading(true);
+    setAuditEventsOffset(offset);
     try {
       const result = await invoke<CliJsonResponse<AuditEventListData>>("list_audit_events_filtered", {
         event_type: type === "all" ? null : type,
+        limit,
+        offset,
       });
       setAuditEventsList(result);
       if (!result.ok) {
@@ -241,8 +246,27 @@ function App() {
 
   function handleAuditEventTypeChange(type: AuditEventTypeFilter) {
     setAuditEventType(type);
+    setAuditEventsOffset(0);
     setSelectedAuditEventId(null);
     setAuditEventDetail(null);
+  }
+
+  function handleAuditLimitChange(limit: number) {
+    setAuditEventsLimit(limit);
+    fetchAuditEvents(auditEventType, limit, 0);
+  }
+
+  function handleAuditPagePrev() {
+    const newOffset = Math.max(0, auditEventsOffset - auditEventsLimit);
+    fetchAuditEvents(auditEventType, auditEventsLimit, newOffset);
+  }
+
+  function handleAuditPageNext() {
+    const totalCount = auditEventsList?.data?.total_count ?? 0;
+    const newOffset = auditEventsOffset + auditEventsLimit;
+    if (newOffset < totalCount) {
+      fetchAuditEvents(auditEventType, auditEventsLimit, newOffset);
+    }
   }
 
   function handleReportTypeChange(type: ReportTypeFilter) {
@@ -446,6 +470,12 @@ function App() {
               auditEventType={auditEventType}
               onTypeChange={handleAuditEventTypeChange}
               loading={auditEventsLoading}
+              limit={auditEventsLimit}
+              onLimitChange={handleAuditLimitChange}
+              offset={auditEventsOffset}
+              totalCount={auditEventsList?.data?.total_count}
+              onPagePrev={auditEventsOffset > 0 ? handleAuditPagePrev : undefined}
+              onPageNext={(auditEventsOffset + auditEventsLimit) < (auditEventsList?.data?.total_count ?? 0) ? handleAuditPageNext : undefined}
             />
             <CleanupDryRunCard
               cleanupResult={cleanupResult}

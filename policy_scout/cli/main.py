@@ -356,6 +356,9 @@ def cli():
         "--limit", type=int, default=50, help="Number of events to show (default: 50)"
     )
     audit_type_parser.add_argument(
+        "--offset", type=int, default=0, help="Skip N events (for pagination, default: 0)"
+    )
+    audit_type_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
 
@@ -3045,11 +3048,11 @@ def handle_audit_command(args):
                 print()
 
     elif args.audit_subcommand == "type":
-        events = sqlite_store.list_by_event_type(args.event_type)
-        if args.limit:
-            events = events[: args.limit]
+        offset = getattr(args, "offset", 0)
+        total_count = sqlite_store.count_by_event_type(args.event_type)
+        events = sqlite_store.list_by_event_type(args.event_type, limit=args.limit, offset=offset)
         if args.json:
-            print(json.dumps(events, indent=2))
+            print(json.dumps({"events": events, "total_count": total_count}, indent=2))
         else:
             if not events:
                 print(f"No events found for type: {args.event_type}")

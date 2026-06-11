@@ -200,19 +200,32 @@ class SQLiteAuditStore:
             print(f"Warning: Failed to list events by request_id: {e}", file=__import__("sys").stderr)
             return []
 
-    def list_by_event_type(self, event_type: str) -> List[Dict[str, Any]]:
-        """List all events of a specific type."""
+    def list_by_event_type(self, event_type: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
+        """List events of a specific type with pagination."""
         try:
             with sqlite3.connect(self.path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute(
-                    "SELECT * FROM audit_events WHERE event_type = ? ORDER BY timestamp DESC",
-                    (event_type,)
+                    "SELECT * FROM audit_events WHERE event_type = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+                    (event_type, limit, offset)
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
             print(f"Warning: Failed to list events by type: {e}", file=__import__("sys").stderr)
             return []
+
+    def count_by_event_type(self, event_type: str) -> int:
+        """Count events of a specific type."""
+        try:
+            with sqlite3.connect(self.path) as conn:
+                cursor = conn.execute(
+                    "SELECT COUNT(*) FROM audit_events WHERE event_type = ?",
+                    (event_type,)
+                )
+                return cursor.fetchone()[0]
+        except Exception as e:
+            print(f"Warning: Failed to count events by type: {e}", file=__import__("sys").stderr)
+            return 0
 
     def count_events(self) -> int:
         """Count total events in the store."""
