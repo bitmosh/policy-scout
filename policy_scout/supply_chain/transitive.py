@@ -1,4 +1,4 @@
-"""Transitive dependency tree analysis using npm list --json output."""
+"""Transitive dependency tree analysis using package manager list output."""
 
 from __future__ import annotations
 
@@ -40,6 +40,51 @@ def run_npm_list(sandbox_workspace: Path, timeout: int = 30) -> Optional[Dict]:
             return json.loads(proc.stdout)
     except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError):
         pass
+    return None
+
+
+def run_pnpm_list(sandbox_workspace: Path, timeout: int = 30) -> Optional[Dict]:
+    """Run `pnpm list --json --depth=999` and return the parsed output.
+
+    pnpm returns a JSON array; we normalise it to the same shape as npm list.
+    """
+    try:
+        proc = subprocess.run(
+            ["pnpm", "list", "--json", "--depth=999"],
+            cwd=str(sandbox_workspace),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        if proc.stdout.strip():
+            data = json.loads(proc.stdout)
+            # pnpm wraps output in an array; take the first element
+            if isinstance(data, list) and data:
+                return data[0]
+            if isinstance(data, dict):
+                return data
+    except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError):
+        pass
+    return None
+
+
+def run_list_for_pm(
+    package_manager: str,
+    sandbox_workspace: Path,
+    timeout: int = 30,
+) -> Optional[Dict]:
+    """Dispatch to the correct list command for the given package manager.
+
+    yarn and bun do not produce a dependency tree in a shape compatible with
+    analyze_tree, so they return None (transitive analysis is skipped).
+    """
+    if package_manager == "npm":
+        return run_npm_list(sandbox_workspace, timeout=timeout)
+    if package_manager == "pnpm":
+        return run_pnpm_list(sandbox_workspace, timeout=timeout)
+    # yarn classic's `yarn list --json` is a streaming line-delimited format,
+    # not a single JSON document. yarn berry and bun lack a stable JSON tree
+    # output. Skip transitive analysis for these package managers.
     return None
 
 

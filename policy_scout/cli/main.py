@@ -1536,7 +1536,7 @@ def handle_sandbox_command(
         create_minimal_package_json(workspace, package_name)
 
     # Take before snapshot
-    before_snapshot = take_file_snapshot(workspace)
+    before_snapshot = take_file_snapshot(workspace, package_manager)
 
     # Run package manager install
     if audit_enabled:
@@ -1558,11 +1558,11 @@ def handle_sandbox_command(
         )
 
     # Take after snapshot
-    after_snapshot = take_file_snapshot(workspace)
+    after_snapshot = take_file_snapshot(workspace, package_manager)
 
     # Capture diffs
     manifest_changed, lockfile_changed, diffs = capture_manifest_diffs(
-        workspace, before_snapshot, after_snapshot
+        before_snapshot, after_snapshot, package_manager
     )
 
     # Inspect lifecycle scripts
@@ -1601,12 +1601,12 @@ def handle_sandbox_command(
     transitive_findings = []
     if exit_code == 0:
         try:
-            from ..supply_chain.transitive import run_npm_list, analyze_tree
+            from ..supply_chain.transitive import run_list_for_pm, analyze_tree
             from ..intel.adapter import build_default_chain
-            npm_tree = run_npm_list(workspace)
-            if npm_tree is not None:
+            pm_tree = run_list_for_pm(package_manager, workspace)
+            if pm_tree is not None:
                 intel_chain = build_default_chain(remote=False)
-                tree_result = analyze_tree(npm_tree, ecosystem="npm", intel_adapter=intel_chain)
+                tree_result = analyze_tree(pm_tree, ecosystem="npm", intel_adapter=intel_chain)
                 transitive_findings = tree_result.findings
         except Exception:
             pass

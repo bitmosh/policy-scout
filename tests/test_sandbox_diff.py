@@ -47,7 +47,7 @@ def test_capture_manifest_diffs_no_changes():
         after = {"package.json": '{"name": "test"}'}
 
         manifest_changed, lockfile_changed, diffs = capture_manifest_diffs(
-            workspace, before, after
+            before, after
         )
 
         assert not manifest_changed
@@ -67,7 +67,7 @@ def test_capture_manifest_diffs_package_json_changed():
         }
 
         manifest_changed, lockfile_changed, diffs = capture_manifest_diffs(
-            workspace, before, after
+            before, after
         )
 
         assert manifest_changed
@@ -84,7 +84,7 @@ def test_capture_manifest_diffs_lockfile_created():
         after = {"package-lock.json": '{"lockfileVersion": 2}'}
 
         manifest_changed, lockfile_changed, diffs = capture_manifest_diffs(
-            workspace, before, after
+            before, after
         )
 
         assert not manifest_changed
@@ -101,7 +101,7 @@ def test_capture_manifest_diffs_lockfile_changed():
         after = {"package-lock.json": '{"lockfileVersion": 2}'}
 
         manifest_changed, lockfile_changed, diffs = capture_manifest_diffs(
-            workspace, before, after
+            before, after
         )
 
         assert not manifest_changed

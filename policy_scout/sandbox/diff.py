@@ -3,18 +3,25 @@
 from pathlib import Path
 from typing import Dict, Tuple
 
+from .package_manager import get_package_files
+
+# Filenames that are lockfiles (not manifests) per package manager
+_LOCKFILE_NAMES = frozenset({
+    "package-lock.json",
+    "npm-shrinkwrap.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "bun.lockb",
+    "bun.lock",
+})
+
 
 def capture_manifest_diffs(
-    sandbox_workspace: Path,
     before_snapshot: Dict[str, str],
     after_snapshot: Dict[str, str],
+    package_manager: str = "npm",
 ) -> Tuple[bool, bool, Dict[str, str]]:
     """Capture diffs for package.json and lockfiles.
-
-    Args:
-        sandbox_workspace: Path to the sandbox workspace.
-        before_snapshot: Dict of file content before install.
-        after_snapshot: Dict of file content after install.
 
     Returns:
         Tuple of (manifest_changed, lockfile_changed, diffs_dict).
@@ -23,41 +30,38 @@ def capture_manifest_diffs(
     lockfile_changed = False
     diffs = {}
 
-    # Check package.json
-    before_content = before_snapshot.get("package.json", "")
-    after_content = after_snapshot.get("package.json", "")
+    all_files = get_package_files(package_manager)
 
-    if before_content != after_content:
-        manifest_changed = True
-        diffs["package.json"] = _simple_diff(before_content, after_content)
+    for filename in all_files:
+        before_content = before_snapshot.get(filename, "")
+        after_content = after_snapshot.get(filename, "")
 
-    # Check lockfiles
-    lockfiles = ["package-lock.json", "npm-shrinkwrap.json"]
-    for lockfile in lockfiles:
-        before_content = before_snapshot.get(lockfile, "")
-        after_content = after_snapshot.get(lockfile, "")
+        if before_content == after_content:
+            continue
 
-        if before_content != after_content:
+        diff_str = _simple_diff(before_content, after_content)
+        diffs[filename] = diff_str
+
+        if filename == "package.json":
+            manifest_changed = True
+        elif filename in _LOCKFILE_NAMES:
             lockfile_changed = True
-            diffs[lockfile] = _simple_diff(before_content, after_content)
 
     return manifest_changed, lockfile_changed, diffs
 
 
-def take_file_snapshot(sandbox_workspace: Path) -> Dict[str, str]:
+def take_file_snapshot(
+    sandbox_workspace: Path,
+    package_manager: str = "npm",
+) -> Dict[str, str]:
     """Take a snapshot of package manifest/lockfile files.
-
-    Args:
-        sandbox_workspace: Path to the sandbox workspace.
 
     Returns:
         Dict mapping filename to file content.
     """
     snapshot = {}
 
-    files_to_snapshot = ["package.json", "package-lock.json", "npm-shrinkwrap.json"]
-
-    for filename in files_to_snapshot:
+    for filename in get_package_files(package_manager):
         file_path = sandbox_workspace / filename
         if file_path.exists():
             try:
