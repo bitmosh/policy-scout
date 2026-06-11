@@ -99,7 +99,11 @@ def test_report_list_json_returns_valid_json(temp_report_paths):
     )
     
     assert result.returncode == 0
-    reports = json.loads(result.stdout)
+    payload = json.loads(result.stdout)
+    assert isinstance(payload, dict)
+    assert "reports" in payload
+    assert "total_count" in payload
+    reports = payload["reports"]
     assert isinstance(reports, list)
     assert len(reports) > 0
     assert "report_id" in reports[0]

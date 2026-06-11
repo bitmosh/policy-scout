@@ -172,14 +172,14 @@ class SQLiteAuditStore:
             print(f"Warning: Failed to get event: {e}", file=__import__("sys").stderr)
             return None
 
-    def list_recent(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_recent(self, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
         """List recent events ordered by timestamp descending."""
         try:
             with sqlite3.connect(self.path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute(
-                    "SELECT * FROM audit_events ORDER BY timestamp DESC LIMIT ?",
-                    (limit,)
+                    "SELECT * FROM audit_events ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+                    (limit, offset)
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:

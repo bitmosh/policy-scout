@@ -1,6 +1,6 @@
 import { StatusPill, severityToTone, confidenceToTone } from "./StatusPill";
 import { EvidenceText } from "./EvidenceText";
-import { SweepData, asArray } from "../types";
+import { SweepData, SweepFinding, CouldNotVerifyItem, asArray } from "../types";
 
 interface SweepResultPreviewProps {
   data: SweepData | undefined;
@@ -17,8 +17,8 @@ export function SweepResultPreview({
 }: SweepResultPreviewProps) {
   if (!data) return null;
 
-  const findings = asArray(data.findings);
-  const couldNotVerify = asArray(data.could_not_verify);
+  const findings = asArray<SweepFinding>(data.findings);
+  const couldNotVerify = asArray<string | CouldNotVerifyItem>(data.could_not_verify);
   const findingsCount = findings.length;
   const couldNotVerifyCount = couldNotVerify.length;
 
@@ -62,26 +62,26 @@ export function SweepResultPreview({
             These are evidence-gathering results, not confirmed compromises.
           </p>
           <div className="findings-list">
-            {findings.slice(0, maxFindings).map((finding: any, index: number) => (
+            {findings.slice(0, maxFindings).map((finding, index) => (
               <div key={index} className="finding-item">
                 <div className="finding-header">
                   <StatusPill
                     label=""
-                    tone={severityToTone(finding.severity)}
+                    tone={severityToTone(finding.severity ?? "")}
                     value={finding.severity?.toUpperCase()}
                     className="finding-severity-pill"
                   />
                   <StatusPill
                     label=""
-                    tone={confidenceToTone(finding.confidence)}
+                    tone={confidenceToTone(finding.confidence ?? "")}
                     value={`${finding.confidence?.toUpperCase()} confidence`}
                     className="finding-confidence-pill"
                   />
                 </div>
                 <div className="finding-category">{finding.category}</div>
-                <div className="finding-title"><EvidenceText text={finding.title} /></div>
+                <div className="finding-title"><EvidenceText text={finding.title ?? ""} /></div>
                 {finding.location && (
-                  <div className="finding-location"><EvidenceText text={finding.location} className="finding-location" /></div>
+                  <div className="finding-location"><EvidenceText text={finding.location ?? ""} className="finding-location" /></div>
                 )}
               </div>
             ))}
@@ -98,9 +98,9 @@ export function SweepResultPreview({
         <div className="sweep-could-not-verify">
           <h3>Could Not Verify</h3>
           <div className="could-not-verify-list">
-            {couldNotVerify.slice(0, maxCouldNotVerify).map((item: any, index: number) => (
+            {couldNotVerify.slice(0, maxCouldNotVerify).map((item, index) => (
               <div key={index} className="could-not-verify-item">
-                <div className="could-not-verify-check"><EvidenceText text={typeof item === "string" ? item : item.check || "Unknown check"} /></div>
+                <div className="could-not-verify-check"><EvidenceText text={typeof item === "string" ? item : (item.check ?? "Unknown check")} /></div>
                 {typeof item === "object" && item.reason && (
                   <div className="could-not-verify-reason"><EvidenceText text={item.reason} /></div>
                 )}

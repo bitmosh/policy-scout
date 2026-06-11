@@ -1,7 +1,31 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter, CleanupTarget } from "./types";
+import {
+  CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter, CleanupTarget,
+  DoctorStatusData, DataStatusData, AuditStatsData, CleanupDryRunData,
+  EvalRunData, SweepData, ReportListData, ReportDetailData,
+  AuditEventListData, AuditEventDetailData, SandboxResultListItem, SandboxResultDetailData,
+  PolicyOverviewData, PolicyValidateData,
+} from "./types";
+import doctorStatusMock from "./mocks/doctor_status.json";
+import dataStatusMock from "./mocks/data_status.json";
+import auditStatsMock from "./mocks/audit_stats.json";
+import cleanupDryRunMock from "./mocks/cleanup_dry_run.json";
+import evalResultsMock from "./mocks/eval_results.json";
+import sweepDataMock from "./mocks/sweep_data.json";
+import reportListMockRaw from "./mocks/report_list.json";
+import reportDetailMock from "./mocks/report_detail.json";
+import auditEventsListMock from "./mocks/audit_events_list.json";
+import auditEventDetailMock from "./mocks/audit_event_detail.json";
+import sandboxResultListMock from "./mocks/sandbox_result_list.json";
+import sandboxResultDetailMock from "./mocks/sandbox_result_detail.json";
+import policyOverviewMock from "./mocks/policy_overview.json";
+import policyValidateMock from "./mocks/policy_validate.json";
+
+function mockResponse<T>(data: T): CliJsonResponse<T> {
+  return { ok: true, exit_code: 0, data, error: null, stderr_summary: null };
+}
 import { BoundaryNote } from "./components/BoundaryNote";
 import { OverviewStatusStrip } from "./components/OverviewStatusStrip";
 import { DoctorStatusCard } from "./components/DoctorStatusCard";
@@ -18,31 +42,37 @@ import { ReportDetailCard } from "./components/ReportDetailCard";
 import { SandboxResultsListCard } from "./components/SandboxResultsListCard";
 import { SandboxResultDetailCard } from "./components/SandboxResultDetailCard";
 import { DecisionCheckCard } from "./components/DecisionCheckCard";
+import { PolicyOverviewCard } from "./components/PolicyOverviewCard";
+import { PolicyValidateCard } from "./components/PolicyValidateCard";
 
 function App() {
-  const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse | null>(null);
-  const [dataStatus, setDataStatus] = useState<CliJsonResponse | null>(null);
-  const [reportsList, setReportsList] = useState<CliJsonResponse | null>(null);
-  const [auditStats, setAuditStats] = useState<CliJsonResponse | null>(null);
-  const [auditEventsList, setAuditEventsList] = useState<CliJsonResponse | null>(null);
-  const [cleanupResult, setCleanupResult] = useState<CliJsonResponse | null>(null);
+  const [doctorStatus, setDoctorStatus] = useState<CliJsonResponse<DoctorStatusData> | null>(null);
+  const [dataStatus, setDataStatus] = useState<CliJsonResponse<DataStatusData> | null>(null);
+  const [reportsList, setReportsList] = useState<CliJsonResponse<ReportListData> | null>(null);
+  const [reportsOffset, setReportsOffset] = useState<number>(0);
+  const [auditStats, setAuditStats] = useState<CliJsonResponse<AuditStatsData> | null>(null);
+  const [auditEventsList, setAuditEventsList] = useState<CliJsonResponse<AuditEventListData> | null>(null);
+  const [cleanupResult, setCleanupResult] = useState<CliJsonResponse<CleanupDryRunData> | null>(null);
   const [cleanupTarget, setCleanupTarget] = useState<CleanupTarget>("demo");
   const [cleanupLoading, setCleanupLoading] = useState(false);
-  const [evalResults, setEvalResults] = useState<CliJsonResponse | null>(null);
-  const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse | null>(null);
+  const [evalResults, setEvalResults] = useState<CliJsonResponse<EvalRunData> | null>(null);
+  const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse<SandboxResultListItem[]> | null>(null);
   const [selectedSandboxResultId, setSelectedSandboxResultId] = useState<string | null>(null);
-  const [sandboxResultDetail, setSandboxResultDetail] = useState<CliJsonResponse | null>(null);
+  const [sandboxResultDetail, setSandboxResultDetail] = useState<CliJsonResponse<SandboxResultDetailData> | null>(null);
   const [sandboxResultDetailLoading, setSandboxResultDetailLoading] = useState(false);
-  const [quickSweep, setQuickSweep] = useState<CliJsonResponse | null>(null);
+  const [quickSweep, setQuickSweep] = useState<CliJsonResponse<SweepData> | null>(null);
   const [sweepLoading, setSweepLoading] = useState(false);
-  const [projectSweep, setProjectSweep] = useState<CliJsonResponse | null>(null);
+  const [projectSweep, setProjectSweep] = useState<CliJsonResponse<SweepData> | null>(null);
   const [projectSweepLoading, setProjectSweepLoading] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
-  const [reportDetail, setReportDetail] = useState<CliJsonResponse | null>(null);
+  const [reportDetail, setReportDetail] = useState<CliJsonResponse<ReportDetailData> | null>(null);
   const [reportDetailLoading, setReportDetailLoading] = useState(false);
   const [selectedAuditEventId, setSelectedAuditEventId] = useState<string | null>(null);
-  const [auditEventDetail, setAuditEventDetail] = useState<CliJsonResponse | null>(null);
+  const [auditEventDetail, setAuditEventDetail] = useState<CliJsonResponse<AuditEventDetailData> | null>(null);
   const [auditEventDetailLoading, setAuditEventDetailLoading] = useState(false);
+  const [policyOverview, setPolicyOverview] = useState<CliJsonResponse<PolicyOverviewData> | null>(null);
+  const [policyValidate, setPolicyValidate] = useState<CliJsonResponse<PolicyValidateData> | null>(null);
+  const [policyValidateLoading, setPolicyValidateLoading] = useState(false);
   const [reportLimit, setReportLimit] = useState<number>(5);
   const [reportType, setReportType] = useState<ReportTypeFilter>("");
   const [reportsLoading, setReportsLoading] = useState(false);
@@ -61,20 +91,22 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const [doctor, data, reports, audit, cleanup, evalResult, sbxList] = await Promise.all([
-        invoke<CliJsonResponse>("get_doctor_status"),
-        invoke<CliJsonResponse>("get_data_status"),
-        invoke<CliJsonResponse>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
-        invoke<CliJsonResponse>("get_audit_stats"),
-        invoke<CliJsonResponse>("get_cleanup_dry_run", { target: cleanupTarget }),
-        invoke<CliJsonResponse>("run_eval"),
-        invoke<CliJsonResponse>("list_sandbox_results"),
+      const [doctor, data, reports, audit, cleanup, evalResult, sbxList, policyOv] = await Promise.all([
+        invoke<CliJsonResponse<DoctorStatusData>>("get_doctor_status"),
+        invoke<CliJsonResponse<DataStatusData>>("get_data_status"),
+        invoke<CliJsonResponse<ReportListData>>("list_reports_filtered", { limit: reportLimit, reportType: reportType || null }),
+        invoke<CliJsonResponse<AuditStatsData>>("get_audit_stats"),
+        invoke<CliJsonResponse<CleanupDryRunData>>("get_cleanup_dry_run", { target: cleanupTarget }),
+        invoke<CliJsonResponse<EvalRunData>>("run_eval"),
+        invoke<CliJsonResponse<SandboxResultListItem[]>>("list_sandbox_results"),
+        invoke<CliJsonResponse<PolicyOverviewData>>("get_policy_overview"),
       ]);
       setDoctorStatus(doctor);
       setDataStatus(data);
       setReportsList(reports);
       setAuditStats(audit);
       setCleanupResult(cleanup);
+      setPolicyOverview(policyOv);
       setEvalResults(evalResult);
       setSandboxResultsList(sbxList);
       if (!doctor.ok) {
@@ -100,9 +132,15 @@ function App() {
       }
     } catch (e) {
       const errorStr = String(e);
-      // Detect Tauri invoke error (occurs in browser preview without Tauri runtime)
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setDoctorStatus(mockResponse(doctorStatusMock as DoctorStatusData));
+        setDataStatus(mockResponse(dataStatusMock as DataStatusData));
+        setReportsList(mockResponse(reportListMockRaw as ReportListData));
+        setAuditStats(mockResponse(auditStatsMock as AuditStatsData));
+        setCleanupResult(mockResponse(cleanupDryRunMock as CleanupDryRunData));
+        setEvalResults(mockResponse(evalResultsMock as EvalRunData));
+        setSandboxResultsList(mockResponse(sandboxResultListMock as SandboxResultListItem[]));
+        setPolicyOverview(mockResponse(policyOverviewMock as PolicyOverviewData));
       } else {
         setError(errorStr);
       }
@@ -111,12 +149,14 @@ function App() {
     }
   }
 
-  async function fetchReports(limit: number, type: ReportTypeFilter) {
+  async function fetchReports(limit: number, type: ReportTypeFilter, offset: number = 0) {
     setReportsLoading(true);
+    setReportsOffset(offset);
     try {
-      const result = await invoke<CliJsonResponse>("list_reports_filtered", {
+      const result = await invoke<CliJsonResponse<ReportListData>>("list_reports_filtered", {
         limit,
         reportType: type || null,
+        offset,
       });
       setReportsList(result);
       if (!result.ok) {
@@ -124,8 +164,8 @@ function App() {
       }
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setReportsList(mockResponse(reportListMockRaw as ReportListData));
       } else {
         setError(errorStr);
       }
@@ -134,18 +174,31 @@ function App() {
     }
   }
 
+  function handleReportPagePrev() {
+    const newOffset = Math.max(0, reportsOffset - reportLimit);
+    fetchReports(reportLimit, reportType, newOffset);
+  }
+
+  function handleReportPageNext() {
+    const totalCount = reportsList?.data?.total_count ?? 0;
+    const newOffset = reportsOffset + reportLimit;
+    if (newOffset < totalCount) {
+      fetchReports(reportLimit, reportType, newOffset);
+    }
+  }
+
   async function fetchCleanupDryRun(target: CleanupTarget) {
     setCleanupLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("get_cleanup_dry_run", { target });
+      const result = await invoke<CliJsonResponse<CleanupDryRunData>>("get_cleanup_dry_run", { target });
       setCleanupResult(result);
       if (!result.ok) {
         setError(result.error || "Unknown error");
       }
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setCleanupResult(mockResponse(cleanupDryRunMock as CleanupDryRunData));
       } else {
         setError(errorStr);
       }
@@ -167,7 +220,7 @@ function App() {
   async function fetchAuditEvents(type: AuditEventTypeFilter) {
     setAuditEventsLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("list_audit_events_filtered", {
+      const result = await invoke<CliJsonResponse<AuditEventListData>>("list_audit_events_filtered", {
         event_type: type === "all" ? null : type,
       });
       setAuditEventsList(result);
@@ -176,8 +229,8 @@ function App() {
       }
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setAuditEventsList(mockResponse(auditEventsListMock as AuditEventListData));
       } else {
         setError(errorStr);
       }
@@ -204,12 +257,12 @@ function App() {
   async function runQuickSweep() {
     setSweepLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("run_sweep_quick");
+      const result = await invoke<CliJsonResponse<SweepData>>("run_sweep_quick");
       setQuickSweep(result);
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setQuickSweep(mockResponse(sweepDataMock as SweepData));
       } else {
         setError(errorStr);
       }
@@ -221,12 +274,12 @@ function App() {
   async function runProjectSweep() {
     setProjectSweepLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("run_sweep_project");
+      const result = await invoke<CliJsonResponse<SweepData>>("run_sweep_project");
       setProjectSweep(result);
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setProjectSweep(mockResponse(sweepDataMock as SweepData));
       } else {
         setError(errorStr);
       }
@@ -240,12 +293,12 @@ function App() {
     setReportDetail(null);
     setReportDetailLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("show_report", { reportId });
+      const result = await invoke<CliJsonResponse<ReportDetailData>>("show_report", { reportId });
       setReportDetail(result);
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setReportDetail(mockResponse(reportDetailMock as ReportDetailData));
       } else {
         setError(errorStr);
       }
@@ -264,12 +317,12 @@ function App() {
     setAuditEventDetail(null);
     setAuditEventDetailLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("show_audit_event", { eventId });
+      const result = await invoke<CliJsonResponse<AuditEventDetailData>>("show_audit_event", { eventId });
       setAuditEventDetail(result);
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setAuditEventDetail(mockResponse(auditEventDetailMock as AuditEventDetailData));
       } else {
         setError(errorStr);
       }
@@ -288,12 +341,12 @@ function App() {
     setSandboxResultDetail(null);
     setSandboxResultDetailLoading(true);
     try {
-      const result = await invoke<CliJsonResponse>("show_sandbox_result", { reportId });
+      const result = await invoke<CliJsonResponse<SandboxResultDetailData>>("show_sandbox_result", { reportId });
       setSandboxResultDetail(result);
     } catch (e) {
       const errorStr = String(e);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Tauri runtime unavailable. Launch with `npm run tauri dev` to load live Policy Scout data.");
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setSandboxResultDetail(mockResponse(sandboxResultDetailMock as SandboxResultDetailData));
       } else {
         setError(errorStr);
       }
@@ -305,6 +358,23 @@ function App() {
   function handleCloseSandboxResultDetail() {
     setSelectedSandboxResultId(null);
     setSandboxResultDetail(null);
+  }
+
+  async function runPolicyValidate() {
+    setPolicyValidateLoading(true);
+    try {
+      const result = await invoke<CliJsonResponse<PolicyValidateData>>("run_policy_validate");
+      setPolicyValidate(result);
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setPolicyValidate(mockResponse(policyValidateMock as PolicyValidateData));
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setPolicyValidateLoading(false);
+    }
   }
 
   return (
@@ -364,6 +434,10 @@ function App() {
               onLimitChange={handleReportLimitChange}
               onTypeChange={handleReportTypeChange}
               loading={reportsLoading}
+              offset={reportsOffset}
+              totalCount={reportsList?.data?.total_count}
+              onPagePrev={reportsOffset > 0 ? handleReportPagePrev : undefined}
+              onPageNext={(reportsOffset + reportLimit) < (reportsList?.data?.total_count ?? 0) ? handleReportPageNext : undefined}
             />
             <AuditStatsCard auditStats={auditStats} />
             <AuditEventsListCard
@@ -391,6 +465,12 @@ function App() {
               onRunSweep={runProjectSweep}
             />
             <SandboxResultsListCard sandboxResults={sandboxResultsList} onResultClick={handleSandboxResultClick} />
+            <PolicyOverviewCard policyOverview={policyOverview} />
+            <PolicyValidateCard
+              policyValidate={policyValidate}
+              loading={policyValidateLoading}
+              onRunValidate={runPolicyValidate}
+            />
           </>
         )}
       </div>

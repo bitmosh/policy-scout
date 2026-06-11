@@ -312,7 +312,8 @@ def test_report_list_json_type_filter():
             env={**os.environ, "POLICY_SCOUT_REPORT_ROOT": str(report_root)},
         )
 
-        reports = json.loads(result.stdout)
+        payload = json.loads(result.stdout)
+        reports = payload["reports"]
         assert len(reports) == 1
         assert reports[0]["report_id"] == sandbox_report.report_id
         assert reports[0]["report_type"] == "sandbox_result"
@@ -375,7 +376,7 @@ def test_report_list_type_filter_with_limit():
 
         output = result.stdout
         # Should show only 2 sandbox reports, not the command decision report
-        assert "Showing 2 most recent reports (total: 5)" in output
+        assert "Showing 2 reports (offset 0, total: 5)" in output
         assert cmd_report.report_id not in output
     finally:
         del os.environ["POLICY_SCOUT_REPORT_ROOT"]

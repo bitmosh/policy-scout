@@ -235,7 +235,22 @@ fn check_command(command_text: String) -> CliJsonResponse {
 
 #[tauri::command]
 fn list_sandbox_results() -> CliJsonResponse {
-    run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", "5"])
+    let response = run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", "5"]);
+    // report list now returns { reports: [...], total_count: N } — extract just the array
+    if response.ok {
+        if let Some(ref data) = response.data {
+            if let Some(arr) = data.get("reports") {
+                return CliJsonResponse {
+                    ok: true,
+                    exit_code: response.exit_code,
+                    data: Some(arr.clone()),
+                    error: None,
+                    stderr_summary: None,
+                };
+            }
+        }
+    }
+    response
 }
 
 fn validate_limit(limit: u32) -> Result<u32, CliJsonResponse> {
@@ -251,6 +266,19 @@ fn validate_limit(limit: u32) -> Result<u32, CliJsonResponse> {
             stderr_summary: None,
         })
     }
+}
+
+fn validate_pagination(offset: u32) -> Result<u32, CliJsonResponse> {
+    if offset > 10_000 {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some(format!("Invalid offset: {}. Must be <= 10000.", offset)),
+            stderr_summary: None,
+        });
+    }
+    Ok(offset)
 }
 
 fn validate_report_type(report_type: &str) -> Result<(), CliJsonResponse> {
@@ -327,23 +355,28 @@ fn show_sandbox_result(report_id: String) -> CliJsonResponse {
 }
 
 #[tauri::command]
-fn list_reports_filtered(limit: u32, report_type: Option<String>) -> CliJsonResponse {
+fn list_reports_filtered(limit: u32, report_type: Option<String>, offset: Option<u32>) -> CliJsonResponse {
     let validated_limit = match validate_limit(limit) {
         Ok(l) => l,
         Err(e) => return e,
     };
+    let validated_offset = match validate_pagination(offset.unwrap_or(0)) {
+        Ok(o) => o,
+        Err(e) => return e,
+    };
     let limit_str = validated_limit.to_string();
+    let offset_str = validated_offset.to_string();
     if let Some(ref rt) = report_type {
         if !rt.is_empty() {
             if let Err(e) = validate_report_type(rt.as_str()) {
                 return e;
             }
             return run_policy_scout_json(&[
-                "report", "list", "--json", "--limit", &limit_str, "--type", rt.as_str(),
+                "report", "list", "--json", "--limit", &limit_str, "--offset", &offset_str, "--type", rt.as_str(),
             ]);
         }
     }
-    run_policy_scout_json(&["report", "list", "--json", "--limit", &limit_str])
+    run_policy_scout_json(&["report", "list", "--json", "--limit", &limit_str, "--offset", &offset_str])
 }
 
 fn validate_audit_event_type(event_type: &str) -> Result<(), CliJsonResponse> {
@@ -378,20 +411,26 @@ fn validate_audit_event_type(event_type: &str) -> Result<(), CliJsonResponse> {
 }
 
 #[tauri::command]
-fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
+fn list_audit_events_filtered(event_type: Option<String>, offset: Option<u32>) -> CliJsonResponse {
+    let validated_offset = match validate_pagination(offset.unwrap_or(0)) {
+        Ok(o) => o,
+        Err(e) => return e,
+    };
+    let offset_str = validated_offset.to_string();
     if let Some(ref et) = event_type {
         if !et.is_empty() && et != "all" {
             if let Err(e) = validate_audit_event_type(et.as_str()) {
                 return e;
             }
-            let response = run_policy_scout_json(&["audit", "type", "--json", "--limit", "10", et.as_str()]);
-            // Wrap array response in expected shape
+            // audit type returns a raw array — wrap in { events, total_count }
+            let response = run_policy_scout_json(&["audit", "type", "--json", "--limit", "20", et.as_str()]);
             if response.ok {
                 if let Some(data) = response.data {
+                    let count = data.as_array().map(|a| a.len()).unwrap_or(0);
                     return CliJsonResponse {
                         ok: true,
                         exit_code: response.exit_code,
-                        data: Some(serde_json::json!({ "events": data })),
+                        data: Some(serde_json::json!({ "events": data, "total_count": count })),
                         error: None,
                         stderr_summary: None,
                     };
@@ -400,20 +439,8 @@ fn list_audit_events_filtered(event_type: Option<String>) -> CliJsonResponse {
             return response;
         }
     }
-    let response = run_policy_scout_json(&["audit", "list", "--json", "--limit", "10"]);
-    // Wrap array response in expected shape
-    if response.ok {
-        if let Some(data) = response.data {
-            return CliJsonResponse {
-                ok: true,
-                exit_code: response.exit_code,
-                data: Some(serde_json::json!({ "events": data })),
-                error: None,
-                stderr_summary: None,
-            };
-        }
-    }
-    response
+    // audit list --json now returns { events: [...], total_count: N } directly
+    run_policy_scout_json(&["audit", "list", "--json", "--limit", "20", "--offset", &offset_str])
 }
 
 fn validate_audit_event_id(event_id: &str) -> Result<(), CliJsonResponse> {
@@ -458,6 +485,16 @@ fn show_audit_event(event_id: String) -> CliJsonResponse {
     run_policy_scout_json(&["audit", "show", &event_id, "--json"])
 }
 
+#[tauri::command]
+fn get_policy_overview() -> CliJsonResponse {
+    run_policy_scout_json(&["policy", "show", "--json"])
+}
+
+#[tauri::command]
+fn run_policy_validate() -> CliJsonResponse {
+    run_policy_scout_json(&["policy", "validate", "--json"])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -476,7 +513,9 @@ pub fn run() {
             show_report,
             show_sandbox_result,
             list_audit_events_filtered,
-            show_audit_event
+            show_audit_event,
+            get_policy_overview,
+            run_policy_validate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

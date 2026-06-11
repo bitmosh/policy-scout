@@ -83,11 +83,11 @@ export function CleanupDryRunCard({
               <div className="planned-items">
                 <h4>Planned Items (preview)</h4>
                 <div className="items-list">
-                  {previewItems.map((item: any, index: number) => (
+                  {previewItems.map((item, index) => (
                     <div key={index} className="item-row">
-                      <span className="item-path"><EvidenceText text={item.path} className="item-path" /></span>
+                      <span className="item-path"><EvidenceText text={item.path ?? ""} className="item-path" /></span>
                       <span className="item-meta">
-                        {item.type} · {formatBytes(item.size_bytes)}
+                        {item.size_bytes !== undefined ? formatBytes(item.size_bytes) : ""}
                       </span>
                     </div>
                   ))}
@@ -103,7 +103,7 @@ export function CleanupDryRunCard({
             {data.could_not_verify && data.could_not_verify.length > 0 && (
               <div className="cleanup-unverified">
                 <h4>Could Not Verify</h4>
-                {data.could_not_verify.map((item: any, index: number) => (
+                {data.could_not_verify.map((item, index) => (
                   <div key={index} className="unverified-item"><EvidenceText text={typeof item === "string" ? item : JSON.stringify(item)} /></div>
                 ))}
               </div>

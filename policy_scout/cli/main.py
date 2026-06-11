@@ -278,6 +278,9 @@ def cli():
         "--limit", type=int, default=20, help="Number of events to show (default: 20)"
     )
     audit_list_parser.add_argument(
+        "--offset", type=int, default=0, help="Skip N events (for pagination, default: 0)"
+    )
+    audit_list_parser.add_argument(
         "--json", action="store_true", help="Output JSON instead of human-readable text"
     )
 
@@ -400,6 +403,9 @@ def cli():
     )
     report_list_parser.add_argument(
         "--limit", type=int, default=20, help="Number of reports to show (default: 20)"
+    )
+    report_list_parser.add_argument(
+        "--offset", type=int, default=0, help="Skip N reports (for pagination, default: 0)"
     )
     report_list_parser.add_argument(
         "--type",
@@ -2620,9 +2626,11 @@ def handle_audit_command(args):
         sys.exit(1)
 
     if args.audit_subcommand == "list":
-        events = sqlite_store.list_recent(limit=args.limit)
+        offset = getattr(args, "offset", 0)
+        total_count = sqlite_store.count_events()
+        events = sqlite_store.list_recent(limit=args.limit, offset=offset)
         if args.json:
-            print(json.dumps(events, indent=2))
+            print(json.dumps({"events": events, "total_count": total_count}, indent=2))
         else:
             if not events:
                 print("No audit events found.")
@@ -2866,13 +2874,13 @@ def handle_report_command(args):
         if args.type:
             reports = [r for r in reports if r.get("report_type") == args.type]
 
-        # Apply limit
-        total_reports = len(reports)
-        if args.limit:
-            reports = reports[: args.limit]
+        # Apply pagination
+        total_count = len(reports)
+        offset = getattr(args, "offset", 0)
+        reports = reports[offset: offset + args.limit]
 
         if args.json:
-            print(json.dumps(reports, indent=2))
+            print(json.dumps({"reports": reports, "total_count": total_count, "offset": offset}, indent=2))
         else:
             if not reports:
                 print("No Scout Reports found.")
@@ -2880,9 +2888,9 @@ def handle_report_command(args):
             print("Recent Scout Reports:")
             if args.type:
                 print(f"Filtered by type: {args.type}")
-            if total_reports > len(reports):
+            if total_count > len(reports):
                 print(
-                    f"Showing {len(reports)} most recent reports (total: {total_reports})"
+                    f"Showing {len(reports)} reports (offset {offset}, total: {total_count})"
                 )
             print()
             for report in reports:

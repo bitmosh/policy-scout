@@ -105,7 +105,11 @@ def test_audit_list_json_returns_valid_json(temp_audit_paths):
     )
 
     assert result.returncode == 0
-    events = json.loads(result.stdout)
+    payload = json.loads(result.stdout)
+    assert isinstance(payload, dict)
+    assert "events" in payload
+    assert "total_count" in payload
+    events = payload["events"]
     assert isinstance(events, list)
     assert len(events) > 0
     assert "event_id" in events[0]
@@ -188,7 +192,7 @@ def test_audit_show_returns_specific_event(temp_audit_paths):
         text=True,
         cwd=tmpdir,
     )
-    events = json.loads(list_result.stdout)
+    events = json.loads(list_result.stdout)["events"]
     event_id = events[0]["event_id"]
 
     # Show specific event
@@ -270,7 +274,7 @@ def test_audit_request_returns_events_for_one_request_id(temp_audit_paths):
         text=True,
         cwd=tmpdir,
     )
-    events = json.loads(list_result.stdout)
+    events = json.loads(list_result.stdout)["events"]
     request_id = events[0]["request_id"]
 
     # Query by request_id
@@ -535,7 +539,7 @@ def test_audit_show_includes_redaction_note(temp_audit_paths):
         text=True,
         cwd=tmpdir,
     )
-    events = json.loads(list_result.stdout)
+    events = json.loads(list_result.stdout)["events"]
     event_id = events[0]["event_id"]
 
     # Show specific event

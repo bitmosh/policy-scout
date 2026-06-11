@@ -1,4 +1,4 @@
-import { CliJsonResponse, ReportDetailData, asArray } from "../types";
+import { CliJsonResponse, ReportDetailData, SweepFinding, CouldNotVerifyItem, asArray } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { StatusPill, severityToTone } from "./StatusPill";
 import { RedactionNotice } from "./RedactionNotice";
@@ -33,9 +33,9 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
     );
   }
 
-  const findings = asArray(data.findings);
-  const couldNotVerify = asArray(data.could_not_verify);
-  const recommendedActions = asArray(data.recommended_actions);
+  const findings = asArray<SweepFinding>(data.findings);
+  const couldNotVerify = asArray<string | CouldNotVerifyItem>(data.could_not_verify);
+  const recommendedActions = asArray<string | unknown>(data.recommended_actions);
   const redactionApplied = data.redaction_applied || false;
   const credentialExposure = data.credential_exposure_assessment || null;
   const findingsCount = data.findings_count || null;
@@ -98,20 +98,20 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
           <div className="report-section">
             <h3>Findings</h3>
             <div className="findings-list">
-              {findings.slice(0, 10).map((finding: any, index: number) => (
+              {findings.slice(0, 10).map((finding, index) => (
                 <div key={index} className="finding-item">
                   <div className="finding-header">
                     <StatusPill
                       label=""
-                      tone={severityToTone(finding.severity)}
+                      tone={severityToTone(finding.severity ?? "")}
                       value={finding.severity?.toUpperCase()}
                       className="finding-severity-pill"
                     />
                     <span className="finding-category">{finding.category}</span>
                   </div>
-                  <div className="finding-title"><EvidenceText text={finding.title} /></div>
+                  <div className="finding-title"><EvidenceText text={finding.title ?? ""} /></div>
                   {finding.location && (
-                    <div className="finding-location"><EvidenceText text={finding.location} className="finding-location" /></div>
+                    <div className="finding-location"><EvidenceText text={finding.location ?? ""} className="finding-location" /></div>
                   )}
                 </div>
               ))}
@@ -126,7 +126,7 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
           <div className="report-section">
             <h3>Recommended Actions</h3>
             <ul className="actions-list">
-              {recommendedActions.map((action: any, index: number) => (
+              {recommendedActions.map((action, index) => (
                 <li key={index} className="action-item"><EvidenceText text={typeof action === "string" ? action : JSON.stringify(action)} /></li>
               ))}
             </ul>
@@ -137,7 +137,7 @@ export function ReportDetailCard({ reportDetail, loading, selectedId, onClose }:
           <div className="report-section">
             <h3>Could Not Verify</h3>
             <ul className="could-not-verify-list">
-              {couldNotVerify.map((item: any, index: number) => (
+              {couldNotVerify.map((item, index) => (
                 <li key={index} className="could-not-verify-item"><EvidenceText text={typeof item === "string" ? item : JSON.stringify(item)} /></li>
               ))}
             </ul>

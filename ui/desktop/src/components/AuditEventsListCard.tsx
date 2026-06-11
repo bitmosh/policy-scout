@@ -1,4 +1,4 @@
-import { CliJsonResponse, AuditEventListData, AuditEventTypeFilter, asArray } from "../types";
+import { CliJsonResponse, AuditEventListData, AuditEventListItem, AuditEventTypeFilter } from "../types";
 
 const AUDIT_EVENT_TYPE_OPTIONS: { value: AuditEventTypeFilter; label: string }[] = [
   { value: "all", label: "All recent events" },
@@ -25,7 +25,7 @@ interface AuditEventsListCardProps {
 }
 
 export function AuditEventsListCard({ auditEventsList, onEventClick, auditEventType, onTypeChange, loading }: AuditEventsListCardProps) {
-  const events = asArray(auditEventsList?.data?.events);
+  const events: AuditEventListItem[] = auditEventsList?.data?.events ?? [];
 
   return (
     <div className="audit-events-card">
@@ -52,7 +52,7 @@ export function AuditEventsListCard({ auditEventsList, onEventClick, auditEventT
         <div className="audit-events-data">
           {events.length > 0 ? (
             <div className="audit-events-list">
-              {events.map((event: any) => (
+              {events.map((event) => (
                 <div
                   key={event.event_id}
                   className="audit-event-item"
