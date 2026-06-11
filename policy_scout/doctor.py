@@ -141,6 +141,89 @@ def check_audit_store() -> Dict[str, Any]:
         return {"status": "error", "message": f"Audit store check failed: {e}"}
 
 
+def check_lockdown_status() -> Dict[str, Any]:
+    """Check whether lockdown mode is currently active."""
+    try:
+        from policy_scout.response.lockdown import is_lockdown_active, get_lockdown_reason
+
+        if is_lockdown_active():
+            reason = get_lockdown_reason() or "No reason recorded"
+            return {
+                "status": "warning",
+                "message": f"LOCKDOWN ACTIVE — {reason}",
+            }
+        return {"status": "ok", "message": "Lockdown inactive"}
+    except Exception as e:
+        return {"status": "error", "message": f"Lockdown check failed: {e}"}
+
+
+def check_registry_integrity() -> Dict[str, Any]:
+    """Check SHA-256 integrity of bundled registry files against manifest."""
+    try:
+        from policy_scout.integrity.registry_manifest import verify_registry_integrity
+
+        result = verify_registry_integrity()
+
+        if result.passed:
+            return {
+                "status": "ok",
+                "message": f"All {result.files_checked} registry files verified",
+                "files_checked": result.files_checked,
+            }
+        else:
+            detail = "; ".join(result.errors[:3])
+            return {
+                "status": "error" if result.files_checked > 0 else "warning",
+                "message": f"{result.reason} {detail}",
+                "errors": result.errors,
+            }
+    except Exception as e:
+        return {"status": "error", "message": f"Integrity check failed: {e}"}
+
+
+def check_audit_chain_head() -> Dict[str, Any]:
+    """Check that the JSONL audit chain head is accessible and consistent."""
+    import json as _json
+
+    try:
+        audit_jsonl_path_str = os.environ.get(
+            "POLICY_SCOUT_AUDIT_PATH",
+            str(Path.home() / ".local" / "share" / "policy-scout" / "audit.jsonl"),
+        )
+        jsonl_path = Path(audit_jsonl_path_str)
+        head_path = Path(str(jsonl_path) + ".chain_head")
+
+        if not jsonl_path.exists():
+            return {
+                "status": "warning",
+                "message": "JSONL audit file not found — no chain state yet",
+            }
+
+        if not head_path.exists():
+            return {
+                "status": "warning",
+                "message": "Chain head file absent — file may predate chain integrity feature",
+            }
+
+        head = _json.loads(head_path.read_text())
+        seq = head.get("seq", 0)
+        mac = head.get("mac", "")
+
+        if not mac or len(mac) != 64:
+            return {
+                "status": "error",
+                "message": f"Chain head corrupted — unexpected mac length ({len(mac)})",
+            }
+
+        return {
+            "status": "ok",
+            "message": f"Audit chain head at seq={seq}",
+            "seq": seq,
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"Audit chain head check failed: {e}"}
+
+
 def check_report_directory() -> Dict[str, Any]:
     """Check report directory availability (read-only check)."""
     try:
@@ -230,8 +313,15 @@ def run_doctor_checks() -> Dict[str, Any]:
     )
     results["checks"]["eval_cases"] = check_eval_cases(paths["eval_cases"])
 
+    # Check lockdown status
+    results["checks"]["lockdown_status"] = check_lockdown_status()
+
+    # Check registry integrity
+    results["checks"]["registry_integrity"] = check_registry_integrity()
+
     # Check data directories
     results["checks"]["audit_store"] = check_audit_store()
+    results["checks"]["audit_chain_head"] = check_audit_chain_head()
     results["checks"]["report_directory"] = check_report_directory()
 
     # Check optional package managers

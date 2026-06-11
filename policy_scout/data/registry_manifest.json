@@ -1,0 +1,11 @@
+{
+  "version": "dev",
+  "algorithm": "sha256",
+  "files": {
+    "command_registry.yaml": "a6e8c24154af3634af75c9dde62a280b79f58dc81b86e5b06a08401873c4a5f9",
+    "default_policy.yaml": "5918d5ca6e3b80ebc0fa466bd068863de6dc1ffe6374a554f2c093c90b4f6ecf",
+    "eval_cases.yaml": "90afe5bd3271bd0ae8b6d2647a69c1d79760e730e89303d887f79a1e856743c1",
+    "playbooks.yaml": "9aa6ed54513323a508bf1021f82bd01f3fa433d31743b7eff3434d91921c994c",
+    "secret_patterns.yaml": "ea250f0504d04d52b503660af242b4be6b57dd12eab1c77a929968768166b0d4"
+  }
+}
