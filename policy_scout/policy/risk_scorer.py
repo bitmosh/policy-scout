@@ -1,8 +1,11 @@
 """Risk scoring with component-based evaluation."""
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal, Optional
 from ..core.decision import RiskScore
 from ..classify.command_classifier import ClassificationResult
+
+if TYPE_CHECKING:
+    from ..intel.adapter import IntelResult
 
 
 class RiskScorer:
@@ -19,12 +22,22 @@ class RiskScorer:
         "lifecycle_script_possible": 2,
         "actor_trust_penalty": 1,
         "shell_complexity": 1,
+        # Intel-derived components (weights can exceed base to force high/critical)
+        "known_bad_package": 9,
+        "typosquatting_risk": 6,
+        "known_advisory_critical": 8,
+        "known_advisory_high": 5,
+        "known_advisory_medium": 2,
+        "lockfile_integrity_fail": 4,
     }
 
     def score(
-        self, classification: ClassificationResult, request_id: str = ""
+        self,
+        classification: ClassificationResult,
+        request_id: str = "",
+        intel_results: Optional[list["IntelResult"]] = None,
     ) -> RiskScore:
-        """Compute risk score from classification result."""
+        """Compute risk score from classification result and optional intel."""
         risk = RiskScore(request_id=request_id)
 
         # Initialize components
@@ -62,6 +75,34 @@ class RiskScorer:
 
         # Add actor trust penalty (for now, assume untrusted agent)
         components["actor_trust_penalty"] = 1
+
+        # ── Intel-derived components ──────────────────────────────────────────
+        if intel_results:
+            for intel in intel_results:
+                if intel.known_bad:
+                    components["known_bad_package"] = 9
+                if intel.typosquatting_candidates:
+                    components["typosquatting_risk"] = max(
+                        components.get("typosquatting_risk", 0), 6
+                    )
+                for adv in intel.advisories:
+                    if adv.severity == "critical":
+                        components["known_advisory_critical"] = max(
+                            components.get("known_advisory_critical", 0), 8
+                        )
+                    elif adv.severity == "high":
+                        components["known_advisory_high"] = max(
+                            components.get("known_advisory_high", 0), 5
+                        )
+                    elif adv.severity == "medium":
+                        if "known_advisory_critical" not in components and "known_advisory_high" not in components:
+                            components["known_advisory_medium"] = max(
+                                components.get("known_advisory_medium", 0), 2
+                            )
+                if intel.lockfile_integrity_ok is False:
+                    components["lockfile_integrity_fail"] = max(
+                        components.get("lockfile_integrity_fail", 0), 4
+                    )
 
         risk.components = components
 

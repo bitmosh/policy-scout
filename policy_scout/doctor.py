@@ -260,6 +260,142 @@ def check_report_directory() -> Dict[str, Any]:
         return {"status": "error", "message": f"Report directory check failed: {e}"}
 
 
+def check_intel_adapters() -> Dict[str, Any]:
+    """Check threat intel adapter availability and data file freshness."""
+    try:
+        from pathlib import Path as _Path
+        import yaml as _yaml
+
+        data_dir = _Path(__file__).parent / "data"
+        issues = []
+        warnings = []
+
+        for fname in ("top_npm_packages.yaml", "top_pypi_packages.yaml", "known_bad_registry.yaml"):
+            p = data_dir / fname
+            if not p.exists():
+                issues.append(f"{fname} missing")
+                continue
+            raw = _yaml.safe_load(p.read_text()) or {}
+            generated_at = raw.get("generated_at", "")
+            if generated_at:
+                try:
+                    from datetime import date
+                    gen = date.fromisoformat(str(generated_at))
+                    age_days = (date.today() - gen).days
+                    if age_days > 90:
+                        warnings.append(f"{fname} is {age_days} days old (> 90 day freshness threshold)")
+                except (ValueError, TypeError):
+                    pass
+
+        if issues:
+            return {"status": "error", "message": f"Missing intel data files: {', '.join(issues)}"}
+        if warnings:
+            return {"status": "warning", "message": "; ".join(warnings)}
+        return {"status": "ok", "message": "Local intel adapters ready"}
+    except Exception as e:
+        return {"status": "error", "message": f"Intel adapter check failed: {e}"}
+
+
+def check_watch_daemon() -> Dict[str, Any]:
+    """Check watch daemon status and platform support."""
+    try:
+        from policy_scout.watch.daemon import daemon_status
+        from policy_scout.watch.fs_watcher import platform_watch_supported
+
+        supported, reason = platform_watch_supported()
+        if not supported:
+            return {"status": "warning", "message": f"Watch mode not supported: {reason}"}
+
+        status = daemon_status()
+        if status.get("running"):
+            return {
+                "status": "ok",
+                "message": f"Watch daemon running (PID {status.get('pid')})",
+                "pid": status.get("pid"),
+            }
+        elif status.get("stale"):
+            return {
+                "status": "warning",
+                "message": f"Stale PID file (PID {status.get('pid')} not alive)",
+            }
+        return {"status": "ok", "message": "Watch daemon not running (idle)"}
+    except Exception as e:
+        return {"status": "error", "message": f"Watch daemon check failed: {e}"}
+
+
+def check_general_sandbox() -> Dict[str, Any]:
+    """Check general sandbox prerequisites (unshare, user namespaces, strace, overlayfs)."""
+    try:
+        from policy_scout.sandbox.general.prereqs import check_sandbox_prerequisites
+        prereqs = check_sandbox_prerequisites()
+        if prereqs.available:
+            extras = []
+            if not prereqs.strace_available:
+                extras.append("strace not found (syscall tracing disabled)")
+            if not prereqs.overlayfs_available:
+                extras.append("overlayfs unavailable (fallback: no fs diff)")
+            msg = "General sandbox available"
+            if extras:
+                msg += "; " + "; ".join(extras)
+            return {"status": "ok", "message": msg, "details": prereqs.to_dict()}
+        missing = prereqs.missing()
+        return {
+            "status": "warning",
+            "message": f"General sandbox not available: {'; '.join(missing)}",
+            "details": prereqs.to_dict(),
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"General sandbox check failed: {e}"}
+
+
+def check_mcp_registration() -> Dict[str, Any]:
+    """Check whether the Policy Scout PreToolUse hook is registered in Claude Code settings."""
+    try:
+        import json as _json
+
+        checked: list[str] = []
+        installed_in: list[str] = []
+
+        for settings_path in [
+            Path(".claude/settings.json"),
+            Path.home() / ".claude" / "settings.json",
+        ]:
+            if not settings_path.exists():
+                continue
+            checked.append(str(settings_path))
+            try:
+                data = _json.loads(settings_path.read_text())
+                pre_tool = data.get("hooks", {}).get("PreToolUse", [])
+                has_hook = any(
+                    any(h.get("command", "").startswith("policy-scout check --hook-mode")
+                        for h in entry.get("hooks", []))
+                    for entry in pre_tool
+                )
+                if has_hook:
+                    installed_in.append(str(settings_path))
+            except Exception:
+                pass
+
+        if installed_in:
+            return {
+                "status": "ok",
+                "message": f"PreToolUse hook registered in: {', '.join(installed_in)}",
+                "installed_in": installed_in,
+            }
+        if checked:
+            return {
+                "status": "warning",
+                "message": "PreToolUse hook not found. Run: policy-scout serve install",
+                "checked": checked,
+            }
+        return {
+            "status": "warning",
+            "message": "No Claude Code settings found. Run: policy-scout serve install",
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"MCP registration check failed: {e}"}
+
+
 def check_package_manager(name: str) -> Dict[str, Any]:
     """Check if a package manager is available."""
     exe_path = shutil.which(name)
@@ -323,6 +459,18 @@ def run_doctor_checks() -> Dict[str, Any]:
     results["checks"]["audit_store"] = check_audit_store()
     results["checks"]["audit_chain_head"] = check_audit_chain_head()
     results["checks"]["report_directory"] = check_report_directory()
+
+    # Check intel adapters
+    results["checks"]["intel_adapters"] = check_intel_adapters()
+
+    # Check watch daemon
+    results["checks"]["watch_daemon"] = check_watch_daemon()
+
+    # Check MCP server registration
+    results["checks"]["mcp_registration"] = check_mcp_registration()
+
+    # Check general sandbox prerequisites
+    results["checks"]["general_sandbox"] = check_general_sandbox()
 
     # Check optional package managers
     results["checks"]["npm"] = check_package_manager("npm")

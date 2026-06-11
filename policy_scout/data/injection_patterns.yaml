@@ -1,0 +1,101 @@
+# Prompt injection pattern registry
+# Each entry: id, description, patterns (list of Python regex strings), severity, confidence
+# severity: critical | high | medium
+# confidence: high | medium | low
+
+# ── Direct instruction override ───────────────────────────────────────────────
+- id: ignore_instructions
+  description: "Classic 'ignore previous instructions' pattern"
+  severity: critical
+  confidence: high
+  patterns:
+    - '(?i)ignore\s+(all\s+)?(previous|prior|above|earlier)\s+instructions'
+    - '(?i)disregard\s+(all\s+)?(previous|prior|above|earlier)\s+instructions'
+    - '(?i)forget\s+(all\s+)?(previous|prior|above|earlier)\s+instructions'
+    - '(?i)override\s+(all\s+)?(previous|prior)\s+(instructions|constraints|rules)'
+
+# ── System prompt injection ───────────────────────────────────────────────────
+- id: system_prompt_injection
+  description: "Embedded system prompt or role reassignment"
+  severity: critical
+  confidence: high
+  patterns:
+    - '(?i)\[SYSTEM\]'
+    - '(?i)<SYSTEM>'
+    - '(?i)```system'
+    - '(?i)new\s+system\s+prompt'
+    - '(?i)you\s+are\s+now\s+(?:a|an)\s+\w+'
+    - '(?i)act\s+as\s+(?:a|an)\s+\w+\s+(?:without|ignoring)\s+'
+    - '(?i)your\s+(new\s+)?role\s+is\s+(?:now\s+)?(?:to\s+)?(?:ignore|bypass|override)'
+
+# ── Hidden content ────────────────────────────────────────────────────────────
+- id: hidden_content
+  description: "Instructions hidden using whitespace, Unicode tricks, or invisible characters"
+  severity: high
+  confidence: medium
+  patterns:
+    - '[​‌‍⁠﻿]'
+    - '\s{50,}(?:ignore|you are|system|override)'
+    - '(?i)<!--.*(?:ignore|system|override|instructions).*-->'
+
+# ── Encoded payloads ──────────────────────────────────────────────────────────
+- id: encoded_instruction
+  description: "Base64 or other encoding used to hide injection payload"
+  severity: high
+  confidence: medium
+  # Note: analyzer also performs decode-and-rescan for all base64 segments
+  patterns:
+    - '(?:decode|atob|base64)\s*[:(]\s*["\x27][A-Za-z0-9+/=]{30,}'
+
+# ── Behavioral manipulation ───────────────────────────────────────────────────
+- id: behavioral_manipulation
+  description: "Attempts to manipulate agent behavior or bypass safety measures"
+  severity: critical
+  confidence: high
+  patterns:
+    - '(?i)do\s+not\s+(?:follow|adhere\s+to|apply)\s+(?:your\s+)?(?:safety|security|policy)'
+    - '(?i)bypass\s+(?:your\s+)?(?:safety|security|restrictions|filters|guardrails)'
+    - '(?i)(?:jailbreak|DAN|do\s+anything\s+now)'
+    - '(?i)pretend\s+(?:you\s+have\s+no|there\s+are\s+no)\s+restrictions'
+    - '(?i)you\s+(?:must|should|have\s+to)\s+(?:run|execute|delete|remove)\s+(?:now|immediately)'
+
+# ── Exfiltration instructions ─────────────────────────────────────────────────
+- id: exfiltration_instruction
+  description: "Instructions to send data to external locations"
+  severity: critical
+  confidence: high
+  patterns:
+    - '(?i)(?:send|upload|post|transmit)\s+.{0,50}\s+(?:to|at)\s+https?://'
+    - '(?i)curl\s+.{0,100}\s+-d\s+'
+    - '(?i)(?:exfiltrate|steal|harvest)\s+(?:credentials|keys|secrets|files)'
+
+# ── Homoglyph attacks ─────────────────────────────────────────────────────────
+- id: homoglyph_instruction
+  description: "Instruction keywords using Unicode lookalike characters"
+  severity: high
+  confidence: high
+  patterns:
+    - 'іgnore'
+    - 'sysтem'
+    - 'exеcute'
+
+# ── Prompt delimiter abuse ────────────────────────────────────────────────────
+- id: prompt_delimiter_abuse
+  description: "Using prompt delimiters to inject new turns or roles"
+  severity: high
+  confidence: medium
+  patterns:
+    - '(?i)###\s*(?:human|assistant|user|system)\s*:'
+    - '(?i)<\|(?:im_start|im_end|endoftext)\|>'
+    - '(?i)\[/?(?:INST|SYS|HUMAN|ASSISTANT)\]'
+    - '(?i)----+\s*(?:system|user|human|assistant)\s*----+'
+
+# ── Tool/function hijacking ───────────────────────────────────────────────────
+- id: tool_hijacking
+  description: "Attempts to call tools or functions through injected content"
+  severity: critical
+  confidence: medium
+  patterns:
+    - '(?i)(?:call|invoke|run|execute)\s+(?:the\s+)?(?:tool|function|command)\s+\w+'
+    - '(?i)use\s+(?:the\s+)?(?:bash|shell|terminal|command)\s+tool\s+to'
+    - '(?i)(?:write|edit|delete|read)\s+(?:the\s+)?file\s+["\x27/~\w]'

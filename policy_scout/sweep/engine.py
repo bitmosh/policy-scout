@@ -57,6 +57,13 @@ def run_project_sweep(
     # Repository mutation checks
     findings.extend(check_repo_changes(project_root, sweep_result.sweep_id))
 
+    # Prompt injection detection (agent-readable files)
+    try:
+        from .prompt_injection import scan_agent_readable_files
+        findings.extend(scan_agent_readable_files(project_root, sweep_result.sweep_id))
+    except Exception:
+        pass
+
     # Add findings to result
     for finding in findings:
         sweep_result.add_finding(finding)

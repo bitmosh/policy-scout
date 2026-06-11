@@ -101,6 +101,14 @@ def cli():
     check_parser.add_argument(
         "--report", action="store_true", help="Generate a Scout Report for the decision"
     )
+    check_parser.add_argument(
+        "--with-intel", action="store_true",
+        help="Enrich with remote threat intel (OSV + npm advisories; requires network)"
+    )
+    check_parser.add_argument(
+        "--hook-mode", action="store_true",
+        help="Emit only machine-readable JSON to stdout (for use as a Claude Code hook)"
+    )
     check_parser.add_argument("command", nargs="...", help="Command to check")
 
     # approvals command
@@ -157,6 +165,37 @@ def cli():
         "command",
         nargs="...",
         help="Command to sandbox (install/review mode) or sandbox_id for migrate",
+    )
+
+    # sandbox run — general-purpose namespace sandbox
+    sandbox_run_parser = sandbox_parser  # alias so the next block is readable
+
+    # sandbox run (subparser added to the top-level subparsers, not sandbox_parser)
+    sandbox_run_top = subparsers.add_parser(
+        "sandbox-run", help="Run any command in a Linux namespace sandbox"
+    )
+    sandbox_run_top.add_argument(
+        "--timeout", type=int, default=30, help="Timeout in seconds (default: 30)"
+    )
+    sandbox_run_top.add_argument(
+        "--allow-network", action="store_true",
+        help="Allow outbound network in the sandbox (default: isolated)"
+    )
+    sandbox_run_top.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    sandbox_run_top.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+    sandbox_run_top.add_argument(
+        "command", nargs="...", help="Command to run in the sandbox (after --)"
+    )
+
+    sandbox_prereqs_parser = subparsers.add_parser(
+        "sandbox-check-prereqs", help="Check general sandbox prerequisites"
+    )
+    sandbox_prereqs_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
     )
 
     # sweep command
@@ -508,6 +547,53 @@ def cli():
         "--no-audit", action="store_true", help="Disable audit logging"
     )
 
+    # scan injection
+    scan_injection_parser = scan_subparsers.add_parser(
+        "injection", help="Scan files for prompt injection patterns"
+    )
+    scan_injection_parser.add_argument(
+        "path", nargs="?", default=".", help="Directory or file to scan (default: current)"
+    )
+    scan_injection_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    scan_injection_parser.add_argument(
+        "--no-audit", action="store_true", help="Disable audit logging"
+    )
+
+    # canary command
+    canary_parser = subparsers.add_parser(
+        "canary", help="Manage prompt-injection canary files"
+    )
+    canary_subparsers = canary_parser.add_subparsers(dest="canary_subcommand")
+
+    canary_install_parser = canary_subparsers.add_parser(
+        "install", help="Place a canary file in the project root"
+    )
+    canary_install_parser.add_argument(
+        "--path", default=".", help="Project root (default: current directory)"
+    )
+    canary_install_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    canary_check_parser = canary_subparsers.add_parser(
+        "check", help="Verify canary state and show audit log hits"
+    )
+    canary_check_parser.add_argument(
+        "--path", default=".", help="Project root (default: current directory)"
+    )
+    canary_check_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    canary_remove_parser = canary_subparsers.add_parser(
+        "remove", help="Remove the canary file"
+    )
+    canary_remove_parser.add_argument(
+        "--path", default=".", help="Project root (default: current directory)"
+    )
+
     # git command
     git_parser = subparsers.add_parser(
         "git", help="Git integration: hooks, lockfile checks, context"
@@ -656,6 +742,99 @@ def cli():
         "--message", "-m", help="Commit message (default: auto-generated)"
     )
 
+    # intel command
+    intel_parser = subparsers.add_parser(
+        "intel", help="Threat intelligence management"
+    )
+    intel_subparsers = intel_parser.add_subparsers(dest="intel_subcommand")
+
+    intel_status_parser = intel_subparsers.add_parser(
+        "status", help="Show intel adapter status and cache stats"
+    )
+    intel_status_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    intel_subparsers.add_parser(
+        "clear-cache", help="Flush the remote intel TTL cache"
+    )
+
+    intel_subparsers.add_parser(
+        "evict-expired", help="Remove expired cache entries"
+    )
+
+    # watch command
+    watch_parser = subparsers.add_parser(
+        "watch", help="Continuous filesystem watch daemon"
+    )
+    watch_subparsers = watch_parser.add_subparsers(dest="watch_subcommand")
+
+    watch_start_parser = watch_subparsers.add_parser(
+        "start", help="Start the watch daemon in the background"
+    )
+    watch_start_parser.add_argument(
+        "--mode", choices=["project", "system", "both"], default="both",
+        help="Watch scope (default: both)"
+    )
+    watch_start_parser.add_argument(
+        "--poll-interval", type=float, default=2.0,
+        help="Polling fallback interval in seconds (default: 2.0)"
+    )
+    watch_start_parser.add_argument(
+        "--foreground", action="store_true",
+        help="Run in foreground instead of forking (for debugging)"
+    )
+    watch_start_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    watch_subparsers.add_parser("stop", help="Stop the running watch daemon")
+
+    watch_status_parser = watch_subparsers.add_parser(
+        "status", help="Show watch daemon status"
+    )
+    watch_status_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    watch_logs_parser = watch_subparsers.add_parser(
+        "logs", help="Tail the watch daemon log"
+    )
+    watch_logs_parser.add_argument(
+        "--lines", "-n", type=int, default=50,
+        help="Number of lines to show (default: 50)"
+    )
+
+    # serve command — MCP stdio server
+    serve_parser = subparsers.add_parser(
+        "serve", help="Start the Policy Scout MCP server"
+    )
+    serve_subparsers = serve_parser.add_subparsers(dest="serve_subcommand")
+
+    serve_mcp_parser = serve_subparsers.add_parser(
+        "mcp", help="Run the JSON-RPC 2.0 MCP server over stdio"
+    )
+    serve_mcp_parser.add_argument(
+        "--log-audit", action="store_true",
+        help="Emit audit events for every tool call (default: on)"
+    )
+
+    serve_install_parser = serve_subparsers.add_parser(
+        "install", help="Install Policy Scout as a Claude Code PreToolUse hook"
+    )
+    serve_install_parser.add_argument(
+        "--scope", choices=["project", "user"], default="project",
+        help="Install hook in project .claude/settings.json or user-level settings"
+    )
+    serve_install_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
+    serve_status_parser = serve_subparsers.add_parser(
+        "status", help="Show MCP server registration status"
+    )
+    serve_status_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+
     args = parser.parse_args()
 
     if args.subcommand == "check":
@@ -671,12 +850,14 @@ def cli():
             print("Error: No command provided after --", file=sys.stderr)
             sys.exit(1)
 
+        hook_mode = getattr(args, "hook_mode", False)
         result = check_command(
             command_str,
-            json_output=args.json,
+            json_output=args.json or hook_mode,
             audit_enabled=not args.no_audit,
             approval_enabled=not args.no_approval,
             report_enabled=args.report,
+            with_intel=getattr(args, "with_intel", False),
         )
 
         # Set exit code based on decision
@@ -829,6 +1010,18 @@ def cli():
         handle_report_command(args)
     elif args.subcommand == "policy":
         handle_policy_command(args)
+    elif args.subcommand == "watch":
+        handle_watch_command(args)
+    elif args.subcommand == "intel":
+        handle_intel_command(args)
+    elif args.subcommand == "serve":
+        handle_serve_command(args)
+    elif args.subcommand == "canary":
+        handle_canary_command(args)
+    elif args.subcommand == "sandbox-run":
+        handle_sandbox_run_command(args)
+    elif args.subcommand == "sandbox-check-prereqs":
+        handle_sandbox_prereqs_command(args)
     else:
         parser.print_help()
         sys.exit(1)
@@ -840,6 +1033,7 @@ def check_command(
     audit_enabled: bool = True,
     approval_enabled: bool = True,
     report_enabled: bool = False,
+    with_intel: bool = False,
 ) -> dict:
     """Check a command and return the decision."""
     # Initialize audit store
@@ -890,10 +1084,61 @@ def check_command(
             )
         )
 
-    # Score risk
-    risk_scorer = RiskScorer()
-    risk_score = risk_scorer.score(classification, request.request_id)
+    # ── Threat intelligence enrichment ───────────────────────────────────────
+    intel_results = []
+    if any(c in classification.categories for c in ("package_install", "package_execute")):
+        try:
+            from ..intel.adapter import build_default_chain
+            from ..audit.events import EventType
+            from ..audit.store import AuditEvent as _AuditEvent
 
+            chain = build_default_chain(remote=with_intel)
+            ecosystem_map = {"npm": "npm", "yarn": "npm", "pnpm": "npm", "bun": "npm",
+                             "pip": "pypi", "pip3": "pypi", "uv": "pypi"}
+            eco = ecosystem_map.get(classification.command_family)
+            packages = []
+            if eco and len(parse_result.args) >= 2 and parse_result.args[0] in ("install", "add", "i"):
+                for arg in parse_result.args[1:]:
+                    if not arg.startswith("-"):
+                        name = arg.split("@")[0].split("==")[0].split(">=")[0].strip()
+                        if name:
+                            packages.append((eco, name))
+
+            for ecosystem, pkg_name in packages:
+                intel_result = chain.enrich_package(ecosystem, pkg_name)
+                intel_results.append(intel_result)
+                if audit_store.enabled:
+                    if "cache" in intel_result.source:
+                        evt_type = EventType.INTEL_CACHE_HIT
+                    elif intel_result.error and not intel_result.has_findings:
+                        evt_type = EventType.INTEL_LOOKUP_FAILED
+                    else:
+                        evt_type = EventType.INTEL_LOOKUP_COMPLETED
+                    audit_store.write(_AuditEvent(
+                        event_type=evt_type,
+                        request_id=request.request_id,
+                        summary=(
+                            f"Intel lookup: {ecosystem}/{pkg_name} — "
+                            f"{{'findings' if intel_result.has_findings else 'clean'}}"
+                        ),
+                        data={
+                            "package": pkg_name,
+                            "ecosystem": ecosystem,
+                            "source": intel_result.source,
+                            "has_findings": intel_result.has_findings,
+                            "known_bad": intel_result.known_bad,
+                            "typosquatting_count": len(intel_result.typosquatting_candidates),
+                            "advisory_count": len(intel_result.advisories),
+                            "error": intel_result.error,
+                        },
+                    ))
+        except Exception:
+            pass  # intel failures are non-fatal
+
+    # Score risk (with intel findings if available)
+    risk_scorer = RiskScorer()
+    risk_score = risk_scorer.score(classification, request.request_id,
+                                   intel_results=intel_results if intel_results else None)
     # Evaluate policy with registry
     policy_engine = PolicyEngine(policy_registry=policy_registry)
     decision = policy_engine.evaluate(
@@ -3030,6 +3275,9 @@ def handle_scan_command(args) -> None:
             max_commits=getattr(args, "max_commits", 200),
             since_ref=getattr(args, "since", None),
         )
+    elif sub == "injection":
+        _handle_scan_injection(args, audit_store)
+        return
     else:
         print(f"Error: Unknown scan subcommand: {sub}", file=sys.stderr)
         sys.exit(1)
@@ -3493,6 +3741,500 @@ def _print_policy_show(loader, override) -> None:
             for od in override.override_decisions:
                 print(f"    {od.rule_id} → {od.strengthen_to}")
     print()
+
+
+def handle_intel_command(args: argparse.Namespace) -> None:
+    """Handle intel status/clear-cache/evict-expired subcommands."""
+    sub = getattr(args, "intel_subcommand", None)
+
+    if sub == "status":
+        from ..intel.remote.cache import IntelCache
+        from pathlib import Path as _Path
+
+        cache = IntelCache()
+        stats = cache.stats()
+
+        data_dir = _Path(__file__).parent.parent / "data"
+        npm_meta_path = data_dir / "top_npm_packages.yaml"
+        pypi_meta_path = data_dir / "top_pypi_packages.yaml"
+        kb_path = data_dir / "known_bad_registry.yaml"
+
+        def _read_generated_at(p: _Path) -> str:
+            if not p.exists():
+                return "missing"
+            for line in p.read_text().splitlines()[:5]:
+                if "generated_at:" in line:
+                    return line.split("generated_at:")[-1].strip()
+            return "unknown"
+
+        status = {
+            "local_adapters": {
+                "typosquatting": "ok",
+                "known_bad": "ok" if kb_path.exists() else "missing",
+                "lockfile_integrity": "ok",
+            },
+            "data_files": {
+                "top_npm_packages": {
+                    "status": "ok" if npm_meta_path.exists() else "missing",
+                    "generated_at": _read_generated_at(npm_meta_path),
+                },
+                "top_pypi_packages": {
+                    "status": "ok" if pypi_meta_path.exists() else "missing",
+                    "generated_at": _read_generated_at(pypi_meta_path),
+                },
+                "known_bad_registry": {
+                    "status": "ok" if kb_path.exists() else "missing",
+                    "generated_at": _read_generated_at(kb_path),
+                },
+            },
+            "remote_cache": stats,
+            "remote_adapters": "disabled (use --with-intel to enable)",
+        }
+
+        if getattr(args, "json", False):
+            print(json.dumps(status, indent=2))
+        else:
+            print("Intel Status")
+            print("=" * 40)
+            print("Local adapters:")
+            for name, st in status["local_adapters"].items():
+                mark = "✓" if st == "ok" else "✗"
+                print(f"  {mark} {name}: {st}")
+            print("Data files:")
+            for name, info in status["data_files"].items():
+                mark = "✓" if info["status"] == "ok" else "✗"
+                print(f"  {mark} {name} (generated: {info['generated_at']})")
+            print(f"Remote cache: {stats['live_entries']} live / {stats['total_entries']} total entries")
+
+    elif sub == "clear-cache":
+        from ..intel.remote.cache import IntelCache
+        n = IntelCache().clear()
+        print(f"Cleared {n} cache entries.")
+
+    elif sub == "evict-expired":
+        from ..intel.remote.cache import IntelCache
+        n = IntelCache().evict_expired()
+        print(f"Evicted {n} expired cache entries.")
+
+    else:
+        print("Error: No intel subcommand provided (status|clear-cache|evict-expired)", file=sys.stderr)
+        sys.exit(1)
+
+
+def handle_watch_command(args: argparse.Namespace) -> None:
+    """Handle watch start/stop/status/logs subcommands."""
+    from ..watch.daemon import (
+        start_daemon,
+        stop_daemon,
+        daemon_status,
+        tail_logs,
+    )
+    from ..watch.fs_watcher import platform_watch_supported
+
+    sub = getattr(args, "watch_subcommand", None)
+
+    if sub == "start":
+        supported, reason = platform_watch_supported()
+        if not supported:
+            msg = f"Watch mode not supported on this platform: {reason}"
+            if getattr(args, "json", False):
+                print(json.dumps({"ok": False, "error": msg}))
+            else:
+                print(f"Error: {msg}", file=sys.stderr)
+            sys.exit(1)
+
+        result = start_daemon(
+            mode=args.mode,
+            poll_interval=args.poll_interval,
+            foreground=args.foreground,
+        )
+        if getattr(args, "json", False):
+            print(json.dumps(result))
+        else:
+            if result.get("ok"):
+                print(f"Watch daemon started (PID {result.get('pid')})")
+            else:
+                print(f"Error: {result.get('error')}", file=sys.stderr)
+                sys.exit(1)
+
+    elif sub == "stop":
+        result = stop_daemon()
+        if result.get("ok"):
+            print(f"Watch daemon stopped (was PID {result.get('stopped_pid')})")
+        else:
+            print(f"Error: {result.get('error')}", file=sys.stderr)
+            sys.exit(1)
+
+    elif sub == "status":
+        status = daemon_status()
+        if getattr(args, "json", False):
+            print(json.dumps(status))
+        else:
+            if status.get("running"):
+                print(f"Watch daemon running (PID {status.get('pid')})")
+            elif status.get("stale"):
+                print(f"Watch daemon not running (stale PID file: {status.get('pid')})")
+            else:
+                print("Watch daemon not running")
+
+    elif sub == "logs":
+        lines = tail_logs(n=args.lines)
+        if lines:
+            print("\n".join(lines))
+        else:
+            print("No watch daemon log found.")
+
+    else:
+        print("Error: No watch subcommand provided (start|stop|status|logs)", file=sys.stderr)
+        sys.exit(1)
+
+
+def handle_serve_command(args: argparse.Namespace) -> None:
+    """Handle serve subcommands (mcp, install, status)."""
+    sub = getattr(args, "serve_subcommand", None)
+
+    if sub == "mcp":
+        from ..server.mcp_server import run_server
+        run_server()
+
+    elif sub == "install":
+        _handle_serve_install(
+            scope=getattr(args, "scope", "project"),
+            json_output=getattr(args, "json", False),
+        )
+
+    elif sub == "status":
+        _handle_serve_status(json_output=getattr(args, "json", False))
+
+    else:
+        print("Error: No serve subcommand provided (mcp|install|status)", file=sys.stderr)
+        sys.exit(1)
+
+
+def _handle_serve_install(scope: str = "project", json_output: bool = False) -> None:
+    """Install a Claude Code PreToolUse hook that calls policy-scout check --hook-mode."""
+    from pathlib import Path
+
+    hook_entry = {
+        "matcher": ".*",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "policy-scout check --hook-mode -- $CLAUDE_TOOL_INPUT",
+            }
+        ],
+    }
+
+    if scope == "project":
+        settings_path = Path(".claude/settings.json")
+    else:
+        settings_path = Path.home() / ".claude" / "settings.json"
+
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+
+    existing: dict = {}
+    if settings_path.exists():
+        try:
+            existing = json.loads(settings_path.read_text())
+        except Exception:
+            existing = {}
+
+    hooks = existing.setdefault("hooks", {})
+    pre_tool = hooks.setdefault("PreToolUse", [])
+
+    # Avoid duplicates
+    already_installed = any(
+        any(h.get("command", "").startswith("policy-scout check --hook-mode")
+            for h in entry.get("hooks", []))
+        for entry in pre_tool
+    )
+
+    if not already_installed:
+        pre_tool.append(hook_entry)
+        settings_path.write_text(json.dumps(existing, indent=2))
+        status = "installed"
+    else:
+        status = "already_installed"
+
+    result = {
+        "status": status,
+        "scope": scope,
+        "settings_path": str(settings_path),
+    }
+
+    if json_output:
+        print(json.dumps(result, indent=2))
+    else:
+        if status == "installed":
+            print(f"Policy Scout hook installed in {settings_path}")
+        else:
+            print(f"Policy Scout hook already present in {settings_path}")
+
+
+def _handle_serve_status(json_output: bool = False) -> None:
+    """Show MCP server / hook registration status."""
+    from pathlib import Path
+
+    project_settings = Path(".claude/settings.json")
+    user_settings = Path.home() / ".claude" / "settings.json"
+
+    def _check_hook(path: Path) -> bool:
+        if not path.exists():
+            return False
+        try:
+            data = json.loads(path.read_text())
+            pre_tool = data.get("hooks", {}).get("PreToolUse", [])
+            return any(
+                any(h.get("command", "").startswith("policy-scout check --hook-mode")
+                    for h in entry.get("hooks", []))
+                for entry in pre_tool
+            )
+        except Exception:
+            return False
+
+    project_hook = _check_hook(project_settings)
+    user_hook = _check_hook(user_settings)
+
+    result = {
+        "project_hook_installed": project_hook,
+        "user_hook_installed": user_hook,
+        "project_settings_path": str(project_settings),
+        "user_settings_path": str(user_settings),
+    }
+
+    if json_output:
+        print(json.dumps(result, indent=2))
+    else:
+        print("Policy Scout serve status:")
+        print(f"  Project hook: {'installed' if project_hook else 'not installed'} ({project_settings})")
+        print(f"  User hook:    {'installed' if user_hook else 'not installed'} ({user_settings})")
+
+
+def _handle_scan_injection(args, audit_store) -> None:
+    """Run prompt injection scan against a file or directory."""
+    from pathlib import Path
+    from ..sweep.prompt_injection import PromptInjectionAnalyzer, scan_agent_readable_files
+    from ..audit.events import EventType
+    from ..audit.store import AuditEvent
+
+    target = Path(getattr(args, "path", "."))
+    json_output = getattr(args, "json", False)
+
+    findings = []
+    if target.is_file():
+        analyzer = PromptInjectionAnalyzer()
+        raw = analyzer.analyze_file(target)
+        findings = [f.to_sweep_finding() for f in raw]
+    elif target.is_dir():
+        findings = scan_agent_readable_files(str(target))
+    else:
+        print(f"Error: Not a file or directory: {target}", file=sys.stderr)
+        sys.exit(1)
+
+    # Emit audit events
+    if audit_store:
+        for f in findings:
+            audit_store.write(AuditEvent(
+                event_type=EventType.INJECTION_PATTERN_FOUND,
+                summary=f"Injection pattern '{f.category}' in {f.location}",
+                data={
+                    "location": f.location,
+                    "severity": f.severity,
+                    "confidence": f.confidence,
+                    "title": f.title,
+                },
+            ))
+
+    result = {
+        "target": str(target),
+        "finding_count": len(findings),
+        "findings": [f.to_dict() for f in findings],
+    }
+
+    if json_output:
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"\nPrompt Injection Scan: {target}")
+        print(f"  Findings: {len(findings)}")
+        if findings:
+            print()
+            for f in findings:
+                print(f"  [{f.severity.upper()}] {f.title}")
+                print(f"    Location: {f.location}")
+                print(f"    Confidence: {f.confidence}")
+                print()
+        else:
+            print("  No injection patterns detected.")
+
+    if findings:
+        worst = max(f.severity for f in findings)
+        sys.exit(20 if worst == "critical" else 10)
+    sys.exit(0)
+
+
+def handle_canary_command(args) -> None:
+    """Handle canary subcommands (install, check, remove)."""
+    sub = getattr(args, "canary_subcommand", None)
+
+    if sub == "install":
+        from ..canary.installer import install_canary
+        from ..audit.events import EventType
+        from ..audit.store import AuditEvent
+
+        result = install_canary(getattr(args, "path", "."))
+        audit = AuditStore()
+        if not result["already_existed"]:
+            audit.write(AuditEvent(
+                event_type=EventType.CANARY_FILE_INSTALLED,
+                summary=f"Canary file installed at {result['path']}",
+                data=result,
+            ))
+
+        if getattr(args, "json", False):
+            print(json.dumps(result, indent=2))
+        else:
+            if result["already_existed"]:
+                print(f"Canary already installed: {result['path']}")
+                print(f"  Token: {result['token']}")
+            else:
+                print(f"Canary installed: {result['path']}")
+                print(f"  Token: {result['token']}")
+                print("  Tip: commit this file to git so it persists across clones.")
+
+    elif sub == "check":
+        from ..canary.checker import check_canary_status
+        from ..audit.events import EventType
+        from ..audit.store import AuditEvent
+
+        status = check_canary_status(getattr(args, "path", "."))
+        if status.installed and status.audit_hits:
+            AuditStore().write(AuditEvent(
+                event_type=EventType.CANARY_AUDIT_HIT_DETECTED,
+                summary=f"Canary token {status.token} found in {len(status.audit_hits)} audit events",
+                data=status.to_dict(),
+            ))
+
+        if getattr(args, "json", False):
+            print(json.dumps(status.to_dict(), indent=2))
+        else:
+            if not status.installed:
+                print("Canary not installed. Run: policy-scout canary install")
+            else:
+                print(f"Canary: {status.path}")
+                print(f"  Token: {status.token}")
+                hits = status.audit_hits
+                if hits:
+                    print(f"  Audit hits: {len(hits)}")
+                    for h in hits[:5]:
+                        print(f"    - [{h.get('event_type', '')}] {h.get('summary', '')}")
+                else:
+                    print("  Audit hits: none (token has not appeared in audit log)")
+
+    elif sub == "remove":
+        from ..canary.installer import remove_canary
+        removed = remove_canary(getattr(args, "path", "."))
+        if removed:
+            print("Canary file removed.")
+        else:
+            print("No canary file found.")
+
+    else:
+        print("Error: No canary subcommand provided (install|check|remove)", file=sys.stderr)
+        sys.exit(1)
+
+
+def handle_sandbox_run_command(args: argparse.Namespace) -> None:
+    """Run an arbitrary command inside the Linux namespace sandbox."""
+    from ..sandbox.general.namespace_sandbox import run_general_sandbox
+    from ..sandbox.general.prereqs import check_sandbox_prerequisites
+    from ..audit.events import EventType
+    from ..audit.store import AuditEvent
+
+    command = args.command
+    if not command:
+        print("Error: no command specified for sandbox-run", file=sys.stderr)
+        sys.exit(1)
+
+    timeout = getattr(args, "timeout", 30)
+    allow_network = getattr(args, "allow_network", False)
+    emit_audit = not getattr(args, "no_audit", False)
+    as_json = getattr(args, "json", False)
+
+    store = AuditStore()
+
+    if emit_audit:
+        store.write(AuditEvent(
+            event_type=EventType.GENERAL_SANDBOX_STARTED,
+            summary=f"Sandbox run started: {command}",
+            data={"command": command, "timeout": timeout, "allow_network": allow_network},
+        ))
+
+    try:
+        report = run_general_sandbox(
+            command=command,
+            timeout=timeout,
+            allow_network=allow_network,
+        )
+    except Exception as exc:
+        print(f"Error: sandbox run failed: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    if emit_audit:
+        store.write(AuditEvent(
+            event_type=EventType.GENERAL_SANDBOX_COMPLETED,
+            summary=f"Sandbox run completed: exit={report.exit_code} findings={len(report.findings)}",
+            data=report.to_dict(),
+        ))
+        for finding in report.findings:
+            store.write(AuditEvent(
+                event_type=EventType.SANDBOX_BEHAVIOR_FINDING,
+                summary=f"[{finding.severity}] {finding.title}",
+                data=finding.to_dict(),
+            ))
+
+    if as_json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(f"Sandbox run: {report.command}")
+        print(f"  Exit code: {report.exit_code}")
+        if report.timed_out:
+            print("  Timed out: yes")
+        print(f"  Detection confidence: {report.detection_confidence}")
+        print(f"  Findings: {len(report.findings)}")
+        for f in report.findings:
+            print(f"    [{f.severity.upper()}] {f.title}")
+        fs = report.fs_changes
+        if any([fs.created, fs.modified, fs.deleted]):
+            print(f"  FS changes: +{len(fs.created)} ~{len(fs.modified)} -{len(fs.deleted)}")
+        if report.stdout:
+            print("\n--- stdout ---")
+            print(report.stdout[:2048])
+        if report.stderr:
+            print("\n--- stderr ---")
+            print(report.stderr[:1024])
+
+
+def handle_sandbox_prereqs_command(args: argparse.Namespace) -> None:
+    """Check whether the general sandbox prerequisites are met."""
+    from ..sandbox.general.prereqs import check_sandbox_prerequisites
+
+    prereqs = check_sandbox_prerequisites()
+    as_json = getattr(args, "json", False)
+
+    if as_json:
+        print(json.dumps(prereqs.to_dict(), indent=2))
+    else:
+        status = "OK" if prereqs.available else "UNAVAILABLE"
+        print(f"General sandbox: {status}")
+        details = prereqs.details
+        print(f"  unshare: {'yes' if details.get('unshare_available') else 'no'}")
+        print(f"  user namespaces: {'enabled' if details.get('user_namespaces_enabled') else 'disabled'}")
+        print(f"  overlayfs: {'available' if prereqs.overlayfs_available else 'unavailable'}")
+        print(f"  strace: {'available' if prereqs.strace_available else 'unavailable'}")
+        missing = prereqs.missing()
+        if missing:
+            print(f"  Missing: {', '.join(missing)}")
+            print("  Tip: On Ubuntu/Debian — sudo sysctl kernel.unprivileged_userns_clone=1")
 
 
 if __name__ == "__main__":

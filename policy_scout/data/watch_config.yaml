@@ -1,0 +1,88 @@
+# Watch mode configuration — paths and trigger patterns.
+# Path globs are matched against absolute paths after expansion.
+
+watch_paths:
+  project:
+    - "."                           # project root (recursive)
+    - "~/.npmrc"
+    - "~/.yarnrc"
+    - "~/.yarnrc.yml"
+    - "~/.pnpmrc"
+    - "~/.pip/pip.conf"
+    - "~/.cargo/config.toml"
+  system:
+    - "~/.bashrc"
+    - "~/.zshrc"
+    - "~/.profile"
+    - "~/.bash_profile"
+    - "~/.bash_aliases"
+    - "~/.config/systemd/user/"
+    - "~/.ssh/"
+    - "/tmp"
+
+trigger_patterns:
+  - path_glob: "**/.env"
+    event_types: [create, modify]
+    severity: high
+
+  - path_glob: "**/.env.*"
+    event_types: [create, modify]
+    severity: high
+
+  - path_glob: "**/node_modules/.bin/*"
+    event_types: [create, modify]
+    severity: medium
+
+  - path_glob: "**/.github/workflows/*.yml"
+    event_types: [create, modify]
+    severity: high
+
+  - path_glob: "**/.github/workflows/*.yaml"
+    event_types: [create, modify]
+    severity: high
+
+  - path_glob: "/tmp/**"
+    event_types: [create]
+    mode_filter: executable
+    severity: high
+
+  - path_glob: "~/.ssh/authorized_keys"
+    event_types: [modify, create]
+    severity: critical
+
+  - path_glob: "~/.ssh/config"
+    event_types: [modify, create]
+    severity: high
+
+  - path_glob: "**/package.json"
+    event_types: [modify]
+    severity: medium
+
+  - path_glob: "**/*.sh"
+    event_types: [create, modify]
+    mode_filter: executable
+    severity: medium
+
+  - path_glob: "~/.bashrc"
+    event_types: [modify]
+    severity: high
+
+  - path_glob: "~/.zshrc"
+    event_types: [modify]
+    severity: high
+
+  - path_glob: "~/.profile"
+    event_types: [modify]
+    severity: high
+
+  - path_glob: "~/.config/systemd/user/**"
+    event_types: [create, modify]
+    severity: high
+
+  - path_glob: "**/Makefile"
+    event_types: [modify, create]
+    severity: low
+
+  - path_glob: "**/.npmrc"
+    event_types: [create, modify]
+    severity: high

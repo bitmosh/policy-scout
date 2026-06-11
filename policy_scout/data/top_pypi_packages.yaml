@@ -1,0 +1,220 @@
+# Top PyPI packages by monthly downloads — used for typosquatting detection.
+# Do NOT auto-update at runtime. Refresh via: policy-scout intel refresh-local
+# generated_at: 2026-06-10
+# source: pypistats.org (approximated)
+
+packages:
+  # Core / stdlib companions
+  - pip
+  - setuptools
+  - wheel
+  - six
+  - certifi
+  - urllib3
+  - idna
+  - charset-normalizer
+  - packaging
+  - attrs
+  - typing-extensions
+
+  # HTTP / networking
+  - requests
+  - httpx
+  - aiohttp
+  - httpcore
+  - websockets
+  - grpcio
+  - grpcio-tools
+
+  # Data science
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - statsmodels
+  - sympy
+  - numba
+  - polars
+  - pyarrow
+
+  # ML / AI
+  - torch
+  - torchvision
+  - tensorflow
+  - keras
+  - transformers
+  - huggingface-hub
+  - datasets
+  - accelerate
+  - diffusers
+  - openai
+  - anthropic
+  - langchain
+  - llama-index
+  - sentence-transformers
+  - xgboost
+  - lightgbm
+  - catboost
+
+  # Web frameworks
+  - django
+  - flask
+  - fastapi
+  - starlette
+  - uvicorn
+  - gunicorn
+  - tornado
+  - sanic
+  - aiohttp
+  - litestar
+
+  # Database / ORM
+  - sqlalchemy
+  - alembic
+  - psycopg2
+  - psycopg2-binary
+  - pymongo
+  - motor
+  - redis
+  - aioredis
+  - pymysql
+  - asyncpg
+  - peewee
+  - tortoise-orm
+  - databases
+  - elasticsearch
+
+  # CLI / terminal
+  - click
+  - typer
+  - argparse
+  - rich
+  - textual
+  - prompt-toolkit
+  - colorama
+  - termcolor
+  - tqdm
+  - alive-progress
+
+  # Testing
+  - pytest
+  - pytest-cov
+  - pytest-asyncio
+  - pytest-mock
+  - coverage
+  - mock
+  - faker
+  - hypothesis
+  - factory-boy
+  - responses
+  - httpretty
+  - freezegun
+
+  # Linting / formatting
+  - flake8
+  - pylint
+  - black
+  - isort
+  - mypy
+  - pyright
+  - bandit
+  - ruff
+  - autopep8
+
+  # Type checking helpers
+  - pydantic
+  - pydantic-settings
+  - marshmallow
+  - dataclasses-json
+  - cattrs
+
+  # Serialization / parsing
+  - pyyaml
+  - toml
+  - tomli
+  - tomllib
+  - python-dotenv
+  - configparser
+  - lxml
+  - beautifulsoup4
+  - html5lib
+  - defusedxml
+  - jsonschema
+  - orjson
+  - ujson
+  - msgpack
+
+  # Date / time
+  - python-dateutil
+  - arrow
+  - pendulum
+  - pytz
+  - tzdata
+
+  # Async / concurrency
+  - asyncio
+  - anyio
+  - trio
+  - celery
+  - dramatiq
+  - rq
+  - apscheduler
+
+  # Cloud / infrastructure
+  - boto3
+  - botocore
+  - google-cloud-storage
+  - google-auth
+  - azure-storage-blob
+  - azure-identity
+
+  # Crypto / security
+  - cryptography
+  - pyotp
+  - passlib
+  - bcrypt
+  - pyjwt
+  - authlib
+  - paramiko
+  - pyOpenSSL
+
+  # Image / media
+  - pillow
+  - opencv-python
+  - imageio
+  - wand
+
+  # Utilities
+  - loguru
+  - structlog
+  - python-json-logger
+  - tenacity
+  - backoff
+  - retry
+  - cachetools
+  - diskcache
+  - filelock
+  - portalocker
+  - psutil
+  - watchdog
+  - schedule
+
+  # Dev tools
+  - ipython
+  - jupyter
+  - jupyterlab
+  - notebook
+  - nox
+  - tox
+  - pre-commit
+  - invoke
+  - doit
+
+  # Dependency management
+  - poetry
+  - pipenv
+  - pip-tools
+  - pipdeptree
+  - virtualenv

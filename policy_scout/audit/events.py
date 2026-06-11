@@ -95,6 +95,29 @@ class EventType:
     POLICY_SIMULATED = "PolicySimulated"
     POLICY_VALIDATED = "PolicyValidated"
     POLICY_HISTORY_TESTED = "PolicyHistoryTested"
+    # [01] Watch Mode Daemon
+    WATCH_TRIGGER_DETECTED = "WatchTriggerDetected"
+    WATCH_DAEMON_STARTED = "WatchDaemonStarted"
+    WATCH_DAEMON_STOPPED = "WatchDaemonStopped"
+    WATCH_DAEMON_HEARTBEAT = "WatchDaemonHeartbeat"
+    # [02] Threat Intelligence
+    INTEL_LOOKUP_COMPLETED = "IntelLookupCompleted"
+    INTEL_CACHE_HIT = "IntelCacheHit"
+    INTEL_LOOKUP_FAILED = "IntelLookupFailed"
+    # [06] MCP Server
+    MCP_SERVER_STARTED = "McpServerStarted"
+    MCP_TOOL_CALL_RECEIVED = "McpToolCallReceived"
+    MCP_TOOL_CALL_COMPLETED = "McpToolCallCompleted"
+    MCP_SESSION_ENDED = "McpSessionEnded"
+    # [08] General Sandbox
+    GENERAL_SANDBOX_STARTED = "GeneralSandboxStarted"
+    GENERAL_SANDBOX_COMPLETED = "GeneralSandboxCompleted"
+    SANDBOX_BEHAVIOR_FINDING = "SandboxBehaviorFinding"
+    # [07] Prompt Injection Detection
+    INJECTION_PATTERN_FOUND = "InjectionPatternFound"
+    INJECTION_FOUND_IN_TOOL_RESPONSE = "InjectionFoundInToolResponse"
+    CANARY_FILE_INSTALLED = "CanaryFileInstalled"
+    CANARY_AUDIT_HIT_DETECTED = "CanaryAuditHitDetected"
 
 
 def create_command_requested_event(

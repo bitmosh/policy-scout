@@ -1,0 +1,293 @@
+# Top npm packages by weekly downloads — used for typosquatting detection.
+# Do NOT auto-update at runtime. Refresh via: policy-scout intel refresh-local
+# generated_at: 2026-06-10
+# source: npmjs.com/downloads (approximated)
+
+packages:
+  # Core utilities
+  - lodash
+  - underscore
+  - ramda
+  - fp-ts
+  - immer
+
+  # Type checking / schema
+  - typescript
+  - zod
+  - joi
+  - yup
+  - ajv
+
+  # HTTP / networking
+  - axios
+  - node-fetch
+  - got
+  - superagent
+  - cross-fetch
+  - isomorphic-fetch
+  - https-proxy-agent
+  - http-proxy-agent
+  - node-http-proxy
+  - ws
+  - socket.io
+  - socket.io-client
+
+  # Frameworks / web
+  - express
+  - fastify
+  - koa
+  - hapi
+  - nest
+  - next
+  - nuxt
+  - remix
+
+  # Build / bundler
+  - webpack
+  - rollup
+  - vite
+  - esbuild
+  - parcel
+  - turbopack
+
+  # Transpiler / compiler
+  - babel-core
+  - "@babel/core"
+  - "@babel/cli"
+  - "@babel/preset-env"
+  - "@babel/preset-react"
+  - "@babel/preset-typescript"
+  - ts-node
+  - tsx
+  - swc
+
+  # Testing
+  - jest
+  - mocha
+  - chai
+  - vitest
+  - jasmine
+  - ava
+  - tape
+  - sinon
+  - nock
+  - supertest
+  - playwright
+  - puppeteer
+  - cypress
+
+  # Linting / formatting
+  - eslint
+  - prettier
+  - tslint
+  - "@typescript-eslint/parser"
+  - "@typescript-eslint/eslint-plugin"
+
+  # React ecosystem
+  - react
+  - react-dom
+  - react-router
+  - react-router-dom
+  - "@tanstack/react-query"
+  - react-query
+  - redux
+  - "@reduxjs/toolkit"
+  - mobx
+  - zustand
+  - jotai
+  - recoil
+  - "@emotion/react"
+  - "@emotion/styled"
+  - styled-components
+  - tailwindcss
+
+  # Vue ecosystem
+  - vue
+  - "@vue/cli"
+  - vuex
+  - pinia
+
+  # Node.js utilities
+  - chalk
+  - commander
+  - yargs
+  - minimist
+  - dotenv
+  - debug
+  - winston
+  - pino
+  - morgan
+  - glob
+  - fast-glob
+  - chokidar
+  - nodemon
+  - pm2
+  - cross-env
+  - rimraf
+  - mkdirp
+  - fs-extra
+  - tmp
+  - uuid
+  - nanoid
+  - cuid
+  - shortid
+
+  # Crypto / security
+  - bcrypt
+  - bcryptjs
+  - jsonwebtoken
+  - passport
+  - passport-local
+  - passport-jwt
+  - helmet
+  - cors
+  - csurf
+  - express-rate-limit
+  - node-forge
+  - crypto-js
+
+  # Database
+  - mongoose
+  - sequelize
+  - typeorm
+  - prisma
+  - "@prisma/client"
+  - knex
+  - mysql
+  - mysql2
+  - pg
+  - pg-pool
+  - redis
+  - ioredis
+  - mongodb
+  - sqlite3
+  - better-sqlite3
+
+  # Parsing / serialization
+  - cheerio
+  - jsdom
+  - xml2js
+  - fast-xml-parser
+  - js-yaml
+  - yaml
+  - csv-parse
+  - csv-parser
+  - papaparse
+
+  # Date / time
+  - moment
+  - dayjs
+  - date-fns
+  - luxon
+
+  # API / RPC
+  - graphql
+  - apollo-server
+  - "@apollo/client"
+  - grpc
+  - "@grpc/grpc-js"
+  - protobufjs
+
+  # Cloud SDKs
+  - "@aws-sdk/client-s3"
+  - "@aws-sdk/client-dynamodb"
+  - aws-sdk
+  - "@google-cloud/storage"
+  - "@azure/storage-blob"
+
+  # Process / OS
+  - execa
+  - child_process
+  - shelljs
+  - which
+  - node-which
+  - pidusage
+  - systeminformation
+
+  # Formatting / templating
+  - ejs
+  - pug
+  - handlebars
+  - mustache
+  - nunjucks
+  - marked
+  - remark
+  - unified
+
+  # Monorepo / workspace
+  - lerna
+  - nx
+  - turborepo
+  - changesets
+
+  # Package management helpers
+  - npx
+  - nvm
+  - yarn
+  - pnpm
+  - npm-check-updates
+
+  # Semver / versioning
+  - semver
+  - compare-versions
+
+  # Compression
+  - archiver
+  - jszip
+  - tar
+  - adm-zip
+  - node-tar
+
+  # Image / media
+  - sharp
+  - jimp
+  - imagemin
+  - ffmpeg
+
+  # CLI helpers
+  - inquirer
+  - ora
+  - boxen
+  - figlet
+  - colors
+  - kleur
+  - picocolors
+  - ansi-colors
+
+  # Miscellaneous widely-used
+  - lodash-es
+  - async
+  - bluebird
+  - rxjs
+  - rxjs-compat
+  - eventemitter3
+  - mitt
+  - classnames
+  - clsx
+  - classcat
+  - object-assign
+  - core-js
+  - regenerator-runtime
+  - tslib
+  - "@types/node"
+  - "@types/react"
+  - "@types/lodash"
+
+  # Security tooling
+  - snyk
+  - audit-ci
+  - npm-audit-resolver
+
+  # Documentation
+  - jsdoc
+  - typedoc
+
+  # Internationalization
+  - i18next
+  - "@formatjs/intl"
+  - "@lingui/core"
+
+  # Performance
+  - benchmark
+  - clinic
+  - autocannon

@@ -1,0 +1,101 @@
+# Known-bad package registry — manually curated, do NOT auto-update at runtime.
+# Format: ecosystem > "name[@version]" > reason + source
+# A package with no version matches ALL versions; versioned entries are version-exact.
+# generated_at: 2026-06-10
+
+npm:
+  "event-source-polyfill@1.0.31":
+    reason: "credential harvesting postinstall script (2024-03)"
+    source: "https://socket.dev/npm/package/event-source-polyfill"
+  "node-ipc@10.1.1":
+    reason: "intentional sabotage by maintainer — wipes files on Russian/Belarusian IPs"
+    source: "CVE-2022-23812"
+  "node-ipc@10.1.2":
+    reason: "same malicious wiper payload as 10.1.1"
+    source: "CVE-2022-23812"
+  "colors@1.4.44-liberty-2":
+    reason: "maintainer-introduced infinite loop sabotage (2022-01)"
+    source: "https://github.com/Marak/colors.js/issues/285"
+  "faker@6.6.6":
+    reason: "maintainer sabotage — outputs garbage (2022-01)"
+    source: "https://github.com/faker-js/faker/issues/1486"
+  "ua-parser-js@0.7.29":
+    reason: "account hijack — crypto miner + password stealer postinstall"
+    source: "https://github.com/advisories/GHSA-pjwm-rvh2-c87w"
+  "ua-parser-js@0.8.0":
+    reason: "same crypto miner payload as 0.7.29"
+    source: "https://github.com/advisories/GHSA-pjwm-rvh2-c87w"
+  "ua-parser-js@1.0.0":
+    reason: "same crypto miner payload as 0.7.29"
+    source: "https://github.com/advisories/GHSA-pjwm-rvh2-c87w"
+  "coa@2.0.3":
+    reason: "account hijack — malware payload postinstall (2021-11)"
+    source: "https://github.com/advisories/GHSA-73qr-pfmq-6rp8"
+  "coa@2.0.4":
+    reason: "same malware payload as 2.0.3"
+    source: "https://github.com/advisories/GHSA-73qr-pfmq-6rp8"
+  "rc@1.2.9":
+    reason: "account hijack — malware payload (2021-11)"
+    source: "https://github.com/advisories/GHSA-g2q5-5433-rhrf"
+  "npmrc":
+    reason: "typosquat targeting .npmrc credential harvesting"
+    source: "https://blog.sonatype.com/damaging-linux-macro-discovered-hidden-in-npm-package"
+  "crossenv":
+    reason: "typosquat of cross-env — exfiltrates env vars (2017)"
+    source: "https://www.npmjs.com/advisories/493"
+  "babelcli":
+    reason: "typosquat of babel-cli — malware payload"
+    source: "https://blog.sonatype.com/damaging-linux-macro-discovered-hidden-in-npm-package"
+  "d3.js":
+    reason: "typosquat of d3 — malware payload"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "electorn":
+    reason: "typosquat of electron — credential harvesting"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "loadyaml":
+    reason: "typosquat of js-yaml — malware payload"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "mongose":
+    reason: "typosquat of mongoose"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "require-port":
+    reason: "typosquat of require (targets beginners)"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "expres":
+    reason: "typosquat of express — malware payload"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "nodemailer-js":
+    reason: "typosquat of nodemailer — exfiltrates env vars"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+
+pypi:
+  "colourama":
+    reason: "typosquat of colorama — clipboard hijacker (2019)"
+    source: "https://blog.phylum.io/pypi-malware-targets-colorama"
+  "djago":
+    reason: "typosquat of django — reverse shell"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "python-dateutil2":
+    reason: "typosquat of python-dateutil"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "request-oauthlib2":
+    reason: "typosquat of requests-oauthlib"
+    source: "https://snyk.io/blog/malicious-packages-found-to-be-typo-squatting"
+  "pythonrequest":
+    reason: "typosquat of requests — data exfiltration"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
+  "urllib4":
+    reason: "typosquat of urllib3 — data exfiltration"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
+  "opencvc":
+    reason: "typosquat of opencv-python — backdoor"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
+  "setup-tools":
+    reason: "typosquat of setuptools — malware payload"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
+  "panda":
+    reason: "typosquat of pandas — malware (install-time exec)"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
+  "loguru2":
+    reason: "typosquat of loguru — exfiltrates env and git config"
+    source: "https://blog.phylum.io/malicious-pypi-packages"
