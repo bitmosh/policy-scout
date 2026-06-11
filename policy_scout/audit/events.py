@@ -76,6 +76,25 @@ class EventType:
     COMMAND_EXECUTION_COMPLETED = "CommandExecutionCompleted"
     COMMAND_EXECUTION_BLOCKED = "CommandExecutionBlocked"
     COMMAND_EXECUTION_FAILED = "CommandExecutionFailed"
+    # [05] Tamper-Evident Audit
+    CHAIN_VERIFICATION_COMPLETED = "ChainVerificationCompleted"
+    # [13] Self-Integrity
+    INTEGRITY_CHECK_FAILED = "IntegrityCheckFailed"
+    INTEGRITY_CHECK_PASSED = "IntegrityCheckPassed"
+    # [09] Incident Response
+    LOCKDOWN_ACTIVATED = "LockdownActivated"
+    LOCKDOWN_DEACTIVATED = "LockdownDeactivated"
+    EVIDENCE_PRESERVED = "EvidencePreserved"
+    CLEARANCE_CHECK_RUN = "ClearanceCheckRun"
+    # [04] Secret Scanning
+    SECRET_SCAN_COMPLETED = "SecretScanCompleted"
+    SECRET_FINDING_CREATED = "SecretFindingCreated"
+    # [10] Policy Management
+    PROJECT_OVERRIDE_LOADED = "ProjectOverrideLoaded"
+    PROJECT_OVERRIDE_VIOLATED = "ProjectOverrideViolated"
+    POLICY_SIMULATED = "PolicySimulated"
+    POLICY_VALIDATED = "PolicyValidated"
+    POLICY_HISTORY_TESTED = "PolicyHistoryTested"
 
 
 def create_command_requested_event(
@@ -610,5 +629,139 @@ def create_sandbox_migration_failed_event(
             "sandbox_id": sandbox_id,
             "host_project_root": host_project_root,
             "reason": reason,
+        },
+    )
+
+
+# ── [05] Tamper-Evident Audit ──────────────────────────────────────────────
+
+
+def create_chain_verification_event(
+    verified: bool, total_entries: int, error_count: int
+) -> AuditEvent:
+    """Create a ChainVerificationCompleted event."""
+    return AuditEvent(
+        event_type=EventType.CHAIN_VERIFICATION_COMPLETED,
+        summary=(
+            f"Chain verification {'PASSED' if verified else 'FAILED'} "
+            f"({total_entries} entries)"
+        ),
+        data={
+            "verified": verified,
+            "total_entries": total_entries,
+            "error_count": error_count,
+        },
+    )
+
+
+# ── [13] Self-Integrity ────────────────────────────────────────────────────
+
+
+def create_integrity_check_failed_event(errors: list) -> AuditEvent:
+    """Create an IntegrityCheckFailed event."""
+    return AuditEvent(
+        event_type=EventType.INTEGRITY_CHECK_FAILED,
+        summary=f"Registry integrity check failed: {len(errors)} file(s)",
+        data={"errors": errors, "error_count": len(errors)},
+    )
+
+
+def create_integrity_check_passed_event(files_checked: int) -> AuditEvent:
+    """Create an IntegrityCheckPassed event."""
+    return AuditEvent(
+        event_type=EventType.INTEGRITY_CHECK_PASSED,
+        summary=f"Registry integrity verified: {files_checked} files",
+        data={"files_checked": files_checked},
+    )
+
+
+# ── [09] Incident Response ─────────────────────────────────────────────────
+
+
+def create_lockdown_activated_event(reason: str) -> AuditEvent:
+    """Create a LockdownActivated event."""
+    return AuditEvent(
+        event_type=EventType.LOCKDOWN_ACTIVATED,
+        summary="Lockdown mode activated",
+        data={"reason": reason},
+    )
+
+
+def create_lockdown_deactivated_event(cleared_by: str = "") -> AuditEvent:
+    """Create a LockdownDeactivated event."""
+    return AuditEvent(
+        event_type=EventType.LOCKDOWN_DEACTIVATED,
+        summary="Lockdown mode deactivated",
+        data={"cleared_by": cleared_by},
+    )
+
+
+def create_evidence_preserved_event(
+    archive_path: str, artifact_count: int
+) -> AuditEvent:
+    """Create an EvidencePreserved event."""
+    return AuditEvent(
+        event_type=EventType.EVIDENCE_PRESERVED,
+        summary=f"Evidence archive created: {artifact_count} artifact(s)",
+        data={"archive_path": archive_path, "artifact_count": artifact_count},
+    )
+
+
+def create_clearance_check_event(passed: bool, check_summary: dict) -> AuditEvent:
+    """Create a ClearanceCheckRun event."""
+    return AuditEvent(
+        event_type=EventType.CLEARANCE_CHECK_RUN,
+        summary=f"Clearance check {'passed' if passed else 'failed'}",
+        data={"passed": passed, "checks": check_summary},
+    )
+
+
+# ── [04] Secret Scanning ───────────────────────────────────────────────────
+
+
+def create_secret_scan_completed_event(
+    scan_id: str,
+    scan_type: str,
+    target: str,
+    finding_count: int,
+    severity_counts: dict,
+    files_scanned: int,
+    duration_ms: int,
+) -> AuditEvent:
+    """Create a SecretScanCompleted event."""
+    return AuditEvent(
+        event_type=EventType.SECRET_SCAN_COMPLETED,
+        summary=f"Secret scan completed: {finding_count} finding(s) in {target}",
+        data={
+            "scan_id": scan_id,
+            "scan_type": scan_type,
+            "target": target,
+            "finding_count": finding_count,
+            "severity_counts": severity_counts,
+            "files_scanned": files_scanned,
+            "duration_ms": duration_ms,
+        },
+    )
+
+
+def create_secret_finding_event(
+    scan_id: str,
+    secret_type: str,
+    service: str,
+    severity: str,
+    source: str,
+    line: int,
+) -> AuditEvent:
+    """Create a SecretFindingCreated event (one per finding)."""
+    return AuditEvent(
+        event_type=EventType.SECRET_FINDING_CREATED,
+        summary=f"Secret found: {service} {secret_type} in {source}:{line}",
+        data={
+            "scan_id": scan_id,
+            "secret_type": secret_type,
+            "service": service,
+            "severity": severity,
+            "source": source,
+            "line": line,
         },
     )

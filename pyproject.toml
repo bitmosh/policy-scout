@@ -1,6 +1,6 @@
 [project]
 name = "policy-scout"
-version = "0.1.0"
+version = "0.1.1"
 description = "Local-first safety harness for agent commands, package installs, and suspicious project activity"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -21,3 +21,6 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "no_policy_isolation: opt out of the autouse find_project_config patch (for tests that exercise the loading machinery directly)",
+]

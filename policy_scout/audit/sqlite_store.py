@@ -35,6 +35,13 @@ class SQLiteAuditStore:
     def _init_db(self):
         """Initialize database schema."""
         with sqlite3.connect(self.path) as conn:
+            # WAL mode: better read concurrency and crash safety.
+            # Best-effort: silently skipped on read-only databases.
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+            except sqlite3.OperationalError:
+                pass
+
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS audit_events (
                     event_id TEXT PRIMARY KEY,
@@ -55,7 +62,28 @@ class SQLiteAuditStore:
                     execution_id TEXT
                 )
             """)
-            
+
+            # Tamper prevention: block UPDATE and DELETE on committed rows.
+            # The only legitimate way to clear is drop+recreate (see clear()).
+            # Best-effort: silently skipped on read-only databases.
+            try:
+                conn.execute("""
+                    CREATE TRIGGER IF NOT EXISTS prevent_audit_update
+                    BEFORE UPDATE ON audit_events
+                    BEGIN
+                        SELECT RAISE(ABORT, 'Audit records are immutable');
+                    END
+                """)
+                conn.execute("""
+                    CREATE TRIGGER IF NOT EXISTS prevent_audit_delete
+                    BEFORE DELETE ON audit_events
+                    BEGIN
+                        SELECT RAISE(ABORT, 'Audit records are immutable');
+                    END
+                """)
+            except sqlite3.OperationalError:
+                pass
+
             # Create indexes for common queries
             conn.execute("CREATE INDEX IF NOT EXISTS idx_request_id ON audit_events(request_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_event_type ON audit_events(event_type)")
@@ -197,10 +225,15 @@ class SQLiteAuditStore:
             return 0
 
     def clear(self):
-        """Clear all audit events from the store."""
+        """Clear all audit events by dropping and recreating the table.
+
+        Uses drop+recreate rather than DELETE to work around the immutability
+        triggers that block row-level deletion. Intended for testing only.
+        """
         try:
             with sqlite3.connect(self.path) as conn:
-                conn.execute("DELETE FROM audit_events")
+                conn.execute("DROP TABLE IF EXISTS audit_events")
                 conn.commit()
+            self._init_db()
         except Exception as e:
             print(f"Warning: Failed to clear audit events: {e}", file=__import__("sys").stderr)

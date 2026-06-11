@@ -11,12 +11,28 @@ class AuditStore:
 
     def __init__(self, path: Optional[str] = None, enabled: bool = True):
         """Initialize audit store."""
+        import sys as _sys
+
         self.enabled = enabled
+        self._sqlite_init_failed = False
         if enabled:
-            # SQLite is primary store
-            self.sqlite_store = SQLiteAuditStore()
-            # JSONL remains as debug/export stream
-            self.jsonl_writer = JSONLWriter(path)
+            try:
+                self.sqlite_store = SQLiteAuditStore()
+            except Exception as e:
+                print(
+                    f"Warning: Audit store unavailable: {e}",
+                    file=_sys.stderr,
+                )
+                self.sqlite_store = None
+                self._sqlite_init_failed = True
+            try:
+                self.jsonl_writer = JSONLWriter(path)
+            except Exception as e:
+                print(
+                    f"Warning: JSONL writer unavailable: {e}",
+                    file=_sys.stderr,
+                )
+                self.jsonl_writer = None
         else:
             self.sqlite_store = None
             self.jsonl_writer = None
@@ -36,6 +52,10 @@ class AuditStore:
             return (
                 not critical
             )  # If critical and disabled, fail; if non-critical, succeed
+
+        # If SQLite init failed, treat it as a write failure
+        if self._sqlite_init_failed:
+            return False if critical else True
 
         # Write to SQLite (primary)
         sqlite_success = True
