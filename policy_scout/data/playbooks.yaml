@@ -1,0 +1,121 @@
+version: 1
+
+# Incident response playbooks keyed by finding category.
+# Each playbook provides structured guidance for responding to a security finding.
+# Used by policy_scout.response.playbooks to enrich ScoutReport findings.
+
+playbooks:
+  - id: playbook_suspicious_package
+    categories:
+      - suspicious_package
+      - supply_chain
+      - package_install
+    severity_threshold: high
+    title: Suspicious Package Installation
+    summary: A suspicious or potentially malicious package was detected.
+    immediate_actions:
+      - Remove the package immediately if installed.
+      - Check for signs of lifecycle script execution (postinstall, preinstall).
+      - Inspect network connections made during install.
+      - Check for files written outside the project directory.
+    investigation_steps:
+      - Run `policy-scout sweep --project .` to check for new suspicious files.
+      - Review the package's source code on its registry page.
+      - Check if the package name is a typosquat of a known package.
+      - Compare installed version against known-good versions.
+    containment:
+      - Activate lockdown if exfiltration is suspected.
+      - Preserve evidence archive before cleaning.
+    escalation_criteria:
+      - Network connections to unexpected hosts during install.
+      - New executable files in $HOME or system directories.
+      - Credential files accessed or copied.
+
+  - id: playbook_credential_exposure
+    categories:
+      - credential_adjacent
+      - secret_leak
+    severity_threshold: high
+    title: Potential Credential Exposure
+    summary: A command may have exposed credentials or secrets.
+    immediate_actions:
+      - Identify the specific credential (token, key, password).
+      - Revoke or rotate the credential immediately.
+      - Check recent audit log for other commands that may have received the credential.
+    investigation_steps:
+      - Run `policy-scout audit list` to review recent commands.
+      - Check if the credential was passed to external processes.
+      - Review shell history for related commands.
+    containment:
+      - Rotate all credentials that may have been exposed.
+      - Invalidate active sessions.
+    escalation_criteria:
+      - Cloud provider credentials exposed.
+      - SSH private keys accessed.
+      - Database passwords included in command output.
+
+  - id: playbook_destructive_command
+    categories:
+      - destructive
+    severity_threshold: critical
+    title: Destructive Command Executed
+    summary: A destructive command was executed that may have caused data loss.
+    immediate_actions:
+      - Stop any further destructive operations immediately.
+      - Do not run any commands that might overwrite backups.
+      - Assess scope of damage.
+    investigation_steps:
+      - Run `policy-scout audit request <request_id>` to see full command context.
+      - Check filesystem for deleted or overwritten files.
+      - Verify backups are intact.
+    containment:
+      - Activate lockdown if further damage is possible.
+      - Preserve evidence before recovery.
+    escalation_criteria:
+      - Production data deleted.
+      - No backups available.
+      - System configuration destroyed.
+
+  - id: playbook_network_execute
+    categories:
+      - network_execute
+    severity_threshold: high
+    title: Network-Fetched Script Execution
+    summary: A script was fetched from the network and executed.
+    immediate_actions:
+      - Identify what script was fetched and from where.
+      - Determine what the script did when executed.
+      - Check for persistence mechanisms (cron, startup scripts).
+    investigation_steps:
+      - Review network access logs.
+      - Inspect any files created or modified by the script.
+      - Check installed packages and services.
+    containment:
+      - Remove any persistence mechanisms created.
+      - Rotate credentials the script may have accessed.
+    escalation_criteria:
+      - Script added persistence mechanism.
+      - Script exfiltrated data.
+      - Script came from an untrusted or unknown host.
+
+  - id: playbook_integrity_failure
+    categories:
+      - integrity_failure
+      - self_tamper
+    severity_threshold: critical
+    title: Policy Scout Integrity Check Failed
+    summary: Policy Scout's own registry files may have been tampered with.
+    immediate_actions:
+      - Do not trust any policy decisions made since the integrity failure was detected.
+      - Immediately run `policy-scout integrity check --verbose` for details.
+      - Activate lockdown until the integrity issue is resolved.
+    investigation_steps:
+      - Identify which registry file(s) failed the checksum check.
+      - Compare the file contents with the last known-good version (git blame).
+      - Check who has write access to the registry files.
+    containment:
+      - Restore tampered files from version control.
+      - Regenerate manifest after restoring files.
+    escalation_criteria:
+      - policy_rules.yaml or command_registry.yaml was modified.
+      - Modification timestamp does not match expected maintenance window.
