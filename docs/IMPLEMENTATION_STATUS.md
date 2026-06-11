@@ -108,13 +108,19 @@ v0.1-alpha
 ### Policy
 - `policy/engine.py` - Policy evaluation engine
 - `policy/risk_scorer.py` - Risk scoring with components
+- `policy/management/validator.py` - Policy YAML schema validation
+- `policy/management/simulator.py` - Decision simulation against command history
+- `policy/management/history_tester.py` - Regression tests against audit history
+- `policy/management/policy_commit.py` - Policy change commit with rollback support
+- `policy/management/project_override.py` - Per-project policy override files
 
 ### Audit
 - `audit/store.py` - Dual-write audit store (SQLite primary, JSONL secondary)
 - `audit/sqlite_store.py` - SQLite audit persistence with query helpers
 - `audit/jsonl_writer.py` - JSONL audit writer for debug/export
-- `audit/events.py` - Audit event models
+- `audit/events.py` - Audit event models (includes supply chain, git, scan, response, integrity events)
 - `audit/redaction.py` - Secret redaction utilities
+- `audit/chain_verifier.py` - Tamper-evident HMAC chain verification
 
 ### Approvals
 - `approvals/store.py` - Approval request storage
@@ -127,6 +133,12 @@ v0.1-alpha
 - `sandbox/lifecycle_inspector.py` - Lifecycle script inspection
 - `sandbox/diff.py` - Manifest/lockfile diff capture
 - `sandbox/result_writer.py` - Sandbox result persistence
+- `sandbox/general/namespace_sandbox.py` - Linux namespace sandbox (unshare --mount --pid --net --user)
+- `sandbox/general/overlay_fs.py` - OverlayFS setup and diff extraction
+- `sandbox/general/strace_runner.py` - strace-based syscall capture
+- `sandbox/general/syscall_analyzer.py` - Syscall log analyzer (network, file, process signals)
+- `sandbox/general/behavior_report.py` - Behavior report builder
+- `sandbox/general/prereqs.py` - Prerequisite checker for namespace sandbox
 
 ### Sweep
 - `sweep/engine.py` - Sweep orchestration
@@ -137,6 +149,66 @@ v0.1-alpha
 - `sweep/shell_scripts.py` - Shell script checks
 - `sweep/credentials.py` - Credential reference checks
 - `sweep/repo_changes.py` - Repository mutation checks
+- `sweep/prompt_injection.py` - Prompt injection detection in tool definitions, YAML, and Markdown
+
+### Secret Scanning
+- `scan/engine.py` - Scan orchestration with per-file and per-commit modes
+- `scan/file_scanner.py` - File-level secret pattern matching
+- `scan/git_scanner.py` - Git history secret scanning
+- `scan/patterns.py` - Pattern registry loader (data/secret_patterns.yaml)
+- `scan/entropy.py` - Shannon entropy scorer for high-entropy string flagging
+- `scan/guidance.py` - Remediation guidance per finding type
+
+### Threat Intel
+- `intel/adapter.py` - Composable intel chain with local + remote tiers
+- `intel/local/known_bad.py` - Local known-bad package registry
+- `intel/local/typosquatting.py` - Typosquatting distance checks against popular packages
+- `intel/local/lockfile_integrity.py` - Lockfile hash verification
+- `intel/remote/npm_advisories.py` - npm security advisories API client
+- `intel/remote/osv.py` - OSV (Open Source Vulnerabilities) API client
+- `intel/remote/cache.py` - Response cache for remote intel queries
+
+### Supply Chain Detection
+- `supply_chain/js_analyzer.py` - Multi-layer JS static analysis (comment strip, base64 decode-and-recurse, 8 pattern families, escalation rules)
+- `supply_chain/py_analyzer.py` - Python AST-based lifecycle script analysis
+- `supply_chain/dep_confusion.py` - Dependency confusion signal detection
+- `supply_chain/transitive.py` - Transitive npm dependency tree analysis via intel adapter
+- `supply_chain/publish_anomaly.py` - Publish anomaly detection via npm registry metadata (opt-in)
+- `supply_chain/patterns/js_patterns.yaml` - JS attack pattern definitions
+- `supply_chain/patterns/py_patterns.yaml` - Python attack pattern definitions
+
+### Git Integration
+- `git/context.py` - Git repository context (branch, HEAD, staged files, remotes)
+- `git/staged_scanner.py` - Staged file secret scanning before commit
+- `git/lockfile_diff.py` - Lockfile change analysis for suspicious package additions
+- `git/hooks.py` - Git hook installation and management
+
+### Watch Mode
+- `watch/daemon.py` - Background filesystem watch daemon
+- `watch/fs_watcher.py` - inotify-based file event stream
+- `watch/event_router.py` - Event routing and policy-matched alerting
+- `watch/watch_config.py` - Watch configuration (paths, patterns, thresholds)
+
+### Incident Response
+- `response/playbooks.py` - Playbook loader and executor (data/playbooks.yaml)
+- `response/lockdown.py` - Lockdown steps (kill processes, revoke tokens, notify)
+- `response/preserve.py` - Evidence preservation (copy audit log, snapshot workspace)
+- `response/clearance.py` - Clearance confirmation before resuming normal operation
+
+### MCP Server
+- `server/mcp_server.py` - MCP protocol server (stdio transport)
+- `server/tool_definitions.py` - Tool schema definitions exposed to MCP clients
+- `server/handlers.py` - Tool call dispatch and result formatting
+- `server/session.py` - Session state and context tracking
+
+### Integrity
+- `integrity/registry_manifest.py` - Registry file hash manifest generation and verification
+- `integrity/startup_check.py` - Startup integrity check against stored manifest
+
+### Canary Tokens
+- `canary/tokens.py` - Canary token generation (URL, DNS, file-based)
+- `canary/installer.py` - Token placement in project files and directories
+- `canary/checker.py` - Token exfiltration detection
 
 ### Reports
 - `reports/command_decision_report.py` - Command decision reports
@@ -304,16 +376,12 @@ v0.1-alpha
 
 ## Deferred Features
 
-### v0.2+
-- pnpm/yarn/bun sandbox execution
-- Tauri UI (v0.2.x experimental read-only UI is active; full UI deferred)
-- MCP server
-- Editor integrations
-- Data cleanup deletion path (v1 dry-run planning implemented)
-- Tauri: sandbox results read-only list/detail
+### v0.4+
+- pnpm/yarn/bun sandbox execution (npm-only today)
 - Tauri: audit/report list pagination and filters
-- Tauri: Decision Check UI (check-only, not run)
-- Tauri: manual native click verification pass
+- Data cleanup deletion path (v1 dry-run planning only)
+- Editor integrations (VS Code, Cursor)
+- Packaged desktop installer
 
 ### Future
 - Docker containment for sandbox
@@ -345,7 +413,7 @@ Most CLI tests use `PYTHONPATH` intentionally for subprocess checkout isolation.
 
 ## Test Count
 
-- Total tests: 621 (30 added in v0.2.x test suite expansions)
+- Total tests: 1098 (as of v0.3.3 — Plans 01–13 complete)
 - Policy Scout Doctor v1: 8 new tests (doctor human output, doctor JSON output, registry counts, package manager warnings, no secrets printed, audit/report paths, help message)
 - Policy Scout Data v1: 11 new tests (data human output, data JSON output, path existence, counts, override env vars)
 - Report/Audit UX Polish v1: 4 new tests (redaction section, created_at, audit redaction note, audit time range)
@@ -359,7 +427,7 @@ Most CLI tests use `PYTHONPATH` intentionally for subprocess checkout isolation.
 
 GitHub Actions (`ci.yml`) runs two parallel jobs on push/PR to main:
 
-- **`test`** — Python 3.12, `pip install -e ".[dev]"`, doctor JSON, eval run, pytest (621 tests)
+- **`test`** — Python 3.12, `pip install -e ".[dev]"`, doctor JSON, eval run, pytest (1098 tests as of v0.3.3)
 - **`tauri-desktop`** — Node 22 + `npm ci` + `npm run build` (tsc + vite); then Rust stable + `cargo check` + `cargo test` (12 Rust validator unit tests). Requires `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf` on the ubuntu runner.
 
 No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional system deps and is not part of this workflow.
@@ -378,13 +446,11 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - Data cleanup is preview-only (no deletion path in v1)
 
 **Next Milestones**:
-1. Add pnpm/yarn/bun sandbox execution
-2. Manual native click verification of Tauri UI cards — checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
-3. Tauri audit/report list pagination or filters
-4. Decision Check + Guided FAQ UI (check-only, not run) — boundary spec at `docs/compressed/TAURI_DECISION_CHECK_GUIDED_FAQ_BOUNDARY_SOURCE.md`, CLI contract probe at `docs/compressed/TAURI_DECISION_CHECK_CLI_CONTRACT_SOURCE.md`, Rust adapter implemented (check_command wrapper added, 14 total wrappers), v0.3.3: TypeScript types + static card shell added, v0.3.4: Tauri invoke wired, result display with NOT EXECUTED marker, decision/risk styling, browser preview graceful error handling
-5. Add MCP server
-6. Add editor integrations
-7. Add data cleanup deletion path (v1 dry-run planning implemented)
+1. pnpm/yarn/bun sandbox execution
+2. Tauri: audit/report list pagination and filters
+3. Data cleanup deletion path (dry-run only today)
+4. Editor integrations (VS Code, Cursor)
+5. Manual native click verification — checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
 
 ## v0.3.5 Notes
 
@@ -526,3 +592,31 @@ No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional
 - No new features added
 - No CLI, Rust, or frontend behavior changes
 - Next step: Run checklist gates and decide tag readiness
+
+## Tier 2/3 Feature Plans — v0.2.1 through v0.3.3
+
+All 13 feature plans implemented and shipped. Summarized below.
+
+| Plan | Title | Version | Commit |
+|------|-------|---------|--------|
+| 01 | Watch Mode | v0.2.1 | — |
+| 02 | Threat Intel | v0.2.2 | — |
+| 03 | Supply Chain Detection Depth | v0.3.3 | 5807d23 |
+| 04 | Secret Scanning | v0.2.3 | — |
+| 05 | Tamper-Evident Audit | v0.2.4 | — |
+| 06 | MCP Server | v0.3.0 | — |
+| 07 | Prompt Injection Detection | v0.3.1 | — |
+| 08 | Broader Sandbox | v0.3.2 | a1fe3a3 |
+| 09 | Incident Response | v0.3.2 | a1fe3a3 |
+| 10 | Policy Management | v0.3.2 | a1fe3a3 |
+| 11 | Desktop UI | v0.3.2 | a1fe3a3 |
+| 12 | Git Integration | v0.3.2 | a1fe3a3 |
+| 13 | Self Integrity | v0.3.2 | a1fe3a3 |
+
+**Test count after all plans: 1098** (up from 621 pre-Tier 2/3)
+
+**Remaining deferred work post-Tier 2/3:**
+- pnpm/yarn/bun sandbox execution
+- Tauri audit/report list pagination and filters
+- Data cleanup deletion path (dry-run only today)
+- Editor integrations (VS Code, Cursor)

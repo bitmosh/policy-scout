@@ -135,9 +135,9 @@ Security requirements:
 
 ## 7. Tier 4 — MCP-Style Tool Server
 
-Policy Scout may eventually expose MCP-style tools.
+**Status: Implemented** (`server/mcp_server.py`, stdio transport, Plan 06).
 
-Possible tools:
+Exposed tools via MCP:
 
 ```text
 policy_scout.check_command
@@ -149,7 +149,7 @@ policy_scout.list_approvals
 policy_scout.resolve_approval
 ```
 
-Rules:
+Rules (enforced in implementation):
 
 1. Agents cannot approve their own requests.
 2. Tool calls must include actor identity.
@@ -158,9 +158,7 @@ Rules:
 5. Denied commands must not execute.
 6. Risky commands must pause or sandbox.
 7. Tool metadata must be clear and non-deceptive.
-8. MCP server should be disabled by default.
-
-MCP should come after the CLI and local API are stable.
+8. MCP server is disabled by default (requires explicit `--mcp` flag).
 
 ---
 

@@ -219,7 +219,7 @@ cargo test
 ```
 
 Expected results:
-- pytest: 621 passed
+- pytest: 1098 passed
 - doctor: JSON output with all checks "ok"
 - eval: 44/44 passed
 - npm build: successful compilation
@@ -376,11 +376,11 @@ PYTHONPATH=/path/to/policy-scout python -m policy_scout.cli.main doctor
 
 ## Known Limitations
 
-- **Desktop UI:** Experimental v0.2.x read-only UI, not production-ready
+- **Desktop UI:** Read-only/check-only, not production-ready
 - **Sandbox:** npm-only (pnpm/yarn/bun sandbox execution deferred)
 - **Redaction:** Regex-based only, may miss novel secrets
-- **Data cleanup:** Preview-only (no deletion path in v0.1)
-- **Platform:** Linux-first for quick sweep and desktop UI
+- **Data cleanup:** Preview-only (no deletion path yet)
+- **Platform:** Linux-first for quick sweep, namespace sandbox, and desktop UI
 
 ---
 
