@@ -1,0 +1,51 @@
+patterns:
+  - id: py_subprocess_shell
+    description: Shell command execution via subprocess or os
+    severity: high
+    confidence: medium
+    patterns:
+      - 'subprocess\s*\.\s*(run|call|check_output|check_call|Popen)\s*\('
+      - 'os\s*\.\s*system\s*\('
+      - 'os\s*\.\s*popen\s*\('
+
+  - id: py_network_request
+    description: Outbound network request in Python setup script
+    severity: high
+    confidence: high
+    patterns:
+      - 'urllib\s*\.\s*request\s*\.'
+      - 'urllib2\s*\.'
+      - 'requests\s*\.\s*(get|post|put|delete|head|patch|session)\s*\('
+      - 'httpx\s*\.'
+      - 'http\s*\.\s*client\s*\.'
+
+  - id: py_dynamic_exec
+    description: Dynamic code execution in Python setup script
+    severity: high
+    confidence: high
+    patterns:
+      - '\bexec\s*\('
+      - '\beval\s*\('
+      - '\bcompile\s*\([^)]*exec'
+
+  - id: py_file_write_sensitive
+    description: Writing to shell profiles or SSH configuration
+    severity: critical
+    confidence: high
+    patterns:
+      - 'open\s*\([^)]*\.bashrc[^)]*["\x27]w'
+      - 'open\s*\([^)]*\.zshrc[^)]*["\x27]w'
+      - 'open\s*\([^)]*\.profile[^)]*["\x27]w'
+      - 'open\s*\([^)]*\.ssh'
+      - 'open\s*\([^)]*\.npmrc[^)]*["\x27]w'
+
+  - id: py_env_access
+    description: Accessing multiple or sensitive environment variables
+    severity: medium
+    confidence: low
+    patterns:
+      - 'os\s*\.\s*environ\s*\.\s*items\s*\(\s*\)'
+      - 'dict\s*\(\s*os\s*\.\s*environ\s*\)'
+      - 'os\s*\.\s*getenv\s*\(\s*["\x27]AWS_'
+      - 'os\s*\.\s*getenv\s*\(\s*["\x27]GITHUB_TOKEN'
+      - 'os\s*\.\s*environ\s*\[\s*["\x27]AWS_'

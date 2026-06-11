@@ -118,6 +118,10 @@ class EventType:
     INJECTION_FOUND_IN_TOOL_RESPONSE = "InjectionFoundInToolResponse"
     CANARY_FILE_INSTALLED = "CanaryFileInstalled"
     CANARY_AUDIT_HIT_DETECTED = "CanaryAuditHitDetected"
+    # [03] Supply Chain Detection Depth
+    SUPPLY_CHAIN_ANALYSIS_COMPLETED = "SupplyChainAnalysisCompleted"
+    DEPENDENCY_CONFUSION_SUSPECTED = "DependencyConfusionSuspected"
+    PUBLISH_ANOMALY_DETECTED = "PublishAnomalyDetected"
 
 
 def create_command_requested_event(

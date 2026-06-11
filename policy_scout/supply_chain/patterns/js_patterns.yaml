@@ -1,0 +1,87 @@
+patterns:
+  - id: dynamic_require
+    description: Dynamic property access to require child_process
+    severity: critical
+    confidence: high
+    patterns:
+      - 'process\[.{0,30}\]\[.{0,30}\]\(.{0,30}child_process'
+      - '\[.{0,20}require.{0,20}\]\(.{0,30}child_process'
+      - 'global\[.{0,30}\]\(.{0,30}child_process'
+
+  - id: indirect_eval
+    description: Indirect eval or Function constructor used to run dynamic code
+    severity: high
+    confidence: medium
+    patterns:
+      - '\beval\s*\('
+      - 'new\s+Function\s*\('
+      - "setTimeout\\s*\\(\\s*[\"']"
+      - "setInterval\\s*\\(\\s*[\"']"
+
+  - id: encoded_payload
+    description: Base64 or hex-encoded payload in a string literal
+    severity: high
+    confidence: medium
+    patterns:
+      - "Buffer\\.from\\s*\\(\\s*[\"'][A-Za-z0-9+/]{40,}"
+      - "atob\\s*\\(\\s*[\"'][A-Za-z0-9+/]{40,}"
+      - '(?:\\\\x[0-9a-fA-F]{2}){20,}'
+
+  - id: env_exfiltration
+    description: Environment variable enumeration or targeted theft
+    severity: high
+    confidence: medium
+    patterns:
+      - 'Object\.keys\s*\(\s*process\.env\s*\)'
+      - 'JSON\.stringify\s*\(\s*process\.env'
+      - 'process\.env\.[A-Z_]{6,}'
+
+  - id: conditional_activation
+    description: Payload activates only on specific platforms or in CI
+    severity: medium
+    confidence: low
+    patterns:
+      - "process\\.platform\\s*[!=]==?\\s*[\"']linux"
+      - 'process\.env\.CI\b'
+      - 'process\.env\.GITHUB_ACTIONS\b'
+      - 'process\.env\.GITLAB_CI\b'
+      - 'process\.env\.TRAVIS\b'
+
+  - id: network_fetch
+    description: HTTP/HTTPS request in lifecycle script
+    severity: high
+    confidence: high
+    patterns:
+      - "require\\s*\\(\\s*[\"']https?[\"']\\s*\\)"
+      - "require\\s*\\(\\s*[\"']node-fetch[\"']\\s*\\)"
+      - '\bfetch\s*\('
+      - '\baxios\.'
+      - 'http\.request\s*\('
+      - 'https\.request\s*\('
+      - '\bgot\s*\('
+
+  - id: shell_exec
+    description: Shell execution through child_process
+    severity: high
+    confidence: high
+    patterns:
+      - '\.execSync\s*\('
+      - '\.exec\s*\('
+      - '\.spawnSync\s*\('
+      - '\.spawn\s*\('
+      - '\.execFileSync\s*\('
+      - '\.execFile\s*\('
+      - '\bshelljs\.'
+
+  - id: file_write_sensitive
+    description: Writing to sensitive configuration or shell profile paths
+    severity: critical
+    confidence: high
+    patterns:
+      - 'fs\.write[^(]*\.bashrc'
+      - 'fs\.write[^(]*\.zshrc'
+      - 'fs\.write[^(]*\.profile'
+      - 'fs\.write[^(]*\.ssh'
+      - 'fs\.append[^(]*rc'
+      - '\bcrontab\b'
+      - 'fs\.write[^(]*\.npmrc'

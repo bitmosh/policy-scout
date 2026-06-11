@@ -1575,6 +1575,42 @@ def handle_sandbox_command(
             )
         )
 
+    # Supply chain analysis on lifecycle scripts
+    supply_chain_findings = []
+    try:
+        from ..supply_chain import analyze_lifecycle_scripts
+        from ..audit.events import EventType
+        supply_chain_findings = analyze_lifecycle_scripts(lifecycle_scripts, project_root=Path.cwd())
+        if audit_enabled:
+            audit_store.write(AuditEvent(
+                event_type=EventType.SUPPLY_CHAIN_ANALYSIS_COMPLETED,
+                summary=(
+                    f"Supply chain analysis: {len(lifecycle_scripts)} scripts, "
+                    f"{len(supply_chain_findings)} finding(s)"
+                ),
+                data={
+                    "sandbox_id": sandbox_id,
+                    "scripts_analyzed": len(lifecycle_scripts),
+                    "finding_count": len(supply_chain_findings),
+                },
+            ))
+    except Exception:
+        pass
+
+    # Transitive dependency analysis (after successful install)
+    transitive_findings = []
+    if exit_code == 0:
+        try:
+            from ..supply_chain.transitive import run_npm_list, analyze_tree
+            from ..intel.adapter import build_default_chain
+            npm_tree = run_npm_list(workspace)
+            if npm_tree is not None:
+                intel_chain = build_default_chain(remote=False)
+                tree_result = analyze_tree(npm_tree, ecosystem="npm", intel_adapter=intel_chain)
+                transitive_findings = tree_result.findings
+        except Exception:
+            pass
+
     # Build findings
     findings = []
     if skipped_files:
@@ -1584,6 +1620,8 @@ def handle_sandbox_command(
                 "message": f"Skipped files with token-like content: {', '.join(skipped_files)}",
             }
         )
+    findings.extend(supply_chain_findings)
+    findings.extend(transitive_findings)
 
     # Create sandbox result
     result = SandboxResult(
