@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout report show <id> --json",
+  "type": "object",
+  "required": ["report_id", "report_type", "title"],
+  "properties": {
+    "report_id": { "type": "string", "pattern": "^report_" },
+    "report_type": { "type": "string" },
+    "title": { "type": "string" },
+    "created_at": { "type": "string" },
+    "summary": { "type": ["string", "null"] },
+    "findings": { "type": "array" },
+    "findings_count": { "type": "object" },
+    "could_not_verify": { "type": "array" },
+    "schema_version": { "type": "number" }
+  },
+  "additionalProperties": true
+}

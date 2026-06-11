@@ -1,0 +1,18 @@
+{
+  "event_id": "evt_mock000001",
+  "event_type": "DecisionIssued",
+  "timestamp": "2026-06-10T21:30:00Z",
+  "request_id": "req_mock000001",
+  "summary": "Decision SANDBOX_FIRST issued for: npm install lodash",
+  "data_json": "{\"decision\": \"SANDBOX_FIRST\", \"risk_score\": 0.65, \"category\": \"package_install\", \"capabilities\": [\"network_access\", \"filesystem_write\"], \"reasons\": [\"Package install may run lifecycle scripts\"]}",
+  "schema_version": 1,
+  "redaction_applied": false,
+  "actor_type": "developer",
+  "actor_name": null,
+  "decision_id": "dec_mock000001",
+  "approval_id": null,
+  "sandbox_id": null,
+  "sweep_id": null,
+  "report_id": null,
+  "execution_id": null
+}

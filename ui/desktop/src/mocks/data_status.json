@@ -1,0 +1,14 @@
+{
+  "data_root": "~/.local/share/policy-scout",
+  "paths": {
+    "audit_db": { "path": "~/.local/share/policy-scout/audit.db", "exists": true },
+    "audit_jsonl": { "path": "~/.local/share/policy-scout/audit.jsonl", "exists": true },
+    "report_root": { "path": "~/.local/share/policy-scout/reports", "exists": true },
+    "sandbox_root": { "path": "~/.local/share/policy-scout/sandboxes", "exists": true }
+  },
+  "counts": {
+    "reports": 14,
+    "audit_events": 312,
+    "sandbox_workspaces": 3
+  }
+}

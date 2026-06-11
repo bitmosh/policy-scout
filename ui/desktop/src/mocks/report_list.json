@@ -1,0 +1,30 @@
+{
+  "reports": [
+    {
+      "report_id": "report_mock000001",
+      "has_markdown": true,
+      "has_json": true,
+      "report_type": "project_sweep",
+      "title": "Project Sweep: ~/projects/myapp",
+      "created_at": "2026-06-10T18:30:00Z"
+    },
+    {
+      "report_id": "report_mock000002",
+      "has_markdown": true,
+      "has_json": true,
+      "report_type": "command_decision",
+      "title": "Command Decision: npm install express",
+      "created_at": "2026-06-10T15:20:00Z"
+    },
+    {
+      "report_id": "report_mock000003",
+      "has_markdown": true,
+      "has_json": true,
+      "report_type": "sandbox_result",
+      "title": "Sandbox Result: npm install lodash",
+      "created_at": "2026-06-09T11:00:00Z"
+    }
+  ],
+  "total_count": 3,
+  "offset": 0
+}

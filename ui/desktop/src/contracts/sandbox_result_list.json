@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout report list --type sandbox_result --json (raw array)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["report_id", "has_markdown", "has_json"],
+    "properties": {
+      "report_id": { "type": "string", "pattern": "^report_" },
+      "has_markdown": { "type": "boolean" },
+      "has_json": { "type": "boolean" },
+      "report_type": { "type": "string" },
+      "title": { "type": "string" },
+      "created_at": { "type": "string" }
+    },
+    "additionalProperties": true
+  }
+}

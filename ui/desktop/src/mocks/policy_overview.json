@@ -1,0 +1,13 @@
+{
+  "registry_version": 1,
+  "rules": [
+    { "id": "credential_access_deny_and_alert", "priority": 950, "decision": "DENY_AND_ALERT", "status": "active", "source": "registry" },
+    { "id": "destructive_system_deny", "priority": 975, "decision": "DENY", "status": "active", "source": "registry" },
+    { "id": "destructive_project_require_approval", "priority": 700, "decision": "REQUIRE_APPROVAL", "status": "active", "source": "registry" },
+    { "id": "network_execute_deny", "priority": 900, "decision": "DENY", "status": "active", "source": "registry" },
+    { "id": "package_install_sandbox_first", "priority": 800, "decision": "SANDBOX_FIRST", "status": "active", "source": "registry" },
+    { "id": "safe_read_allow", "priority": 100, "decision": "ALLOW", "status": "active", "source": "registry" }
+  ],
+  "override_path": null,
+  "override_active": false
+}

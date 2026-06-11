@@ -1,0 +1,15 @@
+{
+  "summary": {
+    "total_cases": 44,
+    "passed": 44,
+    "failed": 0,
+    "execution_time_ms": 1240,
+    "duration_ms": 1240,
+    "pass_rate": 1.0,
+    "failed_case_ids": []
+  },
+  "results": [
+    { "case_id": "eval_001", "status": "pass", "duration_ms": 28 },
+    { "case_id": "eval_002", "status": "pass", "duration_ms": 31 }
+  ]
+}

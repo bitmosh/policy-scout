@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout audit show <id> --json",
+  "type": "object",
+  "required": ["event_id", "event_type", "timestamp", "request_id", "summary", "data_json"],
+  "properties": {
+    "event_id": { "type": "string", "pattern": "^evt_" },
+    "event_type": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "request_id": { "type": ["string", "null"] },
+    "summary": { "type": ["string", "null"] },
+    "data_json": { "type": ["string", "null"] },
+    "schema_version": { "type": "number" },
+    "redaction_applied": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

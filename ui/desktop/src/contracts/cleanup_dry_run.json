@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout data cleanup --dry-run --json",
+  "type": "object",
+  "required": ["dry_run", "target", "planned_items", "total_items"],
+  "properties": {
+    "dry_run": { "type": "boolean", "enum": [true] },
+    "target": { "type": "string" },
+    "planned_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "type"],
+        "properties": {
+          "path": { "type": "string" },
+          "type": { "type": "string" },
+          "size_bytes": { "type": "number" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "total_items": { "type": "number" }
+  },
+  "additionalProperties": true
+}

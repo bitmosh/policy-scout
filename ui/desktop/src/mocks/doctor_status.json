@@ -1,0 +1,9 @@
+{
+  "checks": {
+    "python_version": { "status": "ok", "message": "Python 3.12.3" },
+    "policy_scout_version": { "status": "ok", "message": "policy-scout 0.1.7" },
+    "audit_db": { "status": "ok", "message": "Audit database present and accessible" },
+    "report_root": { "status": "ok", "message": "Report directory exists" },
+    "registry_integrity": { "status": "ok", "message": "All registry files verified (7/7)" }
+  }
+}

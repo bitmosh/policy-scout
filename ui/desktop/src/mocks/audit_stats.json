@@ -1,0 +1,16 @@
+{
+  "total_events": 312,
+  "by_type": {
+    "DecisionIssued": 180,
+    "CommandExecutionCompleted": 42,
+    "CommandExecutionBlocked": 18,
+    "SandboxInstallStarted": 15,
+    "SandboxInstallCompleted": 14,
+    "SweepCompleted": 22,
+    "ScoutReportGenerated": 21
+  },
+  "time_range": {
+    "first_event": "2026-05-01T09:00:00Z",
+    "last_event": "2026-06-10T21:00:00Z"
+  }
+}

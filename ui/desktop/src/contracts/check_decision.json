@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout check --json -- <command>",
+  "type": "object",
+  "required": ["decision", "risk_score", "category", "capabilities", "reasons"],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_LOGGED", "REQUIRE_APPROVAL", "SANDBOX_FIRST", "DENY", "DENY_AND_ALERT"]
+    },
+    "risk_score": { "type": "number" },
+    "category": { "type": "string" },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "reasons": { "type": "array", "items": { "type": "string" } },
+    "request_id": { "type": "string" },
+    "command": { "type": "string" },
+    "risk_band": { "type": "string" },
+    "confidence": { "type": "number" },
+    "recommended_next_action": { "type": ["string", "null"] },
+    "policy_hits": { "type": "array", "items": { "type": "string" } },
+    "registry_hits": { "type": "array" }
+  },
+  "additionalProperties": true
+}

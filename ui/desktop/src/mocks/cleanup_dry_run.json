@@ -1,0 +1,12 @@
+{
+  "dry_run": true,
+  "target": "demo",
+  "total_items": 2,
+  "total_bytes": 8192,
+  "planned_items": [
+    { "path": "~/.local/share/policy-scout/reports/report_demo001", "type": "report_directory", "size_bytes": 4096 },
+    { "path": "~/.local/share/policy-scout/reports/report_demo002", "type": "report_directory", "size_bytes": 4096 }
+  ],
+  "could_not_verify": [],
+  "schema_version": 1
+}

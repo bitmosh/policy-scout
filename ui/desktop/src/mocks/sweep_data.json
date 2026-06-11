@@ -1,0 +1,23 @@
+{
+  "sweep_id": "sweep_mock000001",
+  "sweep_type": "project_sweep",
+  "started_at": "2026-06-10T18:30:00Z",
+  "completed_at": "2026-06-10T18:30:08Z",
+  "project_root": "~/projects/myapp",
+  "platform": "linux",
+  "findings_count": { "low": 1, "medium": 1 },
+  "findings": [
+    {
+      "finding_id": "finding_mock001",
+      "sweep_id": "sweep_mock000001",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "credential_reference",
+      "title": "Hardcoded API key reference",
+      "location": "src/config.ts:12",
+      "recommended_action": "Move to environment variable"
+    }
+  ],
+  "could_not_verify": [],
+  "schema_version": 1
+}

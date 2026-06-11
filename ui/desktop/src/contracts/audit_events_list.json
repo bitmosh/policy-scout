@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "CliJsonResponse.data from list_audit_events_filtered — Rust wraps the CLI array in {events:[...]}",
+  "type": "object",
+  "required": ["events"],
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "event_type", "timestamp", "request_id"],
+        "properties": {
+          "event_id": { "type": "string", "pattern": "^evt_" },
+          "event_type": { "type": "string" },
+          "timestamp": { "type": "string" },
+          "request_id": { "type": ["string", "null"] },
+          "summary": { "type": ["string", "null"] },
+          "schema_version": { "type": "number" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "total_count": { "type": "number" }
+  },
+  "additionalProperties": false
+}

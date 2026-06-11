@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout eval run --json",
+  "type": "object",
+  "required": ["summary", "results"],
+  "properties": {
+    "summary": {
+      "type": "object",
+      "required": ["total_cases", "passed", "failed", "execution_time_ms"],
+      "properties": {
+        "total_cases": { "type": "number" },
+        "passed": { "type": "number" },
+        "failed": { "type": "number" },
+        "execution_time_ms": { "type": ["number", "null"] },
+        "duration_ms": { "type": ["number", "null"] },
+        "pass_rate": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    "results": { "type": "array" }
+  },
+  "additionalProperties": true
+}

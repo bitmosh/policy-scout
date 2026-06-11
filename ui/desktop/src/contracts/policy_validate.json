@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout policy validate --json",
+  "type": "object",
+  "required": ["rules_checked", "eval_cases_checked", "error_count", "warning_count", "is_valid", "issues"],
+  "properties": {
+    "rules_checked": { "type": "number" },
+    "eval_cases_checked": { "type": "number" },
+    "error_count": { "type": "number" },
+    "warning_count": { "type": "number" },
+    "is_valid": { "type": "boolean" },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_type", "description", "severity"],
+        "properties": {
+          "issue_type": { "type": "string" },
+          "description": { "type": "string" },
+          "severity": { "type": "string" },
+          "rule_id": { "type": ["string", "null"] },
+          "related_rule_id": { "type": ["string", "null"] }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

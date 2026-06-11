@@ -1,0 +1,32 @@
+{
+  "report_id": "report_mock000001",
+  "report_type": "project_sweep",
+  "title": "Project Sweep: ~/projects/myapp",
+  "created_at": "2026-06-10T18:30:00Z",
+  "summary": "2 findings across 14 files checked. No critical issues.",
+  "findings_count": { "low": 1, "medium": 1 },
+  "findings": [
+    {
+      "finding_id": "finding_mock001",
+      "severity": "medium",
+      "confidence": "high",
+      "category": "credential_reference",
+      "title": "Hardcoded API key reference",
+      "location": "src/config.ts:12",
+      "why_it_matters": "Hardcoded credentials can be exfiltrated via source control",
+      "recommended_action": "Move to environment variable"
+    },
+    {
+      "finding_id": "finding_mock002",
+      "severity": "low",
+      "confidence": "medium",
+      "category": "shell_script",
+      "title": "Unquoted variable in shell script",
+      "location": "scripts/deploy.sh:8",
+      "why_it_matters": "Word-splitting can cause unexpected behavior with filenames containing spaces",
+      "recommended_action": "Quote variable references: use \"$VAR\" instead of $VAR"
+    }
+  ],
+  "could_not_verify": [],
+  "schema_version": 1
+}

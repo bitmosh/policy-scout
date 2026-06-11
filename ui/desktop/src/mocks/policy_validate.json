@@ -1,0 +1,23 @@
+{
+  "rules_checked": 11,
+  "eval_cases_checked": 44,
+  "error_count": 0,
+  "warning_count": 2,
+  "is_valid": true,
+  "issues": [
+    {
+      "issue_type": "missing_coverage",
+      "rule_id": "(none)",
+      "description": "Eval case 'eval_014' matched no rule — falls through to default DENY.",
+      "severity": "warning",
+      "related_rule_id": null
+    },
+    {
+      "issue_type": "missing_coverage",
+      "rule_id": "(none)",
+      "description": "Eval case 'eval_015' matched no rule — falls through to default DENY.",
+      "severity": "warning",
+      "related_rule_id": null
+    }
+  ]
+}

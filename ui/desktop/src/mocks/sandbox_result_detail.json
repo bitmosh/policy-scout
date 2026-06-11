@@ -1,0 +1,22 @@
+{
+  "report_id": "report_mock000003",
+  "report_type": "sandbox_result",
+  "title": "Sandbox Result: npm install lodash",
+  "created_at": "2026-06-09T11:00:00Z",
+  "summary": "Install completed. No lifecycle scripts detected. Manifest and lockfile changed.",
+  "command": "npm install lodash",
+  "sandbox_id": "sbx_mock000001",
+  "exit_code": 0,
+  "duration_ms": 3200,
+  "lifecycle_scripts": [],
+  "manifest_changed": true,
+  "lockfile_changed": true,
+  "files_changed": ["package.json", "package-lock.json"],
+  "findings": [],
+  "recommended_actions": ["Review lockfile diff before applying to host"],
+  "could_not_verify": [],
+  "host_mutation_status": "pending",
+  "migration_status": "not_applied",
+  "redaction_applied": false,
+  "schema_version": 1
+}

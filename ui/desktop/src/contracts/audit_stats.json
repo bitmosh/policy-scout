@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout audit stats --json",
+  "type": "object",
+  "required": ["total_events", "by_type"],
+  "properties": {
+    "total_events": { "type": "number" },
+    "by_type": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "time_range": {
+      "type": ["object", "null"],
+      "properties": {
+        "first_event": { "type": "string" },
+        "last_event": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

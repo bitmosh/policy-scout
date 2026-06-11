@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout policy show --json",
+  "type": "object",
+  "required": ["rules"],
+  "properties": {
+    "registry_version": { "type": "number" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "priority", "decision", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "priority": { "type": "number" },
+          "decision": { "type": "string" },
+          "status": { "type": "string" },
+          "source": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "override_path": { "type": ["string", "null"] },
+    "override_active": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

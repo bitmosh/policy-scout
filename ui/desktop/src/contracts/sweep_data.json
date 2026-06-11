@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout sweep quick/project --json",
+  "type": "object",
+  "required": ["sweep_id", "sweep_type", "findings_count", "findings", "could_not_verify", "schema_version"],
+  "properties": {
+    "sweep_id": { "type": "string" },
+    "sweep_type": { "type": "string" },
+    "findings_count": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "findings": { "type": "array" },
+    "could_not_verify": { "type": "array" },
+    "schema_version": { "type": "number" },
+    "started_at": { "type": "string" },
+    "completed_at": { "type": "string" },
+    "project_root": { "type": ["string", "null"] }
+  },
+  "additionalProperties": true
+}
