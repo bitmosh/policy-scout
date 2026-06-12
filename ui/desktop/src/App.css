@@ -1104,7 +1104,7 @@ button:disabled {
     margin-top: 1.5rem;
   }
 
-  .sweep-findings h3,
+  .sweep-findings-header h3,
   .sweep-could-not-verify h3 {
     color: #ddd;
   }
@@ -1293,7 +1293,19 @@ button:disabled {
   margin-top: 1.5rem;
 }
 
-.sweep-findings h3,
+.sweep-findings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.sweep-findings-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
 .sweep-could-not-verify h3 {
   margin-top: 0;
   margin-bottom: 0.75rem;

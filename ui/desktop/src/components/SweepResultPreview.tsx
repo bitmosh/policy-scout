@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { StatusPill, severityToTone, confidenceToTone } from "./StatusPill";
 import { EvidenceText } from "./EvidenceText";
 import { SweepData, SweepFinding, CouldNotVerifyItem, asArray } from "../types";
+
+const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low", "info"] as const;
+type SeverityFilter = typeof SEVERITY_OPTIONS[number];
 
 interface SweepResultPreviewProps {
   data: SweepData | undefined;
@@ -15,12 +19,20 @@ export function SweepResultPreview({
   maxCouldNotVerify = 5,
   showProjectRoot = false,
 }: SweepResultPreviewProps) {
+  const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
+
   if (!data) return null;
 
   const findings = asArray<SweepFinding>(data.findings);
   const couldNotVerify = asArray<string | CouldNotVerifyItem>(data.could_not_verify);
   const findingsCount = findings.length;
   const couldNotVerifyCount = couldNotVerify.length;
+
+  const filteredFindings = severityFilter === "all"
+    ? findings
+    : findings.filter((f) => (f.severity ?? "").toLowerCase() === severityFilter);
+  const visibleFindings = filteredFindings.slice(0, maxFindings);
+  const truncated = filteredFindings.length > maxFindings;
 
   return (
     <>
@@ -57,12 +69,28 @@ export function SweepResultPreview({
 
       {findingsCount > 0 && (
         <div className="sweep-findings">
-          <h3>Findings (Review Recommended)</h3>
+          <div className="sweep-findings-header">
+            <h3>Findings (Review Recommended)</h3>
+            <div className="list-control-group">
+              <label className="list-control-label">Severity:</label>
+              <select
+                className="list-control-select"
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
+              >
+                {SEVERITY_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s === "all" ? `All (${findingsCount})` : `${s.charAt(0).toUpperCase() + s.slice(1)} (${findings.filter((f) => (f.severity ?? "").toLowerCase() === s).length})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <p className="finding-note">
             These are evidence-gathering results, not confirmed compromises.
           </p>
           <div className="findings-list">
-            {findings.slice(0, maxFindings).map((finding, index) => (
+            {visibleFindings.length > 0 ? visibleFindings.map((finding, index) => (
               <div key={index} className="finding-item">
                 <div className="finding-header">
                   <StatusPill
@@ -84,10 +112,12 @@ export function SweepResultPreview({
                   <div className="finding-location"><EvidenceText text={finding.location ?? ""} className="finding-location" /></div>
                 )}
               </div>
-            ))}
-            {findingsCount > maxFindings && (
+            )) : (
+              <p className="empty-message">No {severityFilter} findings.</p>
+            )}
+            {truncated && (
               <p className="findings-truncated">
-                Showing first {maxFindings} of {findingsCount} findings — run from CLI for full results.
+                Showing first {maxFindings} of {filteredFindings.length}{severityFilter !== "all" ? ` ${severityFilter}` : ""} findings — run from CLI for full results.
               </p>
             )}
           </div>
