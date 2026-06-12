@@ -1,18 +1,22 @@
-[
-  {
-    "report_id": "report_mock000003",
-    "has_markdown": true,
-    "has_json": true,
-    "report_type": "sandbox_result",
-    "title": "Sandbox Result: npm install lodash",
-    "created_at": "2026-06-09T11:00:00Z"
-  },
-  {
-    "report_id": "report_mock000004",
-    "has_markdown": true,
-    "has_json": true,
-    "report_type": "sandbox_result",
-    "title": "Sandbox Result: npm install express",
-    "created_at": "2026-06-08T14:45:00Z"
-  }
-]
+{
+  "reports": [
+    {
+      "report_id": "report_mock000003",
+      "has_markdown": true,
+      "has_json": true,
+      "report_type": "sandbox_result",
+      "title": "Sandbox Result: npm install lodash",
+      "created_at": "2026-06-09T11:00:00Z"
+    },
+    {
+      "report_id": "report_mock000004",
+      "has_markdown": true,
+      "has_json": true,
+      "report_type": "sandbox_result",
+      "title": "Sandbox Result: npm install express",
+      "created_at": "2026-06-08T14:45:00Z"
+    }
+  ],
+  "total_count": 8,
+  "offset": 0
+}

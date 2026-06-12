@@ -234,23 +234,19 @@ fn check_command(command_text: String) -> CliJsonResponse {
 }
 
 #[tauri::command]
-fn list_sandbox_results() -> CliJsonResponse {
-    let response = run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", "5"]);
-    // report list now returns { reports: [...], total_count: N } — extract just the array
-    if response.ok {
-        if let Some(ref data) = response.data {
-            if let Some(arr) = data.get("reports") {
-                return CliJsonResponse {
-                    ok: true,
-                    exit_code: response.exit_code,
-                    data: Some(arr.clone()),
-                    error: None,
-                    stderr_summary: None,
-                };
-            }
-        }
-    }
-    response
+fn list_sandbox_results(limit: u32, offset: Option<u32>) -> CliJsonResponse {
+    let validated_limit = match validate_limit(limit) {
+        Ok(l) => l,
+        Err(e) => return e,
+    };
+    let validated_offset = match validate_pagination(offset.unwrap_or(0)) {
+        Ok(o) => o,
+        Err(e) => return e,
+    };
+    let limit_str = validated_limit.to_string();
+    let offset_str = validated_offset.to_string();
+    // report list --json now returns { reports: [...], total_count: N, offset: N } directly
+    run_policy_scout_json(&["report", "list", "--json", "--type", "sandbox_result", "--limit", &limit_str, "--offset", &offset_str])
 }
 
 fn validate_limit(limit: u32) -> Result<u32, CliJsonResponse> {

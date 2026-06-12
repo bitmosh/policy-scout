@@ -5,7 +5,7 @@ import {
   CliJsonResponse, ReportTypeFilter, AuditEventTypeFilter, CleanupTarget,
   DoctorStatusData, DataStatusData, AuditStatsData, CleanupDryRunData,
   EvalRunData, SweepData, ReportListData, ReportDetailData,
-  AuditEventListData, AuditEventDetailData, SandboxResultListItem, SandboxResultDetailData,
+  AuditEventListData, AuditEventDetailData, SandboxResultDetailData,
   PolicyOverviewData, PolicyValidateData,
 } from "./types";
 import doctorStatusMock from "./mocks/doctor_status.json";
@@ -56,7 +56,10 @@ function App() {
   const [cleanupTarget, setCleanupTarget] = useState<CleanupTarget>("demo");
   const [cleanupLoading, setCleanupLoading] = useState(false);
   const [evalResults, setEvalResults] = useState<CliJsonResponse<EvalRunData> | null>(null);
-  const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse<SandboxResultListItem[]> | null>(null);
+  const [sandboxResultsList, setSandboxResultsList] = useState<CliJsonResponse<ReportListData> | null>(null);
+  const [sandboxLimit, setSandboxLimit] = useState<number>(5);
+  const [sandboxOffset, setSandboxOffset] = useState<number>(0);
+  const [sandboxLoading, setSandboxLoading] = useState(false);
   const [selectedSandboxResultId, setSelectedSandboxResultId] = useState<string | null>(null);
   const [sandboxResultDetail, setSandboxResultDetail] = useState<CliJsonResponse<SandboxResultDetailData> | null>(null);
   const [sandboxResultDetailLoading, setSandboxResultDetailLoading] = useState(false);
@@ -100,7 +103,7 @@ function App() {
         invoke<CliJsonResponse<AuditStatsData>>("get_audit_stats"),
         invoke<CliJsonResponse<CleanupDryRunData>>("get_cleanup_dry_run", { target: cleanupTarget }),
         invoke<CliJsonResponse<EvalRunData>>("run_eval"),
-        invoke<CliJsonResponse<SandboxResultListItem[]>>("list_sandbox_results"),
+        invoke<CliJsonResponse<ReportListData>>("list_sandbox_results", { limit: sandboxLimit, offset: 0 }),
         invoke<CliJsonResponse<PolicyOverviewData>>("get_policy_overview"),
       ]);
       setDoctorStatus(doctor);
@@ -141,7 +144,7 @@ function App() {
         setAuditStats(mockResponse(auditStatsMock as AuditStatsData));
         setCleanupResult(mockResponse(cleanupDryRunMock as CleanupDryRunData));
         setEvalResults(mockResponse(evalResultsMock as EvalRunData));
-        setSandboxResultsList(mockResponse(sandboxResultListMock as SandboxResultListItem[]));
+        setSandboxResultsList(mockResponse(sandboxResultListMock as ReportListData));
         setPolicyOverview(mockResponse(policyOverviewMock as PolicyOverviewData));
       } else {
         setError(errorStr);
@@ -212,6 +215,45 @@ function App() {
   function handleCleanupTargetChange(target: CleanupTarget) {
     setCleanupTarget(target);
     fetchCleanupDryRun(target);
+  }
+
+  async function fetchSandboxResults(limit: number, offset: number = 0) {
+    setSandboxLoading(true);
+    setSandboxOffset(offset);
+    try {
+      const result = await invoke<CliJsonResponse<ReportListData>>("list_sandbox_results", { limit, offset });
+      setSandboxResultsList(result);
+      if (!result.ok) {
+        setError(result.error || "Unknown error");
+      }
+    } catch (e) {
+      const errorStr = String(e);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined") || errorStr.includes("not been defined")) {
+        setSandboxResultsList(mockResponse(sandboxResultListMock as ReportListData));
+      } else {
+        setError(errorStr);
+      }
+    } finally {
+      setSandboxLoading(false);
+    }
+  }
+
+  function handleSandboxLimitChange(limit: number) {
+    setSandboxLimit(limit);
+    fetchSandboxResults(limit, 0);
+  }
+
+  function handleSandboxPagePrev() {
+    const newOffset = Math.max(0, sandboxOffset - sandboxLimit);
+    fetchSandboxResults(sandboxLimit, newOffset);
+  }
+
+  function handleSandboxPageNext() {
+    const totalCount = sandboxResultsList?.data?.total_count ?? 0;
+    const newOffset = sandboxOffset + sandboxLimit;
+    if (newOffset < totalCount) {
+      fetchSandboxResults(sandboxLimit, newOffset);
+    }
   }
 
   function handleReportLimitChange(limit: number) {
@@ -494,7 +536,17 @@ function App() {
               loading={projectSweepLoading}
               onRunSweep={runProjectSweep}
             />
-            <SandboxResultsListCard sandboxResults={sandboxResultsList} onResultClick={handleSandboxResultClick} />
+            <SandboxResultsListCard
+              sandboxResults={sandboxResultsList}
+              onResultClick={handleSandboxResultClick}
+              loading={sandboxLoading}
+              limit={sandboxLimit}
+              onLimitChange={handleSandboxLimitChange}
+              offset={sandboxOffset}
+              totalCount={sandboxResultsList?.data?.total_count}
+              onPagePrev={sandboxOffset > 0 ? handleSandboxPagePrev : undefined}
+              onPageNext={(sandboxOffset + sandboxLimit) < (sandboxResultsList?.data?.total_count ?? 0) ? handleSandboxPageNext : undefined}
+            />
             <PolicyOverviewCard policyOverview={policyOverview} />
             <PolicyValidateCard
               policyValidate={policyValidate}
