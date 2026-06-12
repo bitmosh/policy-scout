@@ -1,7 +1,7 @@
 # Policy Scout Implementation Status
 
 ## Version
-v0.1-alpha
+v0.3.7
 
 ## Implemented Commands
 
@@ -238,8 +238,7 @@ v0.1-alpha
 ## Current Limitations
 
 ### Sandbox
-- npm sandbox install implemented
-- pnpm/yarn/bun package installs classify as SANDBOX_FIRST but sandbox execution support is deferred
+- npm, pnpm, yarn, and bun sandbox installs implemented (PM-aware snapshots, pnpm transitive analysis)
 - No Docker containment
 - Sandbox is a review workspace, not perfect malware containment
 - Migration command implemented: `policy-scout sandbox <sandbox_id>`
@@ -270,6 +269,7 @@ v0.1-alpha
 - Audit query CLI commands (list, show, request, type, stats)
 - JSON output support for audit CLI commands
 - Report/Audit UX Polish v1: audit show human output includes redaction note and pretty-printed structured data, audit stats includes first/last event timestamps
+- `audit list --json` and `audit type --json` return `{ events, total_count }` with `--limit` and `--offset` support
 - No configurable retention policy
 - No audit export to other formats
 
@@ -292,47 +292,51 @@ v0.1-alpha
 - Quick sweep is evidence-gathering, not malware confirmation
 
 ### UI/Integration
-- Experimental Tauri desktop UI (v0.2.x, read-only)
-  - Located in `ui/desktop/`
-  - **Policy Scout CLI remains the authority. Tauri UI is a read-only preview surface only.**
-  - Rust backend (`src-tauri/src/lib.rs`) with 13 command wrappers:
+- Tauri desktop UI (ADR-008 complete through Phase 5), located in `ui/desktop/`
+  - **Policy Scout CLI remains the authority. Tauri UI is a read-only / check-only surface.**
+  - Rust backend (`src-tauri/src/lib.rs`) with 15 command wrappers:
     - `get_doctor_status` → `policy-scout doctor --json`
     - `get_data_status` → `policy-scout data status --json`
-    - `list_reports_filtered(limit, report_type?)` → `policy-scout report list --json --limit <n> [--type <type>]`
+    - `list_reports_filtered(limit, offset, report_type?)` → `policy-scout report list --json --limit <n> --offset <n> [--type <type>]`
     - `show_report(report_id)` → `policy-scout report show --json <report_id>`
     - `get_audit_stats` → `policy-scout audit stats --json`
-    - `list_audit_events_filtered(event_type?)` → `policy-scout audit list --json --limit 10` (default) or `policy-scout audit type --json <event_type>` (filtered)
+    - `list_audit_events_filtered(limit, offset, event_type?)` → `policy-scout audit list --json --limit <n> --offset <n>` (default) or `policy-scout audit type --json --limit <n> --offset <n> <event_type>` (filtered)
     - `show_audit_event(event_id)` → `policy-scout audit show --json <event_id>`
     - `get_cleanup_dry_run(target)` → `policy-scout data cleanup --target <target> --dry-run --json` (target allowlist: demo, sandbox, sandbox-results; always dry-run)
     - `run_eval` → `policy-scout eval run --json`
     - `run_sweep_quick` → `policy-scout sweep quick --json`
     - `run_sweep_project` → `policy-scout sweep project --json`
-    - `list_sandbox_results` → `policy-scout report list --json --type sandbox_result --limit 5`
+    - `list_sandbox_results` → `policy-scout report list --json --type sandbox_result --limit 5` (fixed; pagination pending)
     - `show_sandbox_result(report_id)` → `policy-scout report show --json <report_id>`
+    - `get_policy_overview` → `policy-scout policy show --json`
+    - `run_policy_validate` → `policy-scout policy validate --json`
   - ID arguments (`report_id`, `event_id`) validated in Rust: prefix check, character allowlist, shell metacharacter rejection
-  - Audit event type filter validated in Rust against 12-value allowlist; no unvalidated strings reach CLI argv
-  - Cleanup target validated in Rust against 3-value allowlist (demo, sandbox, sandbox-results); `--dry-run` always included; no real deletion path exposed
-  - Adapter validation test plan: `docs/compressed/TAURI_ADAPTER_VALIDATION_TEST_PLAN_SOURCE.md`
+  - Audit event type filter validated in Rust against full 25-type allowlist; 12-type user-visible subset shown in dropdown
+  - Limit validated in Rust against `[5, 10, 25, 50]` allowlist; offset validated ≤ 10,000
+  - Cleanup target validated in Rust against 3-value allowlist (demo, sandbox, sandbox-results); `--dry-run` always included
+  - TypeScript types split into `ui/desktop/src/types/` by domain (reports, audit, sandbox, sweep, doctor, eval, policy); strict mode enabled; no `any` fields
+  - JSON Schema contracts in `ui/desktop/src/contracts/` validated by `tests/test_json_contracts.py` against live CLI output and mock fixtures
+  - Mock fixtures in `ui/desktop/src/mocks/` serve as fallback in browser preview (`npm run dev`)
   - React/TypeScript frontend with `App.tsx` owning state and invoke calls
   - Current dashboard cards and views:
     - Overview Status Strip (cross-card summary)
     - Doctor Status
     - Data Status
-    - Reports List
+    - Reports List (paginated: limit selector + prev/next + type filter)
     - Report Detail
     - Audit Stats
-    - Audit Events List
+    - Audit Events List (paginated: limit selector + prev/next + type filter)
     - Audit Event Detail
     - Cleanup Dry-Run (demo, sandbox, sandbox-results targets)
     - Eval Results
     - Quick Sweep
     - Project Sweep
-    - Sandbox Results List
+    - Sandbox Results List (fixed --limit 5; pagination pending — step 6)
     - Sandbox Result Detail
+    - Policy Overview
+    - Policy Validate
   - Shared components: StatusPill, EvidenceText, RedactionNotice, DetailHeader, SweepResultPreview, BoundaryNote
-  - `types.ts` provides loose current-contract TypeScript interfaces for CLI JSON shapes
   - Visual system: calm dark theme, CSS variables, evidence-safe display, redaction styling
-  - Boundary note: "Read-only preview. Policy Scout CLI remains the authority."
   - Safety boundaries enforced:
     - No command execution UI
     - No approval resolution UI
@@ -343,16 +347,15 @@ v0.1-alpha
     - No direct SQLite or filesystem access from frontend
     - Sweeps are user-triggered only (no background scanning)
   - Dev workflow:
-    - `npm run dev` — browser/Vite preview, static layout only, no live CLI data
+    - `npm run dev` — browser/Vite preview with mock fixtures; all cards render without native runtime
     - `npm run tauri dev` — native runtime with live CLI-backed data
-    - `npm run build` — frontend build check
-    - `cd src-tauri && cargo check` — Rust compile check
+    - `npm run build` — frontend build check (tsc strict + vite)
+    - `cd src-tauri && cargo check && cargo test` — Rust compile + 18 validator unit tests
   - Known limitations:
-    - Native click-level interaction requires manual verification
-    - No pagination/filtering for reports or audit event lists
-    - No project path selection for project sweep
-    - No strict JSON API v1 envelope (types are current-contract/loose)
-    - Browser preview cannot load live Tauri invoke data
+    - Native click-level interaction requires manual verification (see `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`)
+    - No project path selection for project sweep (hardcoded to CWD)
+    - Sandbox Results List still uses fixed `--limit 5` — no pagination yet
+    - No packaged installer; requires native Tauri build
 - No MCP/editor integrations yet
 - No VS Code extension
 - No Cursor extension
@@ -376,10 +379,9 @@ v0.1-alpha
 
 ## Deferred Features
 
-### v0.4+
-- pnpm/yarn/bun sandbox execution (npm-only today)
-- Tauri: audit/report list pagination and filters
-- Data cleanup deletion path (v1 dry-run planning only)
+### Near-term (no plans written yet)
+- Sandbox Results List pagination — Tauri UI; `list_sandbox_results` still uses fixed `--limit 5` (boundary doc step 6)
+- Client-side severity filter on Sweep findings preview (boundary doc step 7)
 - Editor integrations (VS Code, Cursor)
 - Packaged desktop installer
 
@@ -387,7 +389,7 @@ v0.1-alpha
 - Docker containment for sandbox
 - ML-based secret detection
 - Remote approval service
-- Configurable audit retention
+- Configurable audit retention policy
 - Multi-user enterprise auth
 - Community rule marketplace
 
@@ -413,44 +415,60 @@ Most CLI tests use `PYTHONPATH` intentionally for subprocess checkout isolation.
 
 ## Test Count
 
-- Total tests: 1098 (as of v0.3.3 — Plans 01–13 complete)
-- Policy Scout Doctor v1: 8 new tests (doctor human output, doctor JSON output, registry counts, package manager warnings, no secrets printed, audit/report paths, help message)
-- Policy Scout Data v1: 11 new tests (data human output, data JSON output, path existence, counts, override env vars)
-- Report/Audit UX Polish v1: 4 new tests (redaction section, created_at, audit redaction note, audit time range)
-- Quick sweep hardening v1/v2 tests: 10 new tests
-- Registry validation hardening v1 tests: 12 new tests
-- Eval suite expansion v1: 14 new eval cases (30 → 44)
-- JSON contracts v1: 12 new tests (check JSON redaction, sandbox JSON redaction_applied, sweep JSON redaction_applied, report list created_at)
-- Existing tests: 520 (no regressions, as of v0.1 accounting)
+- Total Python tests: 1145 (as of v0.3.7)
+- Rust unit tests: 18 (validator allowlist tests in `src-tauri/src/lib.rs`)
+- Prior milestones (cumulative):
+  - Plans 01–13 complete: 1098 Python tests (as of v0.3.3)
+  - ADR-008 (JSON contracts, strict types, browser mocks, pagination, policy cards): added contract/pagination tests
+  - v0.3.6–v0.3.7 (pnpm/bun sandbox, data cleanup deletion, audit pagination): 1098 → 1145
 
 ## CI Coverage
 
 GitHub Actions (`ci.yml`) runs two parallel jobs on push/PR to main:
 
-- **`test`** — Python 3.12, `pip install -e ".[dev]"`, doctor JSON, eval run, pytest (1098 tests as of v0.3.3)
-- **`tauri-desktop`** — Node 22 + `npm ci` + `npm run build` (tsc + vite); then Rust stable + `cargo check` + `cargo test` (12 Rust validator unit tests). Requires `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf` on the ubuntu runner.
+- **`test`** — Python 3.12, `pip install -e ".[dev]"`, doctor JSON, eval run, pytest (1145 tests as of v0.3.7)
+- **`tauri-desktop`** — Node 22 + `npm ci` + `npm run build` (tsc strict + vite); then Rust stable + `cargo check` + `cargo test` (18 Rust validator unit tests). Requires `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf` on the ubuntu runner.
 
 No native Tauri bundle (`npm run tauri build`) in CI. Bundle requires additional system deps and is not part of this workflow.
 
 ## Current Alpha Status
 
-**Status**: v0.1-alpha
+**Status**: v0.3.7-alpha
 
 **Stability**: Alpha - Core functionality works, but not production-ready
 
 **Pass Rate**: 100% on eval suite (44/44)
 
 **Known Issues**:
-- Sandbox is npm-only (pnpm/yarn/bun sandbox execution deferred)
 - Redaction is regex-based only
-- Data cleanup is preview-only (no deletion path in v1)
+- Sandbox Results List in UI still uses fixed `--limit 5` (pagination in progress)
+- No packaged installer; requires local build
 
 **Next Milestones**:
-1. pnpm/yarn/bun sandbox execution
-2. Tauri: audit/report list pagination and filters
-3. Data cleanup deletion path (dry-run only today)
-4. Editor integrations (VS Code, Cursor)
-5. Manual native click verification — checklist at `docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
+1. Sandbox Results List pagination (Tauri UI step 6)
+2. Client-side severity filter on Sweep findings preview (step 7)
+3. Editor integrations (VS Code, Cursor)
+4. Packaged desktop installer
+
+## v0.3.6–v0.3.7 Milestone Summary
+
+**All prepared feature plans and ADR-008 phases complete.**
+
+- pnpm/yarn/bun sandbox execution shipped (PM-aware snapshots, pnpm transitive dep analysis)
+- Data cleanup deletion path shipped (`--apply` flag, confirmation prompt, path-safe execute)
+- ADR-008 Phases 1–5 complete:
+  - Phase 1: JSON Schema contracts + mock fixtures for all 14 Tauri commands
+  - Phase 2: TypeScript strict mode, domain-split types, `noUncheckedIndexedAccess`
+  - Phase 3: Browser preview (`npm run dev`) now shows mock data for all cards
+  - Phase 4: Reports List and Audit Events List paginated (limit selector + prev/next + type filter)
+  - Phase 5: Policy Overview and Policy Validate cards added
+- `audit list` and `audit type` CLI gained `--offset` and `{ events, total_count }` JSON shape
+- `report list` CLI gained `--offset` and `{ reports, total_count, offset }` JSON shape
+- Python tests: 1098 → 1145; Rust tests: 18 (unchanged)
+- CI green on both jobs
+
+**Remaining Tauri pagination work:**
+- Sandbox Results List (`list_sandbox_results`) still hardcoded at `--limit 5` — pagination is next
 
 ## v0.3.5 Notes
 
