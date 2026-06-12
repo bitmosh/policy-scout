@@ -1,0 +1,64 @@
+{
+  "name": "policy-scout",
+  "displayName": "Policy Scout",
+  "description": "Local-first supply chain and agent safety for VS Code and Cursor",
+  "version": "0.1.0",
+  "publisher": "bitmosh",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": ["Linters", "Other"],
+  "keywords": ["security", "supply chain", "ai safety", "policy"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "policy-scout.showFindings",
+        "title": "Policy Scout: Show Findings",
+        "category": "Policy Scout"
+      },
+      {
+        "command": "policy-scout.runSweep",
+        "title": "Policy Scout: Run Sweep",
+        "category": "Policy Scout"
+      },
+      {
+        "command": "policy-scout.runQuickSweep",
+        "title": "Policy Scout: Run Quick Sweep",
+        "category": "Policy Scout"
+      },
+      {
+        "command": "policy-scout.installHook",
+        "title": "Policy Scout: Install Git Hook",
+        "category": "Policy Scout"
+      },
+      {
+        "command": "policy-scout.uninstallHook",
+        "title": "Policy Scout: Uninstall Git Hook",
+        "category": "Policy Scout"
+      }
+    ],
+    "configuration": {
+      "title": "Policy Scout",
+      "properties": {
+        "policy-scout.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the policy-scout binary. Leave blank to auto-detect via PATH."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node --target=node18 --sourcemap",
+    "watch": "npm run build -- --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.99.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.4.0"
+  }
+}
