@@ -22,8 +22,9 @@ Each plan covers: problem, new modules, implementation approach, integration poi
 | 11 | Desktop UI Improvements | [11_desktop_ui.md](11_desktop_ui.md) | 2 | ~1190 |
 | 12 | Git Integration | [12_git_integration.md](12_git_integration.md) | 1 | ~1370 |
 | 13 | Self-Integrity | [13_self_integrity.md](13_self_integrity.md) | 1 | ~640 |
+| 14 | Editor Integrations (VS Code / Cursor) | [14_editor_integrations.md](14_editor_integrations.md) | 2 | ~850 |
 
-**Total estimated new code:** ~15,080 lines across all 13 plans.
+**Total estimated new code:** ~15,930 lines across all 14 plans.
 
 ---
 
