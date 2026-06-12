@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { resolveExecutable } from "./executable";
+import { runSweep, registerSaveWatcher } from "./diagnostics";
 import { createStatusBar, updateStatusBar } from "./statusBar";
 
 let outputChannel: vscode.OutputChannel;
@@ -21,19 +22,40 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const bar = createStatusBar(context);
   updateStatusBar(bar, { loading: false, findingsCount: 0, error: !exe });
 
+  const collection = vscode.languages.createDiagnosticCollection("policy-scout");
+  context.subscriptions.push(collection);
+
+  function workspaceRoot(): string | undefined {
+    return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  }
+
+  function requireExeAndRoot(
+    action: (exe: string, root: string) => void
+  ): void {
+    if (!exe) { void promptInstall(); return; }
+    const root = workspaceRoot();
+    if (!root) {
+      vscode.window.showWarningMessage("Policy Scout: No workspace folder open.");
+      return;
+    }
+    action(exe, root);
+  }
+
   context.subscriptions.push(
     vscode.commands.registerCommand("policy-scout.showFindings", () => {
       void vscode.commands.executeCommand("workbench.action.problems.focus");
     }),
 
     vscode.commands.registerCommand("policy-scout.runSweep", () => {
-      if (!exe) { void promptInstall(); return; }
-      vscode.window.showInformationMessage("Policy Scout: Project sweep — coming in Phase 2.");
+      requireExeAndRoot((e, root) => {
+        void runSweep(e, root, collection, bar, "project");
+      });
     }),
 
     vscode.commands.registerCommand("policy-scout.runQuickSweep", () => {
-      if (!exe) { void promptInstall(); return; }
-      vscode.window.showInformationMessage("Policy Scout: Quick sweep — coming in Phase 2.");
+      requireExeAndRoot((e, root) => {
+        void runSweep(e, root, collection, bar, "quick");
+      });
     }),
 
     vscode.commands.registerCommand("policy-scout.installHook", () => {
@@ -55,6 +77,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       }
     })
   );
+
+  registerSaveWatcher(context, () => exe, workspaceRoot, collection, bar);
 
   outputChannel.appendLine("[policy-scout] activated.");
 }

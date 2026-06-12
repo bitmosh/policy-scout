@@ -46,6 +46,11 @@
           "type": "string",
           "default": "",
           "description": "Absolute path to the policy-scout binary. Leave blank to auto-detect via PATH."
+        },
+        "policy-scout.enableSweepOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Re-run a project sweep when package.json, lockfiles, or .github workflow files are saved."
         }
       }
     }
