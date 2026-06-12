@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { resolveExecutable } from "./executable";
 import { runSweep, registerSaveWatcher } from "./diagnostics";
+import { isCursorHost, registerMcpProvider, ensureCursorMcp } from "./mcp";
 import { createStatusBar, updateStatusBar } from "./statusBar";
 
 let outputChannel: vscode.OutputChannel;
@@ -79,6 +80,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   );
 
   registerSaveWatcher(context, () => exe, workspaceRoot, collection, bar);
+
+  if (exe) {
+    if (isCursorHost()) {
+      const root = workspaceRoot();
+      if (root) void ensureCursorMcp(root, exe);
+    } else {
+      registerMcpProvider(context, () => exe);
+    }
+  }
 
   outputChannel.appendLine("[policy-scout] activated.");
 }

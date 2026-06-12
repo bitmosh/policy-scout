@@ -12,6 +12,12 @@
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "policy-scout.mcp",
+        "label": "Policy Scout"
+      }
+    ],
     "commands": [
       {
         "command": "policy-scout.showFindings",
