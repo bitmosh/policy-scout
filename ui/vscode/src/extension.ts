@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { resolveExecutable } from "./executable";
 import { runSweep, registerSaveWatcher } from "./diagnostics";
 import { isCursorHost, registerMcpProvider, ensureCursorMcp } from "./mcp";
+import { showHookNotification, runHookInstall, runHookUninstall, DISMISSED_KEY } from "./hooks";
 import { createStatusBar, updateStatusBar } from "./statusBar";
 
 let outputChannel: vscode.OutputChannel;
@@ -60,13 +61,28 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }),
 
     vscode.commands.registerCommand("policy-scout.installHook", () => {
-      if (!exe) { void promptInstall(); return; }
-      vscode.window.showInformationMessage("Policy Scout: Hook management — coming in Phase 4.");
+      requireExeAndRoot(async (e, root) => {
+        try {
+          await runHookInstall(e, root);
+          vscode.window.showInformationMessage("Policy Scout: Pre-commit hook installed.");
+          void context.workspaceState.update(DISMISSED_KEY, false);
+        } catch (err) {
+          vscode.window.showErrorMessage(`Policy Scout: Hook install failed — ${err}`);
+        }
+      });
     }),
 
     vscode.commands.registerCommand("policy-scout.uninstallHook", () => {
-      if (!exe) { void promptInstall(); return; }
-      vscode.window.showInformationMessage("Policy Scout: Hook management — coming in Phase 4.");
+      requireExeAndRoot(async (e, root) => {
+        try {
+          await runHookUninstall(e, root);
+          vscode.window.showInformationMessage("Policy Scout: Pre-commit hook uninstalled.");
+          // Clear so the notification can fire again next open
+          void context.workspaceState.update(DISMISSED_KEY, false);
+        } catch (err) {
+          vscode.window.showErrorMessage(`Policy Scout: Hook uninstall failed — ${err}`);
+        }
+      });
     }),
 
     vscode.workspace.onDidChangeConfiguration(async (e: vscode.ConfigurationChangeEvent) => {
@@ -88,6 +104,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     } else {
       registerMcpProvider(context, () => exe);
     }
+
+    const root = workspaceRoot();
+    if (root) void showHookNotification(exe, root, context);
   }
 
   outputChannel.appendLine("[policy-scout] activated.");
