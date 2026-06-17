@@ -1,0 +1,17 @@
+{
+  "migration_id": "mig_mock001abc123",
+  "sandbox_id": "sbx_mock001abc123",
+  "request_id": "req_mock001abc123",
+  "started_at": "2026-06-13T10:00:00Z",
+  "completed_at": "",
+  "host_project_root": "/home/user/project",
+  "sandbox_workspace": "/home/user/.local/share/policy-scout/sandboxes/sbx_mock001abc123",
+  "files_planned": ["package-lock.json"],
+  "files_migrated": [],
+  "files_skipped": [],
+  "backups_created": [],
+  "blocked": false,
+  "block_reasons": [],
+  "success": false,
+  "schema_version": 1
+}

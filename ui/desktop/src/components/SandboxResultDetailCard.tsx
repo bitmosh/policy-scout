@@ -1,16 +1,156 @@
-import { CliJsonResponse, SandboxResultDetailData, asArray } from "../types";
+import { CliJsonResponse, SandboxResultDetailData, SandboxMigrationData, asArray } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { RedactionNotice } from "./RedactionNotice";
 import { EvidenceText } from "./EvidenceText";
+
+function FileList({ label, files, color }: { label: string; files: string[]; color?: string }) {
+  if (!files.length) return null;
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: color ?? "var(--color-text-muted)", marginBottom: 5, fontWeight: 600 }}>{label}</div>
+      {files.map((f, i) => (
+        <div key={i} className="mono" style={{ fontSize: 11.5, color: "var(--color-text-secondary)", padding: "2px 0" }}>· {f}</div>
+      ))}
+    </div>
+  );
+}
+
+function MigrationPanel({ sandboxId, alreadyMigrated, preview, previewLoading, result, resultLoading, onPreview, onMigrate }: {
+  sandboxId: string;
+  alreadyMigrated: boolean;
+  preview: CliJsonResponse<SandboxMigrationData> | null;
+  previewLoading: boolean;
+  result: CliJsonResponse<SandboxMigrationData> | null;
+  resultLoading: boolean;
+  onPreview: (id: string) => void;
+  onMigrate: (id: string) => void;
+}) {
+  const previewData = preview?.data;
+  const resultData = result?.data;
+  const anyLoading = previewLoading || resultLoading;
+
+  return (
+    <div style={{
+      marginTop: 20, border: "1px solid var(--color-border-muted)",
+      borderRadius: 10, overflow: "hidden",
+    }}>
+      <div style={{
+        padding: "10px 16px", background: "var(--color-elevated)",
+        borderBottom: "1px solid var(--color-border-muted)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-text-primary)" }}>
+          Migrate to project
+        </span>
+        {alreadyMigrated && (
+          <span style={{ fontSize: 11.5, color: "var(--color-success)", fontWeight: 600 }}>Already migrated</span>
+        )}
+      </div>
+
+      <div style={{ padding: "14px 16px" }}>
+        {alreadyMigrated ? (
+          <p style={{ margin: 0, fontSize: 12.5, color: "var(--color-text-muted)" }}>
+            This sandbox result has already been migrated to the host project.
+          </p>
+        ) : result ? (
+          /* Completed migration result */
+          resultData?.blocked || !result.ok ? (
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-danger)", marginBottom: 8 }}>Migration blocked</div>
+              {(resultData?.block_reasons ?? []).map((r, i) => (
+                <div key={i} style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 4 }}>· {r}</div>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-success)", marginBottom: 10 }}>Migration complete</div>
+              <FileList label="Files migrated" files={resultData?.files_migrated ?? []} color="var(--color-success)" />
+              <FileList label="Backups created" files={resultData?.backups_created ?? []} />
+              <FileList label="Files skipped" files={resultData?.files_skipped ?? []} />
+              {resultData?.migration_id && (
+                <div className="mono" style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 8 }}>{resultData.migration_id}</div>
+              )}
+            </div>
+          )
+        ) : preview ? (
+          /* Dry-run plan — show confirm step */
+          previewData?.blocked || !preview.ok ? (
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-danger)", marginBottom: 8 }}>Migration blocked</div>
+              {(previewData?.block_reasons ?? []).map((r, i) => (
+                <div key={i} style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 4 }}>· {r}</div>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: 12.5, color: "var(--color-text-muted)", marginBottom: 12 }}>
+                Preview — no files have been changed yet.
+              </div>
+              <FileList label="Files to migrate" files={previewData?.files_planned ?? []} color="var(--color-info)" />
+              <FileList label="Files to skip" files={previewData?.files_skipped ?? []} />
+              {(previewData?.files_planned?.length ?? 0) === 0 && (
+                <div style={{ fontSize: 12.5, color: "var(--color-text-muted)", marginBottom: 12 }}>
+                  No files to migrate.
+                </div>
+              )}
+              <button
+                onClick={() => onMigrate(sandboxId)}
+                disabled={anyLoading || (previewData?.files_planned?.length ?? 0) === 0}
+                style={{
+                  marginTop: 4, padding: "6px 16px", fontSize: 12.5, fontWeight: 600,
+                  background: "var(--color-success)", border: "none", borderRadius: 7,
+                  color: "#fff", cursor: "pointer",
+                  opacity: (anyLoading || (previewData?.files_planned?.length ?? 0) === 0) ? 0.45 : 1,
+                }}
+              >
+                {resultLoading ? "Migrating…" : "Confirm & migrate"}
+              </button>
+            </div>
+          )
+        ) : (
+          /* Initial state */
+          <div>
+            <p style={{ margin: "0 0 12px", fontSize: 12.5, color: "var(--color-text-muted)" }}>
+              Apply the reviewed lockfile changes from this sandbox run to your host project.
+              No files are changed until you confirm.
+            </p>
+            <button
+              onClick={() => onPreview(sandboxId)}
+              disabled={anyLoading}
+              style={{
+                padding: "6px 16px", fontSize: 12.5, fontWeight: 600,
+                background: "var(--color-elevated)", border: "1px solid var(--color-border-muted)",
+                borderRadius: 7, color: "var(--color-text-primary)", cursor: "pointer",
+                opacity: anyLoading ? 0.5 : 1,
+              }}
+            >
+              {previewLoading ? "Checking…" : "Preview migration"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface SandboxResultDetailCardProps {
   sandboxResultDetail: CliJsonResponse<SandboxResultDetailData> | null;
   loading: boolean;
   selectedId: string;
   onClose: () => void;
+  migrationPreview: CliJsonResponse<SandboxMigrationData> | null;
+  migrationPreviewLoading: boolean;
+  migrationResult: CliJsonResponse<SandboxMigrationData> | null;
+  migrationLoading: boolean;
+  onMigrateDryRun: (sandboxId: string) => void;
+  onMigrate: (sandboxId: string) => void;
 }
 
-export function SandboxResultDetailCard({ sandboxResultDetail, loading, selectedId, onClose }: SandboxResultDetailCardProps) {
+export function SandboxResultDetailCard({
+  sandboxResultDetail, loading, selectedId, onClose,
+  migrationPreview, migrationPreviewLoading, migrationResult, migrationLoading,
+  onMigrateDryRun, onMigrate,
+}: SandboxResultDetailCardProps) {
   const data = sandboxResultDetail?.data;
   const reportId = data?.report_id || selectedId;
 
@@ -44,10 +184,6 @@ export function SandboxResultDetailCard({ sandboxResultDetail, loading, selected
       <DetailHeader detailType="Sandbox Result" selectedId={reportId} onClose={onClose} />
 
       <div className="report-detail-content">
-        <div className="sandbox-readonly-notice">
-          Read-only sandbox result. Migration is not available from this UI.
-        </div>
-
         <RedactionNotice show={data.redaction_applied || false} />
 
         <div className="report-metadata">
@@ -216,6 +352,19 @@ export function SandboxResultDetailCard({ sandboxResultDetail, loading, selected
             <h3>Migration Status</h3>
             <p className="status-text"><EvidenceText text={data.migration_status} /></p>
           </div>
+        )}
+
+        {data.sandbox_id && (
+          <MigrationPanel
+            sandboxId={data.sandbox_id}
+            alreadyMigrated={data.migration_status === "completed"}
+            preview={migrationPreview}
+            previewLoading={migrationPreviewLoading}
+            result={migrationResult}
+            resultLoading={migrationLoading}
+            onPreview={onMigrateDryRun}
+            onMigrate={onMigrate}
+          />
         )}
       </div>
     </div>

@@ -37,6 +37,19 @@ export interface AuditEventListData {
   offset?: number;
 }
 
+export interface AuditVerifyChainError {
+  lineno: number;
+  kind: string;
+  detail: string;
+}
+
+export interface AuditVerifyChainData {
+  verified: boolean;
+  total_entries: number;
+  message: string;
+  errors: AuditVerifyChainError[];
+}
+
 export interface AuditEventDetailData {
   event_id?: string;
   event_type?: string;

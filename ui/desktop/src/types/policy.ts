@@ -33,3 +33,29 @@ export interface PolicyValidateData {
   issues?: PolicyIssue[];
   [key: string]: unknown;
 }
+
+export interface RuleTrace {
+  rule_id: string;
+  source: string;
+  priority: number;
+  checked: boolean;
+  matched: boolean;
+  reasons: string[];
+  decision: string | null;
+  decisive: boolean;
+}
+
+export interface PolicySimulateData {
+  command: string;
+  decision: string;
+  risk_score: number;
+  risk_band: string;
+  matched_rule: string | null;
+  categories: string[];
+  capabilities: string[];
+  confidence: number;
+  project_override_loaded: boolean;
+  project_override_path: string | null;
+  total_rules_checked: number;
+  rule_traces: RuleTrace[];
+}

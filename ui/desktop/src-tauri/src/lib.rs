@@ -482,6 +482,490 @@ fn run_policy_validate() -> CliJsonResponse {
     run_policy_scout_json(&["policy", "validate", "--json"])
 }
 
+fn validate_approval_id(approval_id: &str) -> Result<(), CliJsonResponse> {
+    if approval_id.is_empty() {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Invalid approval_id: cannot be empty".to_string()),
+            stderr_summary: None,
+        });
+    }
+    if !approval_id.starts_with("appr_") {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Invalid approval_id: must start with 'appr_'".to_string()),
+            stderr_summary: None,
+        });
+    }
+    let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
+    for c in dangerous_chars.iter() {
+        if approval_id.contains(*c) {
+            return Err(CliJsonResponse {
+                ok: false, exit_code: -1, data: None,
+                error: Some(format!("Invalid approval_id: contains dangerous character '{}'", c)),
+                stderr_summary: None,
+            });
+        }
+    }
+    Ok(())
+}
+
+fn validate_sandbox_id(sandbox_id: &str) -> Result<(), CliJsonResponse> {
+    if sandbox_id.is_empty() {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Invalid sandbox_id: cannot be empty".to_string()),
+            stderr_summary: None,
+        });
+    }
+    if !sandbox_id.starts_with("sbx_") {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Invalid sandbox_id: must start with 'sbx_'".to_string()),
+            stderr_summary: None,
+        });
+    }
+    let dangerous_chars = [' ', '/', '\\', '\t', '\n', '\r', ';', '&', '|', '$', '`', '(', ')', '<', '>'];
+    for c in dangerous_chars.iter() {
+        if sandbox_id.contains(*c) {
+            return Err(CliJsonResponse {
+                ok: false, exit_code: -1, data: None,
+                error: Some(format!("Invalid sandbox_id: contains dangerous character '{}'", c)),
+                stderr_summary: None,
+            });
+        }
+    }
+    Ok(())
+}
+
+fn run_sandbox_migrate_json(sandbox_id: &str, dry_run: bool) -> CliJsonResponse {
+    let mut args = vec!["sandbox", "--json"];
+    if dry_run {
+        args.push("--dry-run");
+    } else {
+        args.push("--yes");
+    }
+    args.push(sandbox_id);
+
+    let output = Command::new("policy-scout").args(&args).output();
+    match output {
+        Ok(output) => {
+            let exit_code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            // 0 = success/dry-run plan; 1 = blocked or failed but JSON still produced
+            if exit_code == 0 || exit_code == 1 {
+                match serde_json::from_str::<serde_json::Value>(&stdout) {
+                    Ok(data) => CliJsonResponse {
+                        ok: exit_code == 0, exit_code, data: Some(data), error: None, stderr_summary: None,
+                    },
+                    Err(_) => CliJsonResponse {
+                        ok: false, exit_code, data: None,
+                        error: Some("Failed to parse migration JSON output".to_string()),
+                        stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                    },
+                }
+            } else {
+                CliJsonResponse {
+                    ok: false, exit_code, data: None,
+                    error: Some(stderr.lines().take(3).collect::<Vec<_>>().join(" — ").trim().to_string()),
+                    stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                }
+            }
+        }
+        Err(e) => CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some(format!("Failed to execute migration command: {}", e)),
+            stderr_summary: None,
+        },
+    }
+}
+
+#[tauri::command]
+fn run_sandbox_migrate_dry_run(sandbox_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_sandbox_id(&sandbox_id) {
+        return e;
+    }
+    run_sandbox_migrate_json(&sandbox_id, true)
+}
+
+#[tauri::command]
+fn run_sandbox_migrate(sandbox_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_sandbox_id(&sandbox_id) {
+        return e;
+    }
+    run_sandbox_migrate_json(&sandbox_id, false)
+}
+
+#[tauri::command]
+fn get_lockdown_status() -> CliJsonResponse {
+    run_policy_scout_json(&["lockdown", "status", "--json"])
+}
+
+#[tauri::command]
+fn get_watch_status() -> CliJsonResponse {
+    run_policy_scout_json(&["watch", "status", "--json"])
+}
+
+#[tauri::command]
+fn list_approvals() -> CliJsonResponse {
+    run_policy_scout_json(&["approvals", "list", "--json"])
+}
+
+#[tauri::command]
+fn approve_request(approval_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_approval_id(&approval_id) {
+        return e;
+    }
+    run_policy_scout_json(&["approvals", "approve", &approval_id, "--json"])
+}
+
+#[tauri::command]
+fn deny_request(approval_id: String) -> CliJsonResponse {
+    if let Err(e) = validate_approval_id(&approval_id) {
+        return e;
+    }
+    run_policy_scout_json(&["approvals", "deny", &approval_id, "--json"])
+}
+
+fn run_sandbox_install_json(command_text: &str) -> CliJsonResponse {
+    let parts: Vec<&str> = command_text.split_whitespace().collect();
+    let mut args = vec!["sandbox", "--json", "--"];
+    args.extend_from_slice(&parts);
+
+    let output = Command::new("policy-scout").args(&args).output();
+    match output {
+        Ok(output) => {
+            let exit_code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            // 0 = install succeeded, 20 = install failed but result JSON still produced
+            let is_valid_exit = exit_code == 0 || exit_code == 20;
+            if is_valid_exit {
+                match serde_json::from_str::<serde_json::Value>(&stdout) {
+                    Ok(data) => CliJsonResponse { ok: true, exit_code, data: Some(data), error: None, stderr_summary: None },
+                    Err(_) => CliJsonResponse {
+                        ok: false, exit_code, data: None,
+                        error: Some("Failed to parse sandbox JSON output".to_string()),
+                        stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                    },
+                }
+            } else {
+                CliJsonResponse {
+                    ok: false, exit_code, data: None,
+                    error: Some(stderr.lines().take(3).collect::<Vec<_>>().join(" — ").trim().to_string()),
+                    stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                }
+            }
+        }
+        Err(e) => CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some(format!("Failed to execute sandbox command: {}", e)),
+            stderr_summary: None,
+        },
+    }
+}
+
+#[tauri::command]
+fn run_sandbox_install(command_text: String) -> CliJsonResponse {
+    if let Err(e) = validate_command_text(&command_text) {
+        return e;
+    }
+    run_sandbox_install_json(&command_text)
+}
+
+#[tauri::command]
+fn open_terminal() -> Result<(), String> {
+    // Honour the user's preferred terminal if set
+    if let Ok(term) = std::env::var("TERMINAL") {
+        if !term.is_empty() {
+            if Command::new("bash").args(["-c", &term]).spawn().is_ok() {
+                return Ok(());
+            }
+        }
+    }
+
+    // Ordered list: try each through bash so the full user PATH is available
+    let candidates: &[&str] = &[
+        "x-terminal-emulator",
+        "gnome-terminal",
+        "konsole",
+        "xfce4-terminal",
+        "tilix",
+        "mate-terminal",
+        "lxterminal",
+        "alacritty",
+        "kitty",
+        "wezterm start",
+        "xterm",
+        "uxterm",
+    ];
+    for cmd in candidates {
+        if Command::new("bash").args(["-c", cmd]).spawn().is_ok() {
+            return Ok(());
+        }
+    }
+    Err("No terminal emulator found. Install xterm or set the TERMINAL environment variable.".to_string())
+}
+
+#[tauri::command]
+fn run_cleanup_apply(target: String) -> CliJsonResponse {
+    if let Err(e) = validate_cleanup_target(target.as_str()) {
+        return e;
+    }
+    run_policy_scout_json(&["data", "cleanup", "--target", target.as_str(), "--apply", "--yes", "--json"])
+}
+
+fn validate_path(path: &str) -> Result<(), CliJsonResponse> {
+    if path.contains('\0') {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Path cannot contain NUL characters".to_string()),
+            stderr_summary: None,
+        });
+    }
+    if path.len() > 4096 {
+        return Err(CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some("Path too long (max 4096 characters)".to_string()),
+            stderr_summary: None,
+        });
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn run_scan_dir(path: Option<String>) -> CliJsonResponse {
+    if let Some(ref p) = path {
+        if !p.is_empty() {
+            if let Err(e) = validate_path(p) { return e; }
+            return run_policy_scout_json(&["scan", "dir", "--json", p.as_str()]);
+        }
+    }
+    run_policy_scout_json(&["scan", "dir", "--json"])
+}
+
+#[tauri::command]
+fn run_scan_staged(repo: Option<String>) -> CliJsonResponse {
+    if let Some(ref r) = repo {
+        if !r.is_empty() {
+            if let Err(e) = validate_path(r) { return e; }
+            return run_policy_scout_json(&["scan", "staged", "--json", "--repo", r.as_str()]);
+        }
+    }
+    run_policy_scout_json(&["scan", "staged", "--json"])
+}
+
+#[tauri::command]
+fn run_scan_history(repo: Option<String>, max_commits: Option<u32>) -> CliJsonResponse {
+    let max_str = max_commits.map(|n| n.min(1000).to_string());
+    let mut args: Vec<&str> = vec!["scan", "history", "--json"];
+    if let Some(ref s) = max_str {
+        args.push("--max-commits");
+        args.push(s.as_str());
+    }
+    if let Some(ref r) = repo {
+        if !r.is_empty() {
+            if let Err(e) = validate_path(r) { return e; }
+            args.push("--repo");
+            args.push(r.as_str());
+        }
+    }
+    run_policy_scout_json(&args)
+}
+
+#[tauri::command]
+fn run_scan_injection(path: Option<String>) -> CliJsonResponse {
+    if let Some(ref p) = path {
+        if !p.is_empty() {
+            if let Err(e) = validate_path(p) { return e; }
+            return run_policy_scout_json(&["scan", "injection", "--json", p.as_str()]);
+        }
+    }
+    run_policy_scout_json(&["scan", "injection", "--json"])
+}
+
+#[tauri::command]
+fn run_policy_simulate(command_text: String) -> CliJsonResponse {
+    if let Err(e) = validate_command_text(&command_text) {
+        return e;
+    }
+    run_policy_scout_json(&["policy", "simulate", "--json", command_text.as_str()])
+}
+
+// verify-chain: exit 0 = verified, exit 1 = errors found — both return valid JSON
+fn run_policy_scout_verify_chain_json() -> CliJsonResponse {
+    let output = Command::new("policy-scout")
+        .args(["audit", "verify-chain", "--json"])
+        .output();
+    match output {
+        Ok(output) => {
+            let exit_code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            if exit_code == 0 || exit_code == 1 {
+                match serde_json::from_str::<serde_json::Value>(&stdout) {
+                    Ok(data) => CliJsonResponse {
+                        ok: exit_code == 0,
+                        exit_code,
+                        data: Some(data),
+                        error: if exit_code == 1 { Some("Integrity errors found".to_string()) } else { None },
+                        stderr_summary: None,
+                    },
+                    Err(_) => CliJsonResponse {
+                        ok: false, exit_code, data: None,
+                        error: Some("Failed to parse verify-chain JSON output".to_string()),
+                        stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                    },
+                }
+            } else {
+                CliJsonResponse {
+                    ok: false, exit_code, data: None,
+                    error: Some(format!("verify-chain failed with exit code {}", exit_code)),
+                    stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                }
+            }
+        }
+        Err(e) => CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some(format!("Failed to execute command: {}", e)),
+            stderr_summary: None,
+        },
+    }
+}
+
+// run gate: exit 0 = command executed, exit 10/20/30 = blocked — all return valid JSON
+// ok=true only when the command was actually executed (exit 0)
+fn run_policy_scout_run_gate_json(command_text: &str) -> CliJsonResponse {
+    let output = Command::new("policy-scout")
+        .args(["run", "--json", command_text])
+        .output();
+    match output {
+        Ok(output) => {
+            let exit_code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            let is_valid_exit = exit_code == 0 || exit_code == 10 || exit_code == 20 || exit_code == 30;
+            if is_valid_exit {
+                match serde_json::from_str::<serde_json::Value>(&stdout) {
+                    Ok(data) => CliJsonResponse {
+                        ok: exit_code == 0,
+                        exit_code,
+                        data: Some(data),
+                        error: if exit_code != 0 {
+                            Some(format!("Command blocked by policy (exit {})", exit_code))
+                        } else {
+                            None
+                        },
+                        stderr_summary: None,
+                    },
+                    Err(_) => CliJsonResponse {
+                        ok: false, exit_code, data: None,
+                        error: Some("Failed to parse run JSON output".to_string()),
+                        stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                    },
+                }
+            } else {
+                CliJsonResponse {
+                    ok: false, exit_code, data: None,
+                    error: Some(stderr.lines().take(3).collect::<Vec<_>>().join(" — ").trim().to_string()),
+                    stderr_summary: Some(stderr.lines().take(3).collect::<Vec<_>>().join("\n")),
+                }
+            }
+        }
+        Err(e) => CliJsonResponse {
+            ok: false, exit_code: -1, data: None,
+            error: Some(format!("Failed to execute run command: {}", e)),
+            stderr_summary: None,
+        },
+    }
+}
+
+#[tauri::command]
+fn run_audit_verify_chain() -> CliJsonResponse {
+    run_policy_scout_verify_chain_json()
+}
+
+#[tauri::command]
+fn run_command_through_gate(command_text: String) -> CliJsonResponse {
+    if let Err(e) = validate_command_text(&command_text) {
+        return e;
+    }
+    run_policy_scout_run_gate_json(&command_text)
+}
+
+fn validate_reason(reason: &str) -> Result<(), CliJsonResponse> {
+    if reason.len() > 500 {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Reason too long (max 500 characters)".to_string()),
+            stderr_summary: None,
+        });
+    }
+    if reason.contains('\0') {
+        return Err(CliJsonResponse {
+            ok: false,
+            exit_code: -1,
+            data: None,
+            error: Some("Reason cannot contain NUL characters".to_string()),
+            stderr_summary: None,
+        });
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn activate_lockdown(reason: Option<String>) -> CliJsonResponse {
+    let reason_str = reason.unwrap_or_default();
+    if let Err(e) = validate_reason(&reason_str) {
+        return e;
+    }
+    if reason_str.is_empty() {
+        run_policy_scout_json(&["lockdown", "on", "--json"])
+    } else {
+        run_policy_scout_json(&["lockdown", "on", "--reason", &reason_str, "--json"])
+    }
+}
+
+#[tauri::command]
+fn deactivate_lockdown() -> CliJsonResponse {
+    run_policy_scout_json(&["lockdown", "off", "--json"])
+}
+
+#[tauri::command]
+fn restart_watch() -> CliJsonResponse {
+    // best-effort stop — ignore output; daemon may not be running
+    let _ = Command::new("policy-scout").args(["watch", "stop"]).output();
+    run_policy_scout_json(&["watch", "start", "--json"])
+}
+
+// Returns combined lockdown + watch status in one call for Lattica integration
+#[tauri::command]
+fn get_system_health() -> CliJsonResponse {
+    let lockdown = run_policy_scout_json(&["lockdown", "status", "--json"]);
+    let watch = run_policy_scout_json(&["watch", "status", "--json"]);
+    let combined = serde_json::json!({
+        "lockdown": lockdown.data,
+        "watch": watch.data,
+    });
+    let ok = lockdown.ok && watch.ok;
+    let error = match (lockdown.error, watch.error) {
+        (Some(l), Some(w)) => Some(format!("lockdown: {}; watch: {}", l, w)),
+        (Some(l), None)    => Some(format!("lockdown: {}", l)),
+        (None,    Some(w)) => Some(format!("watch: {}", w)),
+        (None,    None)    => None,
+    };
+    CliJsonResponse {
+        ok,
+        exit_code: if ok { 0 } else { -1 },
+        data: Some(combined),
+        error,
+        stderr_summary: None,
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -502,7 +986,28 @@ pub fn run() {
             list_audit_events_filtered,
             show_audit_event,
             get_policy_overview,
-            run_policy_validate
+            run_policy_validate,
+            run_policy_simulate,
+            run_cleanup_apply,
+            run_sandbox_migrate_dry_run,
+            run_sandbox_migrate,
+            get_lockdown_status,
+            get_watch_status,
+            activate_lockdown,
+            deactivate_lockdown,
+            restart_watch,
+            list_approvals,
+            approve_request,
+            deny_request,
+            run_sandbox_install,
+            open_terminal,
+            run_scan_dir,
+            run_scan_staged,
+            run_scan_history,
+            run_scan_injection,
+            run_audit_verify_chain,
+            run_command_through_gate,
+            get_system_health
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

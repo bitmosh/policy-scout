@@ -1,0 +1,21 @@
+{
+  "sandbox_id": "sbx_mock001abc123",
+  "request_id": "req_mock002abc123",
+  "command": "npm install lodash",
+  "package_manager": "npm",
+  "temp_workspace": "/tmp/policy-scout-sandbox/sbx_mock001abc123",
+  "host_project_root": "/home/user/project",
+  "started_at": "2026-06-13T10:00:00Z",
+  "completed_at": "2026-06-13T10:00:05Z",
+  "duration_ms": 5200,
+  "exit_code": 0,
+  "stdout": "added 1 package in 5s",
+  "stderr": "",
+  "manifest_changed": true,
+  "lockfile_changed": true,
+  "lifecycle_scripts_found": [],
+  "findings": [],
+  "migration_available": true,
+  "migration_requires_approval": true,
+  "schema_version": 1
+}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { GuidedFaqPrompt, CliJsonResponse, DecisionCheckData } from "../types";
+import { GuidedFaqPrompt, CliJsonResponse, DecisionCheckData, DecisionCheckDecision, RunGateData, RunGateExecutionData } from "../types";
 
 const FAQ_PROMPTS: GuidedFaqPrompt[] = [
   {
@@ -104,12 +104,104 @@ const FAQ_PROMPTS: GuidedFaqPrompt[] = [
   },
 ];
 
-export function DecisionCheckCard() {
+const WHAT_NOW: Record<DecisionCheckDecision, {
+  color: string; title: string; steps: string[];
+  navHint?: { label: string; view: string };
+}> = {
+  ALLOW: {
+    color: "var(--color-success)", title: "Safe to proceed",
+    steps: ["This command is within policy.", "No additional action required."],
+  },
+  ALLOW_LOGGED: {
+    color: "var(--color-success)", title: "Allowed — logged for review",
+    steps: [
+      "This command is permitted but has been logged for audit.",
+      "Check the Audit view if you want to track ALLOW_LOGGED events.",
+    ],
+    navHint: { label: "Go to Audit", view: "audit" },
+  },
+  REQUIRE_APPROVAL: {
+    color: "var(--color-review)", title: "Approval required before running",
+    steps: [
+      "Do not run this command until an approval is granted.",
+      "Request via CLI: policy-scout approve <command>",
+      "Approvals are one-time, scoped to the exact command, and audited.",
+    ],
+  },
+  SANDBOX_FIRST: {
+    color: "var(--color-warning)", title: "Test in a sandbox first",
+    steps: [
+      "Do not install directly on the host.",
+      "Use the Sandbox view to run in isolation, inspect lifecycle scripts, then decide.",
+      "CLI: policy-scout sandbox install <package>",
+    ],
+    navHint: { label: "Go to Sandbox", view: "sandbox" },
+  },
+  DENY: {
+    color: "var(--color-danger)", title: "Blocked — do not run",
+    steps: [
+      "This command is explicitly denied by policy.",
+      "Use Policy → Simulate to see which rule matched and why.",
+      "If this is a false positive, check Policy for project override options.",
+    ],
+    navHint: { label: "Policy Simulate", view: "policy" },
+  },
+  DENY_AND_ALERT: {
+    color: "var(--color-danger)", title: "Blocked and flagged",
+    steps: [
+      "This command is blocked and a high-severity alert has been logged.",
+      "Review the Audit log — this event is marked for follow-up.",
+      "Do not attempt to work around this block without understanding why it fired.",
+    ],
+    navHint: { label: "Go to Audit", view: "audit" },
+  },
+};
+
+function WhatNow({ decision, onGoTo }: {
+  decision: DecisionCheckDecision;
+  onGoTo?: (view: string) => void;
+}) {
+  const g = WHAT_NOW[decision];
+  if (!g) return null;
+  return (
+    <div style={{
+      marginTop: 16,
+      borderLeft: `3px solid ${g.color}`,
+      borderRadius: "0 8px 8px 0",
+      background: `color-mix(in srgb, ${g.color} 7%, var(--color-panel))`,
+      padding: "12px 14px",
+    }}>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: g.color, marginBottom: 8 }}>{g.title}</div>
+      <ul style={{ margin: 0, paddingLeft: 16, display: "flex", flexDirection: "column", gap: 4 }}>
+        {g.steps.map((s, i) => (
+          <li key={i} style={{ fontSize: 12.5, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>{s}</li>
+        ))}
+      </ul>
+      {g.navHint && onGoTo && (
+        <button
+          onClick={() => onGoTo(g.navHint!.view)}
+          style={{
+            marginTop: 10, padding: "4px 10px", fontSize: 12, fontWeight: 600,
+            background: "transparent", border: `1px solid color-mix(in srgb, ${g.color} 40%, transparent)`,
+            borderRadius: 6, color: g.color, cursor: "pointer",
+          }}
+        >
+          {g.navHint.label} →
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function DecisionCheckCard({ onGoTo }: { onGoTo?: (view: string) => void }) {
   const [commandText, setCommandText] = useState("");
   const [selectedFaq, setSelectedFaq] = useState<GuidedFaqPrompt | null>(null);
   const [checkResult, setCheckResult] = useState<DecisionCheckData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [runResult, setRunResult] = useState<CliJsonResponse<RunGateData> | null>(null);
+  const [runLoading, setRunLoading] = useState(false);
+  const [runError, setRunError] = useState<string | null>(null);
 
   const validateCommandText = (text: string): string | null => {
     if (!text || text.trim() === "") {
@@ -148,6 +240,8 @@ export function DecisionCheckCard() {
     setLoading(true);
     setError(null);
     setCheckResult(null);
+    setRunResult(null);
+    setRunError(null);
 
     try {
       const response = await invoke<CliJsonResponse<DecisionCheckData>>("check_command", {
@@ -168,6 +262,28 @@ export function DecisionCheckCard() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRun = async () => {
+    if (!checkResult) return;
+    setRunLoading(true);
+    setRunError(null);
+    setRunResult(null);
+    try {
+      const response = await invoke<CliJsonResponse<RunGateData>>("run_command_through_gate", {
+        commandText: checkResult.command,
+      });
+      setRunResult(response);
+    } catch (err) {
+      const errorStr = String(err);
+      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
+        setRunError("Run requires the native Tauri app. Browser preview cannot call Policy Scout.");
+      } else {
+        setRunError("An error occurred while running the command.");
+      }
+    } finally {
+      setRunLoading(false);
     }
   };
 
@@ -373,6 +489,96 @@ export function DecisionCheckCard() {
                     <li key={idx}>{hit}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+            <WhatNow decision={checkResult.decision} onGoTo={onGoTo} />
+
+            {(checkResult.decision === "ALLOW" || checkResult.decision === "ALLOW_LOGGED") && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 14px",
+                  background: "color-mix(in srgb, var(--color-success) 6%, var(--color-panel))",
+                  border: "1px solid color-mix(in srgb, var(--color-success) 20%, transparent)",
+                  borderRadius: 8,
+                }}>
+                  <span style={{ fontSize: 12, color: "var(--color-text-secondary)", flex: 1 }}>
+                    Policy gate: {checkResult.decision}. Run this command through the gate?
+                  </span>
+                  <button
+                    onClick={handleRun}
+                    disabled={runLoading}
+                    style={{
+                      padding: "5px 14px", fontSize: 12, fontWeight: 600,
+                      background: runLoading ? "var(--color-elevated)" : "var(--color-success)",
+                      color: runLoading ? "var(--color-text-muted)" : "#fff",
+                      border: "1px solid var(--color-border)", borderRadius: 6,
+                      cursor: runLoading ? "not-allowed" : "pointer", flexShrink: 0,
+                    }}
+                  >
+                    {runLoading ? "Running…" : "Run"}
+                  </button>
+                </div>
+
+                {runError && (
+                  <div style={{ marginTop: 8, fontSize: 12, color: "var(--color-danger)" }}>{runError}</div>
+                )}
+
+                {runResult && (
+                  <div style={{
+                    marginTop: 10, padding: "12px 14px",
+                    background: "var(--color-elevated)",
+                    border: "1px solid var(--color-border-muted)",
+                    borderRadius: 8,
+                  }}>
+                    {runResult.ok && runResult.data && "execution_id" in runResult.data ? (
+                      (() => {
+                        const exec = runResult.data as RunGateExecutionData;
+                        return (
+                          <>
+                            <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--color-text-muted)", marginBottom: 8, flexWrap: "wrap" }}>
+                              <span style={{ fontWeight: 600, color: exec.exit_code === 0 ? "var(--color-success)" : "var(--color-danger)" }}>
+                                exit {exec.exit_code ?? "?"}
+                              </span>
+                              {exec.duration_ms != null && <span>{exec.duration_ms}ms</span>}
+                              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10 }}>{exec.execution_id}</span>
+                            </div>
+                            {exec.stdout && (
+                              <pre style={{
+                                margin: 0, fontSize: 11, fontFamily: "var(--font-mono)",
+                                color: "var(--color-text-secondary)", whiteSpace: "pre-wrap",
+                                wordBreak: "break-all", maxHeight: 200, overflowY: "auto",
+                              }}>
+                                {exec.stdout}
+                              </pre>
+                            )}
+                            {exec.stderr && (
+                              <pre style={{
+                                margin: "6px 0 0", fontSize: 11, fontFamily: "var(--font-mono)",
+                                color: "var(--color-warning)", whiteSpace: "pre-wrap",
+                                wordBreak: "break-all", maxHeight: 100, overflowY: "auto",
+                              }}>
+                                {exec.stderr}
+                              </pre>
+                            )}
+                            {!exec.stdout && !exec.stderr && (
+                              <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>No output.</span>
+                            )}
+                          </>
+                        );
+                      })()
+                    ) : (
+                      <div style={{ fontSize: 12, color: "var(--color-danger)" }}>
+                        {runResult.error ?? "Command was blocked by policy."}
+                        {runResult.data && "decision" in runResult.data && (
+                          <span style={{ marginLeft: 6, fontWeight: 600 }}>
+                            ({(runResult.data as { decision: string }).decision})
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

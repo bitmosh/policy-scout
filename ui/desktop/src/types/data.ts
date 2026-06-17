@@ -37,3 +37,20 @@ export interface CleanupDryRunData {
   could_not_verify?: (string | CouldNotVerifyItem)[];
   schema_version?: number;
 }
+
+export interface CleanupResultItem {
+  path: string;
+  size_bytes?: number;
+  reason?: string;
+}
+
+export interface CleanupApplyData {
+  target: string;
+  executed: boolean;
+  target_root: string;
+  deleted_count: number;
+  failed_count: number;
+  freed_bytes: number;
+  deleted_items: CleanupResultItem[];
+  failed_items: CleanupResultItem[];
+}
