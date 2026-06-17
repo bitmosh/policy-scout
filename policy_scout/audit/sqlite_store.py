@@ -9,24 +9,36 @@ from ..core.ids import utcnow_iso
 from .events import AuditEvent
 from .redaction import redact_dict
 
+Append = None  # type: ignore[assignment]
+FossicStore = None  # type: ignore[assignment]
+FossicEventId = None  # type: ignore[assignment]
+_FOSSIC_AVAILABLE = False
+try:
+    from fossic import Append, EventId as FossicEventId, Store as FossicStore  # type: ignore[assignment]
+    _FOSSIC_AVAILABLE = True
+except ImportError:
+    pass
+
 
 class SQLiteAuditStore:
     """SQLite-based audit event store with query helpers."""
 
-    def __init__(self, path: Optional[str] = None):
+    def __init__(self, path: Optional[str] = None, fossic_path: Optional[str] = None):
         """Initialize SQLite audit store."""
         if path is None:
             # Default to ~/.local/share/policy-scout/audit.db
             path = str(Path.home() / ".local" / "share" / "policy-scout" / "audit.db")
-        
+
         # Support environment variable override
         env_path = os.environ.get("POLICY_SCOUT_AUDIT_DB_PATH")
         if env_path:
             path = env_path
-        
+
         self.path = path
         self._ensure_directory()
         self._init_db()
+        self._fossic: Optional[Any] = None
+        self._init_fossic(fossic_path)
 
     def _ensure_directory(self):
         """Ensure the audit directory exists."""
@@ -90,6 +102,84 @@ class SQLiteAuditStore:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON audit_events(timestamp)")
             conn.commit()
 
+    def _init_fossic(self, fossic_path: Optional[str] = None) -> None:
+        """Open the fossic store if fossic-py is available."""
+        if not _FOSSIC_AVAILABLE:
+            return
+        if fossic_path is None:
+            fossic_path = str(Path.home() / ".local" / "share" / "policy-scout" / "fossic.db")
+        env_path = os.environ.get("POLICY_SCOUT_FOSSIC_DB_PATH")
+        if env_path:
+            fossic_path = env_path
+        try:
+            Path(fossic_path).parent.mkdir(parents=True, exist_ok=True)
+            self._fossic = FossicStore.open(fossic_path)
+        except Exception as e:
+            print(f"Warning: Failed to open fossic store, audit events will not be emitted to fossic: {e}", file=__import__("sys").stderr)
+
+    def _emit_to_fossic(self, redacted_data: Dict[str, Any]) -> None:
+        """Emit a redacted audit event to the fossic store (best-effort, non-fatal)."""
+        if self._fossic is None:
+            return
+        event_type = redacted_data.get("event_type", "")
+        data = redacted_data.get("data") or {}
+
+        # Route to correct stream
+        request_id = redacted_data.get("request_id")
+        if event_type in ("LockdownActivated", "LockdownDeactivated",
+                          "WatchDaemonStarted", "WatchDaemonStopped"):
+            stream_id = "policy-scout/posture"
+        elif request_id:
+            stream_id = f"policy-scout/audit/{request_id}"
+        else:
+            return  # non-posture event without request_id: no valid stream
+
+        # Build indexed_tags
+        indexed_tags: Dict[str, Any] = {"source_store": "policy-scout"}
+        if request_id:
+            indexed_tags["request_id"] = request_id
+        if event_type in ("LockdownActivated", "LockdownDeactivated"):
+            reason = data.get("reason")
+            if reason:
+                indexed_tags["reason"] = reason
+        if event_type in ("ApprovalRequested", "ApprovalApprovedOnce",
+                          "ApprovalDeniedOnce", "ApprovalExpired"):
+            approval_id = data.get("approval_id")
+            if approval_id:
+                indexed_tags["approval_id"] = approval_id
+        if event_type == "ApprovalRequested":
+            risk_band = data.get("risk_band")
+            if risk_band:
+                indexed_tags["risk_band"] = risk_band
+        if event_type in ("DecisionIssued", "CommandRequested"):
+            for field in ("risk_band", "decision"):
+                val = data.get(field)
+                if val:
+                    indexed_tags[field] = val
+
+        # causation_id: cross-project link to Cerebra's ActionProposed (case-2 chain)
+        causation_id = None
+        upstream = data.get("upstream_causation_id")
+        if upstream and FossicEventId is not None:
+            try:
+                causation_id = FossicEventId.from_hex(upstream)
+            except Exception:
+                pass
+
+        try:
+            self._fossic.declare_stream(stream_id, declared_by="policy-scout")
+            self._fossic.append(Append(
+                stream_id=stream_id,
+                event_type=event_type,
+                payload=data,
+                external_id=redacted_data["event_id"],
+                causation_id=causation_id,
+                indexed_tags=indexed_tags,
+            ))
+        except Exception as e:
+            print(f"Warning: Failed to emit audit event to fossic: {e}",
+                  file=__import__("sys").stderr)
+
     def write_event(self, event: AuditEvent) -> bool:
         """Write a single audit event to SQLite."""
         try:
@@ -141,7 +231,8 @@ class SQLiteAuditStore:
                     ),
                 )
                 conn.commit()
-            
+
+            self._emit_to_fossic(redacted_data)
             return True
         except Exception as e:
             print(f"Warning: Failed to write audit event to SQLite: {e}", file=__import__("sys").stderr)

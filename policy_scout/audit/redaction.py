@@ -45,6 +45,12 @@ def redact_string(text: str) -> str:
     return redacted
 
 
+# Keys whose values must never be redacted — cross-store IDs used for causation/correlation.
+# A hex EventId like upstream_causation_id looks like a secret to naive regex patterns;
+# exempting by key prevents future pattern additions from silently breaking the causal chain.
+_EXEMPT_KEYS = frozenset({"upstream_causation_id"})
+
+
 def redact_dict(data: dict) -> dict:
     """Recursively redact sensitive values in a dictionary."""
     if not isinstance(data, dict):
@@ -52,7 +58,9 @@ def redact_dict(data: dict) -> dict:
 
     redacted = {}
     for key, value in data.items():
-        if isinstance(value, str):
+        if key in _EXEMPT_KEYS:
+            redacted[key] = value
+        elif isinstance(value, str):
             redacted[key] = redact_string(value)
         elif isinstance(value, dict):
             redacted[key] = redact_dict(value)
