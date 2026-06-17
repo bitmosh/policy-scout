@@ -120,23 +120,36 @@ def cli():
     )
 
     # approvals list
-    approvals_subparsers.add_parser("list", help="List pending approval requests")
+    list_parser = approvals_subparsers.add_parser("list", help="List pending approval requests")
+    list_parser.add_argument("--json", action="store_true", help="Output JSON")
 
     # approvals show
     show_parser = approvals_subparsers.add_parser(
         "show", help="Show approval request details"
     )
     show_parser.add_argument("approval_id", help="Approval ID to show")
+    show_parser.add_argument("--json", action="store_true", help="Output JSON")
 
     # approvals approve
     approve_parser = approvals_subparsers.add_parser(
         "approve", help="Approve a request"
     )
     approve_parser.add_argument("approval_id", help="Approval ID to approve")
+    approve_parser.add_argument("--json", action="store_true", help="Output JSON")
 
     # approvals deny
     deny_parser = approvals_subparsers.add_parser("deny", help="Deny a request")
     deny_parser.add_argument("approval_id", help="Approval ID to deny")
+    deny_parser.add_argument("--json", action="store_true", help="Output JSON")
+
+    # approvals set-timeout
+    set_timeout_parser = approvals_subparsers.add_parser(
+        "set-timeout", help="Set default approval expiry window in hours"
+    )
+    set_timeout_parser.add_argument(
+        "hours", type=int, help="Approval timeout in hours (e.g. 24, 48, 168)"
+    )
+    set_timeout_parser.add_argument("--json", action="store_true", help="Output JSON")
 
     # sandbox command
     sandbox_parser = subparsers.add_parser(
@@ -415,9 +428,18 @@ def cli():
     lockdown_on_parser.add_argument(
         "--reason", default="", help="Reason for activating lockdown"
     )
-    lockdown_subparsers.add_parser("off", help="Deactivate lockdown")
-    lockdown_subparsers.add_parser(
+    lockdown_on_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    lockdown_off_parser = lockdown_subparsers.add_parser("off", help="Deactivate lockdown")
+    lockdown_off_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
+    )
+    lockdown_status_parser = lockdown_subparsers.add_parser(
         "status", help="Show current lockdown status"
+    )
+    lockdown_status_parser.add_argument(
+        "--json", action="store_true", help="Output JSON"
     )
 
     # preserve command
@@ -1290,6 +1312,8 @@ def check_command(
         and decision.decision not in ["DENY", "DENY_AND_ALERT"]
     ):
 
+        from ..core.config import get_approval_timeout_hours
+        from ..core.ids import utcnow_plus_hours_iso
         approval = ApprovalRequest(
             request_id=request.request_id,
             decision_id=decision.decision,
@@ -1301,6 +1325,7 @@ def check_command(
             reasons=decision.reasons,
             recommended_action=decision.recommended_next_action,
             status=ApprovalStatus.PENDING,
+            expires_at=utcnow_plus_hours_iso(get_approval_timeout_hours()),
         )
 
         approval_store.save(approval)
@@ -1395,9 +1420,13 @@ def handle_approvals_command(args):
     """Handle approvals subcommands."""
     approval_store = ApprovalStore()
     audit_store = AuditStore(enabled=True)
+    json_output = getattr(args, "json", False)
 
     if args.approvals_subcommand == "list":
         approvals = approval_store.list_pending()
+        if json_output:
+            print(json.dumps({"approvals": [a.to_dict() for a in approvals]}))
+            return
         if not approvals:
             print("No pending approval requests.")
             return
@@ -1475,8 +1504,6 @@ def handle_approvals_command(args):
             args.approval_id, ApprovalStatus.APPROVED_ONCE
         )
         if success:
-            print(f"Approved: {args.approval_id}")
-
             # Write ApprovalApprovedOnce event
             audit_store.write(
                 create_approval_approved_once_event(
@@ -1485,29 +1512,40 @@ def handle_approvals_command(args):
                     actor=current_approver,
                 )
             )
+            if json_output:
+                print(json.dumps({"approval_id": args.approval_id, "status": "approved_once"}))
+            else:
+                print(f"Approved: {args.approval_id}")
         else:
-            print("Error: Failed to update approval status", file=sys.stderr)
+            if json_output:
+                print(json.dumps({"error": "Failed to update approval status"}), file=sys.stderr)
+            else:
+                print("Error: Failed to update approval status", file=sys.stderr)
             sys.exit(1)
 
     elif args.approvals_subcommand == "deny":
         approval = approval_store.get_by_id(args.approval_id)
         if not approval:
-            print(f"Error: Approval {args.approval_id} not found", file=sys.stderr)
+            if json_output:
+                print(json.dumps({"error": f"Approval {args.approval_id} not found"}), file=sys.stderr)
+            else:
+                print(f"Error: Approval {args.approval_id} not found", file=sys.stderr)
             sys.exit(1)
 
         if approval.status != ApprovalStatus.PENDING:
-            print(
-                f"Error: Approval is not pending (current status: {approval.status})",
-                file=sys.stderr,
-            )
+            if json_output:
+                print(json.dumps({"error": f"Approval is not pending (current status: {approval.status})"}), file=sys.stderr)
+            else:
+                print(
+                    f"Error: Approval is not pending (current status: {approval.status})",
+                    file=sys.stderr,
+                )
             sys.exit(1)
 
         success = approval_store.update_status(
             args.approval_id, ApprovalStatus.DENIED_ONCE
         )
         if success:
-            print(f"Denied: {args.approval_id}")
-
             # Write ApprovalDeniedOnce event
             audit_store.write(
                 create_approval_denied_once_event(
@@ -1516,9 +1554,32 @@ def handle_approvals_command(args):
                     actor={"type": "human", "name": "cli_user"},
                 )
             )
+            if json_output:
+                print(json.dumps({"approval_id": args.approval_id, "status": "denied_once"}))
+            else:
+                print(f"Denied: {args.approval_id}")
         else:
-            print("Error: Failed to update approval status", file=sys.stderr)
+            if json_output:
+                print(json.dumps({"error": "Failed to update approval status"}), file=sys.stderr)
+            else:
+                print("Error: Failed to update approval status", file=sys.stderr)
             sys.exit(1)
+
+    elif args.approvals_subcommand == "set-timeout":
+        from ..core.config import write_setting
+        hours = args.hours
+        if hours < 1 or hours > 8760:
+            msg = "Timeout must be between 1 and 8760 hours (1 year)"
+            if json_output:
+                print(json.dumps({"error": msg}), file=sys.stderr)
+            else:
+                print(f"Error: {msg}", file=sys.stderr)
+            sys.exit(1)
+        write_setting("approval_timeout_hours", hours)
+        if json_output:
+            print(json.dumps({"ok": True, "approval_timeout_hours": hours}))
+        else:
+            print(f"Approval timeout set to {hours} hour(s).")
 
     else:
         print("Error: Unknown approvals subcommand", file=sys.stderr)
@@ -1799,7 +1860,7 @@ def handle_sandbox_migrate_command(
     audit_enabled: bool = True,
 ):
     """Handle sandbox migrate command."""
-    from ..sandbox.result_writer import get_sandbox_root
+    from ..sandbox.temp_workspace import get_sandbox_root
     from ..core.ids import generate_id
 
     request_id = generate_id("req")
@@ -1809,7 +1870,7 @@ def handle_sandbox_migrate_command(
 
     # Load sandbox result
     sandbox_root = get_sandbox_root()
-    sandbox_result_path = sandbox_root / f"{sandbox_id}.json"
+    sandbox_result_path = sandbox_root.parent / "results" / f"{sandbox_id}.json"
 
     if not sandbox_result_path.exists():
         print(f"Error: Sandbox result not found: {sandbox_id}", file=sys.stderr)
@@ -2616,6 +2677,8 @@ def handle_run_command(
 
         # Normal REQUIRE_APPROVAL flow without --approval flag
         # Create approval request
+        from ..core.config import get_approval_timeout_hours
+        from ..core.ids import utcnow_plus_hours_iso
         approval = ApprovalRequest(
             request_id=request.request_id,
             decision_id=decision.decision_id,
@@ -2623,6 +2686,7 @@ def handle_run_command(
             cwd=os.getcwd(),
             risk_score=decision.risk_score,
             reasons=decision.reasons,
+            expires_at=utcnow_plus_hours_iso(get_approval_timeout_hours()),
         )
         approval_store.save(approval)
 
@@ -2826,32 +2890,55 @@ def handle_lockdown_command(args):
 
     if args.lockdown_subcommand == "on":
         reason = getattr(args, "reason", "")
+        json_out = getattr(args, "json", False)
         if is_lockdown_active():
-            print("Lockdown is already active.")
+            if json_out:
+                print(json.dumps({"ok": False, "already_active": True}))
+            else:
+                print("Lockdown is already active.")
             return
         success = activate_lockdown(reason=reason, audit_store=audit_store)
         if success:
-            print("Lockdown activated. All non-read operations will be DENIED.")
-            if reason:
-                print(f"Reason: {reason}")
+            if json_out:
+                print(json.dumps({"ok": True, "active": True, "reason": reason}))
+            else:
+                print("Lockdown activated. All non-read operations will be DENIED.")
+                if reason:
+                    print(f"Reason: {reason}")
         else:
-            print("Error: Failed to activate lockdown.", file=sys.stderr)
+            if json_out:
+                print(json.dumps({"ok": False, "error": "Failed to activate lockdown"}))
+            else:
+                print("Error: Failed to activate lockdown.", file=sys.stderr)
             sys.exit(1)
 
     elif args.lockdown_subcommand == "off":
+        json_out = getattr(args, "json", False)
         if not is_lockdown_active():
-            print("Lockdown is not active.")
+            if json_out:
+                print(json.dumps({"ok": False, "already_inactive": True}))
+            else:
+                print("Lockdown is not active.")
             return
         success = deactivate_lockdown(cleared_by="cli", audit_store=audit_store)
         if success:
-            print("Lockdown deactivated. Normal policy evaluation restored.")
+            if json_out:
+                print(json.dumps({"ok": True, "active": False}))
+            else:
+                print("Lockdown deactivated. Normal policy evaluation restored.")
         else:
-            print("Error: Failed to deactivate lockdown.", file=sys.stderr)
+            if json_out:
+                print(json.dumps({"ok": False, "error": "Failed to deactivate lockdown"}))
+            else:
+                print("Error: Failed to deactivate lockdown.", file=sys.stderr)
             sys.exit(1)
 
     elif args.lockdown_subcommand == "status":
-        if is_lockdown_active():
-            reason = get_lockdown_reason()
+        active = is_lockdown_active()
+        reason = get_lockdown_reason() if active else None
+        if getattr(args, "json", False):
+            print(json.dumps({"active": active, "reason": reason}))
+        elif active:
             print("Status: LOCKDOWN ACTIVE")
             if reason:
                 print(f"Reason: {reason}")
