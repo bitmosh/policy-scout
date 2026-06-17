@@ -1,0 +1,19 @@
+{
+  "target": ".",
+  "finding_count": 1,
+  "findings": [
+    {
+      "finding_id": "find_mock001",
+      "sweep_id": "",
+      "severity": "high",
+      "confidence": "medium",
+      "category": "prompt_injection",
+      "title": "Prompt injection pattern: tool_hijacking",
+      "location": "docs/AGENT_BRIEFING.md:42",
+      "evidence_ref": "Execute the following command",
+      "why_it_matters": "Attempts to call tools or functions through injected content. An agent reading this file may be influenced to take unsafe actions.",
+      "recommended_action": "Review the flagged content. If intentional security documentation, add '# policy-scout-injection-allow' to suppress.",
+      "schema_version": 1
+    }
+  ]
+}

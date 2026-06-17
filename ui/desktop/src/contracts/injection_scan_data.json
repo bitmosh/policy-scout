@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Output of: policy-scout scan injection --json",
+  "type": "object",
+  "required": ["target", "finding_count", "findings"],
+  "properties": {
+    "target": { "type": "string" },
+    "finding_count": { "type": "integer" },
+    "findings": { "type": "array" }
+  },
+  "additionalProperties": true
+}

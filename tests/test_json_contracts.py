@@ -1070,3 +1070,140 @@ def test_policy_validate_json_has_required_fields(temp_state_paths):
 
     _validate_schema(data, "policy_validate.json")
     _validate_mock("policy_validate.json", "policy_validate.json")
+
+
+def test_scan_dir_json_has_required_fields(temp_state_paths):
+    """Test that scan dir --json has required fields and validates against schema."""
+    tmpdir, _report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python", "-m", "policy_scout.cli.main",
+            "scan", "dir", "--json", "--no-audit",
+            tmpdir,
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    assert result.returncode in [0, 1, 2]
+
+    data = json.loads(result.stdout)
+    assert "scan_id" in data
+    assert "scan_type" in data
+    assert "target" in data
+    assert "finding_count" in data
+    assert "severity_counts" in data
+    assert "files_scanned" in data
+    assert "commits_scanned" in data
+    assert "duration_ms" in data
+    assert "errors" in data
+    assert "findings" in data
+    assert isinstance(data["findings"], list)
+    assert isinstance(data["errors"], list)
+
+    _validate_schema(data, "secret_scan_data.json")
+    _validate_mock("secret_scan_data.json", "scan_secret_result.json")
+
+
+def test_scan_staged_json_has_required_fields(temp_state_paths):
+    """Test that scan staged --json has required fields and validates against schema."""
+    tmpdir, _report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python", "-m", "policy_scout.cli.main",
+            "scan", "staged", "--json", "--no-audit",
+            "--repo", tmpdir,
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    # Non-git dir: git fails gracefully, findings=[], exit 0
+    assert result.returncode in [0, 1, 2]
+
+    data = json.loads(result.stdout)
+    assert "scan_id" in data
+    assert "scan_type" in data
+    assert "target" in data
+    assert "finding_count" in data
+    assert "severity_counts" in data
+    assert "files_scanned" in data
+    assert "commits_scanned" in data
+    assert "duration_ms" in data
+    assert "errors" in data
+    assert "findings" in data
+    assert isinstance(data["findings"], list)
+    assert isinstance(data["errors"], list)
+
+    _validate_schema(data, "secret_scan_data.json")
+
+
+def test_scan_history_json_has_required_fields(temp_state_paths):
+    """Test that scan history --json has required fields and validates against schema."""
+    tmpdir, _report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python", "-m", "policy_scout.cli.main",
+            "scan", "history", "--json", "--no-audit",
+            "--repo", tmpdir,
+            "--max-commits", "10",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    # Non-git dir: git fails gracefully, findings=[], exit 0
+    assert result.returncode in [0, 1, 2]
+
+    data = json.loads(result.stdout)
+    assert "scan_id" in data
+    assert "scan_type" in data
+    assert "target" in data
+    assert "finding_count" in data
+    assert "severity_counts" in data
+    assert "files_scanned" in data
+    assert "commits_scanned" in data
+    assert "duration_ms" in data
+    assert "errors" in data
+    assert "findings" in data
+    assert isinstance(data["findings"], list)
+    assert isinstance(data["errors"], list)
+
+    _validate_schema(data, "secret_scan_data.json")
+
+
+def test_scan_injection_json_has_required_fields(temp_state_paths):
+    """Test that scan injection --json has required fields and validates against schema."""
+    tmpdir, _report_root, env = temp_state_paths
+
+    result = subprocess.run(
+        [
+            "python", "-m", "policy_scout.cli.main",
+            "scan", "injection", "--json", "--no-audit",
+            tmpdir,
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        cwd=tmpdir,
+    )
+
+    assert result.returncode in [0, 10, 20]
+
+    data = json.loads(result.stdout)
+    assert "target" in data
+    assert "finding_count" in data
+    assert "findings" in data
+    assert isinstance(data["findings"], list)
+
+    _validate_schema(data, "injection_scan_data.json")
+    _validate_mock("injection_scan_data.json", "scan_injection_result.json")
