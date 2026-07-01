@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "pyyaml>=6.0.0",
-    "fossic @ git+https://github.com/bitmosh/fossic.git#subdirectory=fossic-py",
 ]
 
 [project.optional-dependencies]
@@ -19,12 +18,18 @@ policy-scout = "policy_scout.cli.main:cli"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 markers = [
     "no_policy_isolation: opt out of the autouse find_project_config patch (for tests that exercise the loading machinery directly)",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/policy_scout",
+    "/tests",
+    "/vendor/fossic",
+    "/README.md",
+    "/pyproject.toml",
 ]
