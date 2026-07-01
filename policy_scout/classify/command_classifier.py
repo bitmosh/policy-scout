@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 from ..core.ids import generate_id
 from ..registry.models import CommandRegistry, RegistryHit
 from .shell_parser import ParseResult
@@ -16,13 +16,13 @@ class ClassificationResult:
     request_id: str = ""
     command_family: str = "unknown"
     subcommand: str = ""
-    categories: list = field(default_factory=list)
-    capabilities: list = field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
+    capabilities: list[str] = field(default_factory=list)
     classification_method: str = "pattern_match"
     confidence: float = 0.0
-    structure: dict = field(default_factory=dict)
-    registry_hits: list = field(default_factory=list)
-    notes: list = field(default_factory=list)
+    structure: dict[str, Any] = field(default_factory=dict)
+    registry_hits: list[dict[str, Any]] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -58,13 +58,14 @@ class CommandClassifier:
     ]
 
     # Credential-adjacent patterns
+    _CRED_READER = r"(?:cat|less|head|tail|more|bat)"
     CREDENTIAL_PATTERNS = [
-        (r"cat\s+.*\.env", "credential_adjacent"),
-        (r"cat\s+.*\.npmrc", "credential_adjacent"),
-        (r"cat\s+.*\.ssh", "credential_adjacent"),
-        (r"cat\s+.*id_rsa", "credential_adjacent"),
-        (r"cat\s+.*id_ed25519", "credential_adjacent"),
-        (r"cat\s+.*\.aws/credentials", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*\.env", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*\.npmrc", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*\.ssh", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*id_rsa", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*id_ed25519", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+.*\.aws/credentials", "credential_adjacent"),
         (r"grep\s+-r\s+.*TOKEN", "credential_adjacent"),
         (r"grep\s+-r\s+.*SECRET", "credential_adjacent"),
     ]
@@ -86,7 +87,7 @@ class CommandClassifier:
     SAFE_READ_PATTERNS = [
         (r"^(ls|pwd|git\s+status|git\s+log|git\s+diff)\b", "safe_read"),
         (
-            r"^(cat|less|more|head|tail)\s+[^\s~$\.>]",
+            r"^(cat|less|more|head|tail|bat)\s+[^\s~$\.>]",
             "safe_read",
         ),  # Not reading hidden/config files, no redirect
     ]
@@ -278,7 +279,7 @@ class CommandClassifier:
                     result.categories.append("project_write")
                     result.notes.append("Command writes via redirect")
 
-    def _assign_capabilities(self, categories: list) -> list:
+    def _assign_capabilities(self, categories: list[str]) -> list[str]:
         """Assign capabilities based on categories."""
         capabilities = []
 

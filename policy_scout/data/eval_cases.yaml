@@ -800,3 +800,80 @@ cases:
     tags:
       - destructive
     notes: Removing home directory (system-level destructive, denied; both rules match, system_deny takes precedence)
+
+  # Credential-adjacent - alternative read tools
+  - case_id: eval_045
+    title: Credential adjacent - less .env
+    command: less .env
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading .env with less should trigger same credential_adjacent block as cat
+
+  - case_id: eval_046
+    title: Credential adjacent - head ssh key
+    command: head ~/.ssh/id_rsa
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading SSH private key with head (first N lines still exposes key material)
+
+  - case_id: eval_047
+    title: Credential adjacent - tail aws credentials
+    command: tail ~/.aws/credentials
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading AWS credentials with tail
+
+  - case_id: eval_048
+    title: Credential adjacent - bat .npmrc
+    command: bat ~/.npmrc
+    actor_type: human
+    mode: balanced
+    expected_decision: DENY_AND_ALERT
+    expected_categories:
+      - credential_adjacent
+    expected_capabilities:
+      - filesystem.read
+      - credential.access_possible
+    expected_policy_hits:
+      - credential_access_deny_and_alert
+    expected_risk_min: 3
+    expected_risk_max: 7
+    tags:
+      - credential_adjacent
+    notes: Reading npm config with bat (syntax-highlighted cat replacement)

@@ -1,7 +1,7 @@
 """Policy decision and risk score models."""
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 from .ids import generate_id
 
 
@@ -32,10 +32,10 @@ class RiskScore:
     request_id: str = ""
     risk_score: int = 0  # 0-10
     risk_band: Literal["low", "medium", "high", "critical"] = "low"
-    components: dict = field(default_factory=dict)
+    components: dict[str, Any] = field(default_factory=dict)
     confidence: float = 0.0
     evidence_strength: float = 0.0
-    notes: list = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -67,8 +67,8 @@ class PolicyDecision:
     risk_score: int = 0
     confidence: float = 0.0
     category: str = ""
-    policy_hits: list = field(default_factory=list)
-    reasons: list = field(default_factory=list)
+    policy_hits: list[str] = field(default_factory=list)
+    reasons: list[str] = field(default_factory=list)
     recommended_next_action: str = ""
     override_allowed: bool = True
     requires_audit: bool = True

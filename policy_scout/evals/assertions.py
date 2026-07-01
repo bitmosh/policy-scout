@@ -1,6 +1,6 @@
 """Assertion logic for comparing expected vs actual eval results."""
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 def assert_decision(
@@ -120,7 +120,7 @@ def assert_policy_hits(
 
 def assert_registry_hits(
     expected: Optional[List[str]],
-    actual: Optional[List[str]],
+    actual: Optional[List[Dict[str, Any]]],
     case_id: str,
 ) -> List[str]:
     """Assert registry hits match expected.
@@ -135,10 +135,10 @@ def assert_registry_hits(
         return [f"Registry hits were None, expected {expected}"]
 
     expected_set = set(expected)
-    actual_set = set(actual)
+    actual_ids = {h.get("entry_id") for h in actual if isinstance(h, dict)}
 
-    missing = expected_set - actual_set
-    extra = actual_set - expected_set
+    missing = expected_set - actual_ids
+    extra = actual_ids - expected_set
 
     reasons = []
     if missing:

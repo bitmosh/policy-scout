@@ -1,7 +1,7 @@
 """Registry data models."""
 
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 
 @dataclass
@@ -11,7 +11,7 @@ class RegistryHit:
     registry_name: str
     entry_id: str
     confidence: float = 1.0
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -29,11 +29,11 @@ class CommandRegistryEntry:
     id: str
     title: str
     description: str = ""
-    match: dict = field(default_factory=dict)
-    categories: list = field(default_factory=list)
-    capabilities: list = field(default_factory=list)
+    match: dict[str, Any] = field(default_factory=dict)
+    categories: list[str] = field(default_factory=list)
+    capabilities: list[str] = field(default_factory=list)
     default_risk: str = "R3"
-    recommended_controls: list = field(default_factory=list)
+    recommended_controls: list[str] = field(default_factory=list)
     version: int = 1
     status: Literal["active", "deprecated", "experimental"] = "active"
 
@@ -59,8 +59,8 @@ class PolicyRegistryEntry:
     id: str
     title: str
     priority: int
-    match: dict = field(default_factory=dict)
-    exclude: dict = field(default_factory=dict)
+    match: dict[str, Any] = field(default_factory=dict)
+    exclude: dict[str, Any] = field(default_factory=dict)
     decision: Literal[
         "ALLOW",
         "ALLOW_LOGGED",
@@ -69,7 +69,7 @@ class PolicyRegistryEntry:
         "DENY",
         "DENY_AND_ALERT",
     ] = "DENY"
-    reasons: list = field(default_factory=list)
+    reasons: list[str] = field(default_factory=list)
     recommended_next_action: Optional[str] = None
     version: int = 1
     status: Literal["active", "deprecated", "experimental"] = "active"
@@ -94,7 +94,7 @@ class CommandRegistry:
     """Container for command registry entries."""
 
     version: int = 1
-    commands: list = field(default_factory=list)
+    commands: list[CommandRegistryEntry] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -108,7 +108,7 @@ class PolicyRegistry:
     """Container for policy registry entries."""
 
     version: int = 1
-    policies: list = field(default_factory=list)
+    policies: list[PolicyRegistryEntry] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {

@@ -1,5 +1,6 @@
 """Approval request persistence."""
 
+import fcntl
 import json
 import os
 import sys
@@ -80,24 +81,26 @@ class ApprovalStore:
         """Update the status of an approval request."""
         if not self.path.exists():
             return False
-        
+
+        lock_path = self.path.with_suffix(".lock")
         try:
-            # Read all approvals
-            approvals = []
-            with open(self.path, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        data = json.loads(line)
-                        if data.get("approval_id") == approval_id:
-                            data["status"] = new_status
-                        approvals.append(data)
-            
-            # Write back
-            with open(self.path, "w") as f:
-                for approval in approvals:
-                    f.write(json.dumps(approval) + "\n")
-            
+            with open(lock_path, "w") as lock_file:
+                fcntl.flock(lock_file, fcntl.LOCK_EX)
+
+                approvals = []
+                with open(self.path, "r") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line:
+                            data = json.loads(line)
+                            if data.get("approval_id") == approval_id:
+                                data["status"] = new_status
+                            approvals.append(data)
+
+                with open(self.path, "w") as f:
+                    for approval in approvals:
+                        f.write(json.dumps(approval) + "\n")
+
             return True
         except Exception as e:
             print(f"Warning: Failed to update approval status: {e}", file=sys.stderr)

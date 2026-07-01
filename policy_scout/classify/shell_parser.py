@@ -3,6 +3,7 @@
 import re
 import shlex
 from dataclasses import dataclass, field
+from typing import Any
 from ..core.ids import generate_id
 
 
@@ -14,11 +15,11 @@ class ParseResult:
     request_id: str = ""
     success: bool = True
     confidence: float = 1.0
-    tokens: list = field(default_factory=list)
+    tokens: list[str] = field(default_factory=list)
     primary_command: str = ""
-    args: list = field(default_factory=list)
-    structure: dict = field(default_factory=dict)
-    warnings: list = field(default_factory=list)
+    args: list[str] = field(default_factory=list)
+    structure: dict[str, Any] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {

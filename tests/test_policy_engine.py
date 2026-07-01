@@ -97,6 +97,10 @@ def test_network_execute_deny(cmd):
     "cat ~/.ssh/id_rsa",
     "cat .env",
     "cat ~/.npmrc",
+    "less .env",
+    "head ~/.ssh/id_rsa",
+    "tail ~/.aws/credentials",
+    "bat ~/.npmrc",
 ])
 def test_credential_adjacent_deny_and_alert(cmd):
     """Test that credential-adjacent commands are denied with alert."""

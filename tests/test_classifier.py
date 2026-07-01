@@ -89,6 +89,10 @@ def test_network_execute_classification(cmd):
     "cat ~/.ssh/id_rsa",
     "cat ~/.npmrc",
     "grep -r TOKEN .",
+    "less .env",
+    "head ~/.ssh/id_rsa",
+    "tail ~/.aws/credentials",
+    "bat ~/.npmrc",
 ])
 def test_credential_adjacent_classification(cmd):
     """Test classification of credential-adjacent commands."""

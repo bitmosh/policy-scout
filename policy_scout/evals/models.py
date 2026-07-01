@@ -83,7 +83,7 @@ class EvalResult:
     expected_policy_hits: Optional[List[str]]
     actual_policy_hits: Optional[List[str]]
     expected_registry_hits: Optional[List[str]]
-    actual_registry_hits: Optional[List[str]]
+    actual_registry_hits: Optional[List[Dict[str, Any]]]
     expected_risk_range: Optional[tuple]
     actual_risk_score: Optional[int]
     failure_reasons: List[str] = field(default_factory=list)

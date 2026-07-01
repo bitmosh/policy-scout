@@ -1,7 +1,7 @@
 """Command request and actor models."""
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 import time
 from .ids import generate_id
 
@@ -13,7 +13,7 @@ class Actor:
     name: str = "unknown"
     trust_level: Literal["trusted_local", "known_tool", "untrusted_agent", "unknown_actor", "ci_actor"] = "unknown_actor"
     source: str = "cli"
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {

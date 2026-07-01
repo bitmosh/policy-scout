@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Any, Literal, Optional
 
 from ..core.decision import PolicyDecision, RiskScore
 from ..classify.command_classifier import ClassificationResult
@@ -21,7 +21,7 @@ class PolicyEngine:
     """Evaluates classification and risk to produce policy decisions."""
 
     # Fallback policy rules for things not in registry
-    FALLBACK_RULES = [
+    FALLBACK_RULES: list[dict[str, Any]] = [
         {
             "id": "destructive_system_deny",
             "priority": 975,
@@ -146,6 +146,19 @@ class PolicyEngine:
         if not matched_rules:
             matched_rules = self._match_fallback_rules(classification)
 
+        # Structural destructive override: full-path binary or piped destructive
+        # command gets a higher-priority DENY injected into the rule chain so
+        # policy simulate sees the same outcome as the final decision.
+        if "destructive" in classification.categories:
+            if "/" in classification.command_family or classification.structure.get("has_pipe"):
+                matched_rules.append({
+                    "id": "system_destructive_structural_deny",
+                    "priority": 990,
+                    "decision": "DENY",
+                    "reasons": ["System-level destructive command detected."],
+                    "recommended_next_action": "This command is too dangerous to allow.",
+                })
+
         # Sort by priority (higher priority first)
         matched_rules.sort(key=lambda r: r["priority"], reverse=True)
 
@@ -167,17 +180,6 @@ class PolicyEngine:
             decision.recommended_next_action = (
                 "Review command and add policy rule if needed."
             )
-
-        # Override for specific destructive patterns
-        if "destructive" in classification.categories:
-            if "/" in classification.command_family or classification.structure.get(
-                "has_pipe"
-            ):
-                decision.decision = "DENY"
-                decision.reasons = ["System-level destructive command detected."]
-                decision.recommended_next_action = (
-                    "This command is too dangerous to allow."
-                )
 
         return decision
 
@@ -256,7 +258,7 @@ class PolicyEngine:
 
     def _match_from_registry(self, classification: ClassificationResult) -> list:
         """Match policies from registry."""
-        matched = []
+        matched: list[dict[str, Any]] = []
 
         if not self.policy_registry:
             return matched
