@@ -46,11 +46,3 @@ Does this change:
 - Policy engine or risk scoring?
 
 If yes, explain the impact.
-
-## Blog bump needed?
-
-Is this a user-facing change that warrants a dev-log post?
-- [ ] yes
-- [ ] no
-
-If yes, the bumper will be run after merge.

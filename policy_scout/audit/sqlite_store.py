@@ -3,6 +3,7 @@
 import json
 import os
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from ..core.ids import utcnow_iso
@@ -77,7 +78,7 @@ class SQLiteAuditStore:
 
             # Tamper prevention: block UPDATE and DELETE on committed rows.
             # The only legitimate way to clear is drop+recreate (see clear()).
-            # Best-effort: silently skipped on read-only databases.
+            # Silently skipped on read-only databases; warns on any other failure.
             try:
                 conn.execute("""
                     CREATE TRIGGER IF NOT EXISTS prevent_audit_update
@@ -93,8 +94,12 @@ class SQLiteAuditStore:
                         SELECT RAISE(ABORT, 'Audit records are immutable');
                     END
                 """)
-            except sqlite3.OperationalError:
-                pass
+            except sqlite3.OperationalError as exc:
+                if "read" not in str(exc).lower():
+                    print(
+                        f"Warning: audit tamper-prevention triggers could not be created: {exc}",
+                        file=sys.stderr,
+                    )
 
             # Create indexes for common queries
             conn.execute("CREATE INDEX IF NOT EXISTS idx_request_id ON audit_events(request_id)")
@@ -115,7 +120,7 @@ class SQLiteAuditStore:
             Path(fossic_path).parent.mkdir(parents=True, exist_ok=True)
             self._fossic = FossicStore.open(fossic_path)
         except Exception as e:
-            print(f"Warning: Failed to open fossic store, audit events will not be emitted to fossic: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to open fossic store, audit events will not be emitted to fossic: {e}", file=sys.stderr)
 
     def _emit_to_fossic(self, redacted_data: Dict[str, Any]) -> None:
         """Emit a redacted audit event to the fossic store (best-effort, non-fatal)."""
@@ -178,7 +183,7 @@ class SQLiteAuditStore:
             ))
         except Exception as e:
             print(f"Warning: Failed to emit audit event to fossic: {e}",
-                  file=__import__("sys").stderr)
+                  file=sys.stderr)
 
     def write_event(self, event: AuditEvent) -> bool:
         """Write a single audit event to SQLite."""
@@ -235,7 +240,7 @@ class SQLiteAuditStore:
             self._emit_to_fossic(redacted_data)
             return True
         except Exception as e:
-            print(f"Warning: Failed to write audit event to SQLite: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to write audit event to SQLite: {e}", file=sys.stderr)
             return False
 
     def write_events(self, events: List[AuditEvent]) -> int:
@@ -260,7 +265,7 @@ class SQLiteAuditStore:
                     return dict(row)
                 return None
         except Exception as e:
-            print(f"Warning: Failed to get event: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to get event: {e}", file=sys.stderr)
             return None
 
     def list_recent(self, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
@@ -274,7 +279,7 @@ class SQLiteAuditStore:
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            print(f"Warning: Failed to list recent events: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to list recent events: {e}", file=sys.stderr)
             return []
 
     def list_by_request_id(self, request_id: str) -> List[Dict[str, Any]]:
@@ -288,7 +293,7 @@ class SQLiteAuditStore:
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            print(f"Warning: Failed to list events by request_id: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to list events by request_id: {e}", file=sys.stderr)
             return []
 
     def list_by_event_type(self, event_type: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
@@ -302,7 +307,7 @@ class SQLiteAuditStore:
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            print(f"Warning: Failed to list events by type: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to list events by type: {e}", file=sys.stderr)
             return []
 
     def count_by_event_type(self, event_type: str) -> int:
@@ -315,7 +320,7 @@ class SQLiteAuditStore:
                 )
                 return cursor.fetchone()[0]
         except Exception as e:
-            print(f"Warning: Failed to count events by type: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to count events by type: {e}", file=sys.stderr)
             return 0
 
     def count_events(self) -> int:
@@ -325,7 +330,7 @@ class SQLiteAuditStore:
                 cursor = conn.execute("SELECT COUNT(*) FROM audit_events")
                 return cursor.fetchone()[0]
         except Exception as e:
-            print(f"Warning: Failed to count events: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to count events: {e}", file=sys.stderr)
             return 0
 
     def clear(self):
@@ -340,4 +345,4 @@ class SQLiteAuditStore:
                 conn.commit()
             self._init_db()
         except Exception as e:
-            print(f"Warning: Failed to clear audit events: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to clear audit events: {e}", file=sys.stderr)

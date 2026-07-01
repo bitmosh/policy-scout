@@ -1,6 +1,30 @@
 # Changelog
 
-## v0.3
+Per-pass change detail lives in Git history (`git log --oneline`). This file
+records significant milestones. v0.1 through v0.3.8 are consolidated below;
+v0.3.9 entries reflect the current baseline.
+
+## v0.3.9
+
+### Added
+- MIT license
+- SECURITY.md with vulnerability reporting path
+- `policy-scout-relay.py` — Lattica hub relay with startup backfill
+- VS Code / Cursor extension source (`ui/vscode/`) — sweep diagnostics, hook
+  management, MCP server registration
+- Vendored Fossic 1.8.1 PyO3 binding (`vendor/fossic/`)
+- Lattica integration Track A confirmed live (4 Tauri commands shelling out to
+  policy-scout CLI)
+- CLI JSON output on approvals/lockdown, `set-timeout` subcommand, approval expiry
+
+### Changed
+- CI: replaced private git dep with local vendor build
+- Docs baseline: removed ~40 stale design docs, rewrote core docs to match v0.3.9
+- `.gitignore`: exclude internal agent coordination files and editor lock files
+
+---
+
+## v0.1 – v0.3 (consolidated)
 
 ### Added
 - Decision Check UI in Tauri desktop dashboard (check-only, never executes)

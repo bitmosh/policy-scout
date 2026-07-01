@@ -224,7 +224,7 @@ These phases are ordered so each one is independently mergeable and leaves the c
 ### Phase 1 — Print/Return Separation (prerequisite, ~200 lines delta)
 
 **Scope:** `cli/check.py` (or extract from `main.py`), the sandbox run path, the sweep run path.
-**Acceptance:** All 758 existing tests still pass. The refactored functions return dicts when called with `output_format="dict"`. CLI behavior (`print` mode) is unchanged.
+**Acceptance:** All existing tests still pass (758 at time of writing; 1,150 as of v0.3.9). The refactored functions return dicts when called with `output_format="dict"`. CLI behavior (`print` mode) is unchanged.
 **Commit:** `refactor(cli): extract check/sandbox/sweep logic from print layer`
 **Unlocks:** Phase 2 and Phase 3.
 

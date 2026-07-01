@@ -4,9 +4,12 @@ import json
 import os
 import subprocess
 import tempfile
+from pathlib import Path
 import pytest
 from datetime import datetime, timedelta, UTC
 from policy_scout.approvals.models import can_resolve_approval
+
+_REPO_ROOT = Path(__file__).parent.parent
 
 
 @pytest.fixture
@@ -26,7 +29,7 @@ def temp_approval_paths():
         os.makedirs(sweep_root, exist_ok=True)
 
         env = os.environ.copy()
-        env["PYTHONPATH"] = "/home/boop/Projects/policy-scout"
+        env["PYTHONPATH"] = str(_REPO_ROOT)
         env["POLICY_SCOUT_APPROVAL_PATH"] = approval_path
         env["POLICY_SCOUT_AUDIT_DB_PATH"] = db_path
         env["POLICY_SCOUT_AUDIT_PATH"] = jsonl_path

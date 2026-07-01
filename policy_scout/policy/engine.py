@@ -116,8 +116,11 @@ class PolicyEngine:
                         "then 'policy-scout lockdown off' to deactivate."
                     )
                 return decision
-        except Exception:
+        except ImportError:
             pass  # lockdown module unavailable — continue normal evaluation
+        except Exception as exc:
+            import sys
+            print(f"Warning: lockdown check failed, proceeding as unlocked: {exc}", file=sys.stderr)
 
         decision = PolicyDecision(request_id=request_id)
         decision.category = (

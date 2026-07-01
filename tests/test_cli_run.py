@@ -3,45 +3,6 @@
 import subprocess
 
 
-def test_run_allow_command_executes():
-    """Test that ALLOW command executes."""
-    # This test uses a harmless command
-    # The function should exit with 0 for successful execution
-    # We'll test the decision routing logic indirectly through the CLI
-    pass
-
-
-def test_run_allow_logged_command_executes():
-    """Test that ALLOW_LOGGED command executes."""
-    # npm test should be ALLOW_LOGGED
-    # We'll test with a simpler command that should be ALLOW_LOGGED
-    # For now, we'll skip this as it requires the full CLI context
-
-
-def test_run_sandbox_first_does_not_execute():
-    """Test that SANDBOX_FIRST command does not execute."""
-    # npm install should be SANDBOX_FIRST
-    # We'll test with the CLI directly
-
-
-def test_run_require_approval_does_not_execute():
-    """Test that REQUIRE_APPROVAL command does not execute."""
-    # rm -rf node_modules should be REQUIRE_APPROVAL
-    # We'll test with the CLI directly
-
-
-def test_run_deny_does_not_execute():
-    """Test that DENY command does not execute."""
-    # curl pipe bash should be DENY
-    # We'll test with the CLI directly
-
-
-def test_run_deny_and_alert_does_not_execute():
-    """Test that DENY_AND_ALERT command does not execute."""
-    # cat ~/.ssh/id_rsa should be DENY_AND_ALERT
-    # We'll test with the CLI directly
-
-
 # Integration tests using subprocess to test actual CLI behavior
 
 

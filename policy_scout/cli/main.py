@@ -1309,7 +1309,6 @@ def check_command(
         approval_enabled
         and approval_store
         and decision.decision == "REQUIRE_APPROVAL"
-        and decision.decision not in ["DENY", "DENY_AND_ALERT"]
     ):
 
         from ..core.config import get_approval_timeout_hours

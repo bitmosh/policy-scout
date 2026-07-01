@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Optional, List
 from .models import ApprovalRequest
@@ -35,7 +36,7 @@ class ApprovalStore:
                 f.write(json.dumps(approval.to_dict()) + "\n")
             return True
         except Exception as e:
-            print(f"Warning: Failed to save approval request: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to save approval request: {e}", file=sys.stderr)
             return False
 
     def get_by_id(self, approval_id: str) -> Optional[ApprovalRequest]:
@@ -52,7 +53,7 @@ class ApprovalStore:
                         if data.get("approval_id") == approval_id:
                             return ApprovalRequest.from_dict(data)
         except Exception as e:
-            print(f"Warning: Failed to read approval request: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to read approval request: {e}", file=sys.stderr)
         
         return None
 
@@ -71,7 +72,7 @@ class ApprovalStore:
                         if data.get("status") == "pending":
                             pending.append(ApprovalRequest.from_dict(data))
         except Exception as e:
-            print(f"Warning: Failed to list approval requests: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to list approval requests: {e}", file=sys.stderr)
         
         return pending
 
@@ -99,7 +100,7 @@ class ApprovalStore:
             
             return True
         except Exception as e:
-            print(f"Warning: Failed to update approval status: {e}", file=__import__("sys").stderr)
+            print(f"Warning: Failed to update approval status: {e}", file=sys.stderr)
             return False
 
     def clear(self):

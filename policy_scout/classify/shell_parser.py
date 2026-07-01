@@ -123,7 +123,7 @@ class ShellParser:
             structure["shell_complexity"] += 1
 
         # Chain operators (&&, ||, ;)
-        if re.search(r"(&&|\|\|;)", command):
+        if re.search(r"(&&|\|\||;)", command):
             structure["has_chain_operator"] = True
             structure["shell_complexity"] += 2
 
