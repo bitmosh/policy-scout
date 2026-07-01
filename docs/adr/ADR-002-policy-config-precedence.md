@@ -1,9 +1,8 @@
 # ADR-002: Policy Config Precedence and Project Override Contract
 
-**Status:** Accepted  
-**Date:** 2026-06-10  
-**Deciders:** Developer (bitmosh)  
-**Related Plans:** [10_policy_management.md](../implementations/plans/10_policy_management.md), [12_git_integration.md](../implementations/plans/12_git_integration.md)  
+**Status:** Accepted
+**Date:** 2026-06-10
+**Deciders:** Developer (bitmosh)
 **Related ADRs:** [ADR-001](ADR-001-mcp-transport-and-trust-model.md) (MCP session trust reads from the same config chain), [ADR-003](ADR-003-graph-export-contract.md) (policy version is a graph node property)
 
 ---
@@ -290,44 +289,44 @@ def _cached_load_project_override(cwd: Path, mtime: float) -> ProjectOverride | 
 
 ### Phase 1 — Config chain infrastructure (~200 lines, no behavior change)
 
-**Scope:** `project_override.py` (discovery + loading + tighten-only validation), `EffectivePolicy` dataclass, `conftest.py` isolation fixture.  
-**Acceptance:** `find_project_config()` correctly walks up to git root. `load_project_override()` raises `PolicyOverrideViolation` on a loosening config. All 758 existing tests still pass (conftest fixture ensures no test accidentally uses a real `.policy-scout.yaml`).  
-**Commit:** `feat(policy): project override loading + tighten-only validation`  
+**Scope:** `project_override.py` (discovery + loading + tighten-only validation), `EffectivePolicy` dataclass, `conftest.py` isolation fixture.
+**Acceptance:** `find_project_config()` correctly walks up to git root. `load_project_override()` raises `PolicyOverrideViolation` on a loosening config. All 758 existing tests still pass (conftest fixture ensures no test accidentally uses a real `.policy-scout.yaml`).
+**Commit:** `feat(policy): project override loading + tighten-only validation`
 **Unlocks:** Phase 2. Nothing changes in the policy engine yet — this is pure loading logic.
 
 ### Phase 2 — Policy engine integration (~60 lines delta)
 
-**Scope:** Wire `load_effective_policy()` into `PolicyEngine.decide()`. Add `config_override` constructor param. Add `ProjectOverrideLoaded`/`ProjectOverrideViolated` audit events.  
-**Acceptance:** `policy-scout check -- some-command` in a project with a `.policy-scout.yaml` that adds a DENY rule correctly denies it. Same command outside the project uses global policy only. `policy-scout policy show --effective` shows the merged rule list with layer annotations.  
-**Regression test:** Full eval suite (`policy-scout eval run`) must produce identical results to baseline — project configs in the repo root should not change any eval case outcomes.  
-**Commit:** `feat(policy): wire project override into policy engine hot path`  
+**Scope:** Wire `load_effective_policy()` into `PolicyEngine.decide()`. Add `config_override` constructor param. Add `ProjectOverrideLoaded`/`ProjectOverrideViolated` audit events.
+**Acceptance:** `policy-scout check -- some-command` in a project with a `.policy-scout.yaml` that adds a DENY rule correctly denies it. Same command outside the project uses global policy only. `policy-scout policy show --effective` shows the merged rule list with layer annotations.
+**Regression test:** Full eval suite (`policy-scout eval run`) must produce identical results to baseline — project configs in the repo root should not change any eval case outcomes.
+**Commit:** `feat(policy): wire project override into policy engine hot path`
 **Unlocks:** Phase 3, Phase 4. ADR-001 Phase 1 (MCP server) can now reference the config chain for agent trust settings.
 
 ### Phase 3 — Policy simulator (~200 lines)
 
-**Scope:** `simulator.py` → `simulate()` function returning full `SimulationResult` with `RuleTrace` list; `policy-scout policy simulate` CLI command.  
-**Acceptance:** `policy-scout policy simulate -- npm install lodash` prints full rule trace showing which rule fired and why. `simulate()` returns identical final decisions to `decide()` for all eval suite cases (validated by a new test).  
-**Commit:** `feat(policy): policy simulator with full rule trace`  
+**Scope:** `simulator.py` → `simulate()` function returning full `SimulationResult` with `RuleTrace` list; `policy-scout policy simulate` CLI command.
+**Acceptance:** `policy-scout policy simulate -- npm install lodash` prints full rule trace showing which rule fired and why. `simulate()` returns identical final decisions to `decide()` for all eval suite cases (validated by a new test).
+**Commit:** `feat(policy): policy simulator with full rule trace`
 **Unlocks:** Phase 4 (history tester calls `simulate()` for each historical event).
 
 ### Phase 4 — History tester (~180 lines)
 
-**Scope:** `history_tester.py` → `test_against_history()` pulling `DecisionIssued` events from the audit store, re-simulating with current or candidate policy, reporting diffs.  
-**Acceptance:** `policy-scout policy test --against-history --days 7` runs without error on a populated audit store. If no policy changes have been made, reports `0 changed decisions`. With a known policy change (add a test fixture rule), reports the correct change count.  
-**Commit:** `feat(policy): history tester — replay audit decisions against current policy`  
+**Scope:** `history_tester.py` → `test_against_history()` pulling `DecisionIssued` events from the audit store, re-simulating with current or candidate policy, reporting diffs.
+**Acceptance:** `policy-scout policy test --against-history --days 7` runs without error on a populated audit store. If no policy changes have been made, reports `0 changed decisions`. With a known policy change (add a test fixture rule), reports the correct change count.
+**Commit:** `feat(policy): history tester — replay audit decisions against current policy`
 **Unlocks:** Phase 5 (validator uses history data for coverage checking).
 
 ### Phase 5 — Policy validator (~250 lines)
 
-**Scope:** `validator.py` → unreachable rule detection, contradiction detection, missing coverage (using eval suite); `policy-scout policy validate` CLI; doctor integration.  
-**Acceptance:** Validator correctly identifies: (a) a known-unreachable rule in a fixture policy, (b) a known contradiction in a fixture policy, (c) an eval case that falls through to no rule. `policy-scout doctor` shows the policy validation row.  
+**Scope:** `validator.py` → unreachable rule detection, contradiction detection, missing coverage (using eval suite); `policy-scout policy validate` CLI; doctor integration.
+**Acceptance:** Validator correctly identifies: (a) a known-unreachable rule in a fixture policy, (b) a known contradiction in a fixture policy, (c) an eval case that falls through to no rule. `policy-scout doctor` shows the policy validation row.
 **Commit:** `feat(policy): policy validator — unreachable rules, contradictions, coverage gaps`
 
 ### Phase 6 — Policy versioning and commit (~80 lines)
 
-**Scope:** `policy-scout policy commit` command (git add the data files + git commit).  
-**Note:** This is the lowest-priority step in [10]. The simulator and validator deliver most of the value. Versioning is useful but not blocking.  
-**Acceptance:** `policy-scout policy commit -m "tighten: deny pip installs"` creates a git commit containing only the policy data files.  
+**Scope:** `policy-scout policy commit` command (git add the data files + git commit).
+**Note:** This is the lowest-priority step in [10]. The simulator and validator deliver most of the value. Versioning is useful but not blocking.
+**Acceptance:** `policy-scout policy commit -m "tighten: deny pip installs"` creates a git commit containing only the policy data files.
 **Commit:** `feat(policy): policy commit — snapshot registry state to git`
 
 ---

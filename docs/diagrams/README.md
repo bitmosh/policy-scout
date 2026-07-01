@@ -1,39 +1,22 @@
-# Policy Scout Diagrams
+# Architecture diagrams
 
-This folder contains individual Mermaid diagram source files.
+Mermaid source files in this directory illustrate important Policy Scout flows.
+They are explanatory and may omit newer optional subsystems.
 
-The main combined diagram doc is:
+| File | Subject |
+|---|---|
+| `01-system-architecture-map.mmd` | High-level component map |
+| `02-core-safety-boundary.mmd` | Actor, policy, execution, and audit boundary |
+| `03-granular-evaluation-pipeline.mmd` | Parse/classify/score/decide signals |
+| `04-policy-decision-tree.mmd` | Decision routing |
+| `05-sandbox-install-flow.mmd` | Package review path |
+| `06-sweep-engine-flow.mmd` | Sweep evidence path |
+| `07-audit-reporting-flow.mmd` | Audit and report outputs |
+| `08-approval-queue-flow.mmd` | One-time approval lifecycle |
+| `09-risk-clutch-flow.mmd` | Earlier risk/mode design; partly aspirational |
+| `10-integration-boundary.mmd` | Adapter boundary |
+| `11-local-first-data-map.mmd` | Local durable state |
+| `12-cerebra-lumaweave-bridge.mmd` | Historical ecosystem design; not a core guarantee |
 
-```text
-../MERMAID_DIAGRAMS.md
-```
-
-These split `.mmd` files are easier to render one-by-one.
-
-## Suggested Use
-
-1. Preview the `.mmd` file.
-2. Export to SVG or PNG.
-3. Store rendered assets in `docs/assets/diagrams/`.
-4. Reference rendered diagrams from README and docs.
-
-## Recommended First Renders
-
-```text
-01-system-architecture-map.mmd
-02-core-safety-boundary.mmd
-03-granular-evaluation-pipeline.mmd
-05-sandbox-install-flow.mmd
-07-audit-reporting-flow.mmd
-```
-
-## Doctrine
-
-Diagrams should clarify the safety boundary:
-
-```text
-Actors request.
-Policy Scout decides.
-Executors obey.
-Audit records everything.
-```
+Current behavior is defined by code, tests, YAML registries, and
+`docs/IMPLEMENTATION_STATUS.md`, not by a diagram.

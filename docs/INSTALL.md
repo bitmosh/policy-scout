@@ -1,393 +1,178 @@
-# Policy Scout Installation and Development Setup
+# Installation and development
 
-## Purpose
+Policy Scout v0.3.9 is installed from source. It is not published to PyPI and
+does not currently ship a desktop installer.
 
-This document provides a complete fresh-install and development setup guide for Policy Scout v0.1-alpha. It covers Python CLI setup, desktop UI development, data locations, verification commands, and safety boundaries.
+## Requirements
 
-**Supported local development target:** Linux (Ubuntu/Debian primary, other Linux distros may work with dependency adjustments).
+Core CLI:
 
-## Shipping Model
+- Python 3.12 or newer;
+- Git;
+- Rust stable to build the vendored Fossic PyO3 extension.
 
-**CLI-first, desktop dogfooded.**
+Optional workflows require their own host tools:
 
-- The CLI is the source of truth for policy decisions, audit, reports, sweeps, and JSON contracts.
-- The Tauri desktop app is an optional read-only/check-only companion.
-- The desktop app does not replace the CLI authority.
-- The desktop app should be verified with the same green checkpoint commands plus native smoke before use.
-- Decision Check remains check-only and calls `policy-scout check --json` through a bounded adapter.
-- No command execution, approval resolution, sandbox migration, cleanup deletion, shell plugin, or arbitrary argv UI is shipped in v0.4.
+- npm, pnpm, yarn, or bun for real package review;
+- `ss` or `netstat` and `ps` for portions of quick sweep;
+- Git for history/staged integration;
+- Linux `unshare`, optionally `strace` and OverlayFS support, for `sandbox-run`;
+- Node.js 22, Rust stable, and WebKit/GTK libraries for the Tauri desktop.
 
----
-
-## System Requirements
-
-### Python CLI
-- Python 3.12 or higher
-- pip (comes with Python)
-- Virtual environment (recommended): `python -m venv`
-
-### Desktop UI (optional)
-- Node.js 22 or higher
-- npm or yarn
-- Rust stable toolchain
-- Linux system dependencies for Tauri:
-  - `libwebkit2gtk-4.1-dev`
-  - `libappindicator3-dev`
-  - `librsvg2-dev`
-  - `patchelf`
-
----
-
-## Python Setup
-
-### 1. Clone the repository
+## CLI setup
 
 ```bash
-git clone https://github.com/bitmosh/policy-scout.git
+git clone <repository-url>
 cd policy-scout
-```
 
-### 2. Create a virtual environment (recommended)
-
-```bash
-python -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
+python -m pip install ./vendor/fossic/fossic-py
+python -m pip install -e ".[dev]"
 ```
 
-Using a virtual environment avoids externally-managed Python issues on some systems.
+Policy Scout declares PyYAML as its direct runtime dependency. Fossic 1.8.1 is
+vendored under `vendor/fossic/` and installed from that local source before
+Policy Scout. Building it may download ordinary Maturin/Cargo build dependencies,
+but it does not clone or import the upstream Fossic repository. The development
+extra installs pytest. `jsonschema` is optional; contract tests skip schema
+validation when unavailable.
 
-### 3. Install Policy Scout in editable mode
+## Verify the installation
 
 ```bash
-pip install -e ".[dev]"
+policy-scout --help
+policy-scout doctor --json
+policy-scout eval run
+python -m pytest -q
 ```
 
-This installs:
-- The `policy-scout` console script
-- Runtime dependencies (pyyaml)
-- Development dependencies (pytest)
+At the 2026-06-30 verification point, the repository produced 44/44 eval passes
+and 1,150 Python test passes with 2 environment-dependent skips. Treat this as a
+dated baseline, not a hard-coded expected count.
 
-### 4. Verify installation
+## Safe first commands
+
+```bash
+policy-scout demo
+policy-scout check -- ls
+policy-scout check -- npm install lodash
+policy-scout policy show
+policy-scout data status
+```
+
+`demo` and `check` do not execute submitted command text. The demo creates a
+temporary workspace for inspection.
+
+## Local state
+
+Default durable state is under `~/.local/share/policy-scout/`:
+
+```text
+audit.db
+audit.jsonl
+approvals.jsonl
+fossic.db
+reports/
+sandboxes/
+sweeps/
+migrations/
+backups/
+```
+
+Some directories are created lazily. An empty report list on a fresh install is
+normal.
+
+## Isolated state
+
+Tests and disposable manual checks should never use the real user data directory.
+Override the relevant paths:
+
+```bash
+export POLICY_SCOUT_AUDIT_DB_PATH=/tmp/policy-scout-test/audit.db
+export POLICY_SCOUT_AUDIT_PATH=/tmp/policy-scout-test/audit.jsonl
+export POLICY_SCOUT_APPROVAL_PATH=/tmp/policy-scout-test/approvals.jsonl
+export POLICY_SCOUT_REPORT_ROOT=/tmp/policy-scout-test/reports
+export POLICY_SCOUT_SANDBOX_ROOT=/tmp/policy-scout-test/sandboxes
+export POLICY_SCOUT_SWEEP_ROOT=/tmp/policy-scout-test/sweeps
+export POLICY_SCOUT_MIGRATION_ROOT=/tmp/policy-scout-test/migrations
+export POLICY_SCOUT_BACKUP_ROOT=/tmp/policy-scout-test/backups
+export POLICY_SCOUT_FOSSIC_DB_PATH=/tmp/policy-scout-test/fossic.db
+```
+
+`POLICY_SCOUT_EVAL_CASES_PATH` selects an alternate eval YAML file.
+
+## Running from a checkout
+
+After editable installation, prefer the console script. From the repository root,
+module invocation also works:
 
 ```bash
 policy-scout doctor
+python -m policy_scout.cli.main doctor
 ```
 
-You should see health diagnostics output indicating successful installation.
+Subprocess tests intentionally set `PYTHONPATH` so they import this checkout.
+Run the full suite from the repository root because smoke tests inherit their
+working directory.
 
----
+## Desktop development
 
-## CLI Verification
-
-Run these commands to verify the CLI is working correctly:
-
-```bash
-# Health diagnostics
-policy-scout doctor --json
-
-# Evaluation suite (44 test cases)
-policy-scout eval run
-
-# Check a safe command
-policy-scout check -- ls
-
-# Check a risky command
-policy-scout check -- npm install lodash
-```
-
----
-
-## Desktop Setup (Optional)
-
-The desktop UI is an experimental read-only dashboard. It is not required for CLI development.
-
-### 1. Install Node dependencies
+The desktop is an optional Tauri companion whose backend invokes the installed
+CLI.
 
 ```bash
 cd ui/desktop
-npm install
-```
-
-### 2. Build the frontend
-
-```bash
+npm ci
 npm run build
-```
 
-This runs TypeScript compilation and Vite build.
-
-### 3. Install system dependencies for Tauri (Linux)
-
-```bash
-sudo apt-get update
-sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-```
-
-### 4. Verify Rust backend
-
-```bash
 cd src-tauri
 cargo check
 cargo test
 ```
 
-### 5. Launch the native app
+For live native data:
 
 ```bash
-cd /path/to/policy-scout/ui/desktop
+cd ui/desktop
 npm run tauri dev
 ```
 
-This launches the native Tauri application window with live CLI data.
+Browser preview uses mock data and cannot validate native CLI invocation.
 
-### Browser preview (static layout only)
+Typical Debian/Ubuntu native dependencies include
+`libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, and `patchelf`.
+Package names vary by distribution.
 
-```bash
-npm run dev
-```
+## CI
 
-Opens a browser at http://localhost:1420. This mode cannot load live CLI data (Tauri invoke APIs unavailable in browser context).
+`.github/workflows/ci.yml` has two jobs:
 
----
+- Python 3.12: editable install, doctor, eval, and pytest;
+- desktop: Node 22 frontend build plus Rust `cargo check` and `cargo test`.
 
-## Data Locations
-
-Policy Scout stores all data locally under `~/.local/share/policy-scout/` by default.
-
-### Default paths
-
-- **Audit store (SQLite):** `~/.local/share/policy-scout/audit.db`
-- **Audit stream (JSONL):** `~/.local/share/policy-scout/audit.jsonl`
-- **Approvals:** `~/.local/share/policy-scout/approvals.jsonl`
-- **Reports:** `~/.local/share/policy-scout/reports/`
-- **Sandbox workspaces:** `~/.local/share/policy-scout/sandboxes/`
-- **Sandbox results:** `~/.local/share/policy-scout/sandbox-results/`
-- **Migrations:** `~/.local/share/policy-scout/migrations/`
-- **Backups:** `~/.local/share/policy-scout/backups/`
-
-### Override paths with environment variables
-
-- `POLICY_SCOUT_AUDIT_DB_PATH` - SQLite database path
-- `POLICY_SCOUT_AUDIT_PATH` - JSONL file path
-- `POLICY_SCOUT_APPROVAL_PATH` - Approvals storage path
-- `POLICY_SCOUT_REPORT_ROOT` - Reports directory path
-- `POLICY_SCOUT_SANDBOX_ROOT` - Sandbox workspaces path
-- `POLICY_SCOUT_SWEEP_ROOT` - Sweep outputs path
-- `POLICY_SCOUT_MIGRATION_ROOT` - Migration backups path
-- `POLICY_SCOUT_BACKUP_ROOT` - General backups path
-
-### Empty states
-
-On a fresh install with no data yet:
-- `policy-scout doctor --json` will pass with a warning for report directory (not created until first report)
-- `policy-scout audit stats --json` will return `{"total_events": 0, "by_type": {}}`
-- `policy-scout audit list --json` will return an empty array `[]`
-- `policy-scout report list --json` will return an error: "No Scout Reports found. Run a Policy Scout command with --report, sandbox, or sweep first."
-- `policy-scout data status --json` will show zero counts for all categories
-
-This is normal behavior. Generate safe demo data by running:
-```bash
-policy-scout check --json "git status"
-policy-scout check --json "npm install left-pad"
-policy-scout check --json "rm -rf /"
-```
-
-These check commands create audit events without executing any commands. After running checks, `policy-scout audit list --json` will show events and `policy-scout audit stats --json` will show counts.
-
----
-
-## Green Checkpoint Commands
-
-Run these commands from the repository root to verify a complete working setup:
-
-```bash
-# From repo root
-cd /path/to/policy-scout
-
-# Python/CLI verification
-python -m pytest -q
-PYTHONPATH=/path/to/policy-scout python -m policy_scout.cli.main doctor --json
-PYTHONPATH=/path/to/policy-scout python -m policy_scout.cli.main eval run
-
-# Desktop verification (if using desktop UI)
-cd ui/desktop
-npm run build
-
-cd src-tauri
-cargo check
-cargo test
-```
-
-Expected results:
-- pytest: 1098 passed
-- doctor: JSON output with all checks "ok"
-- eval: 44/44 passed
-- npm build: successful compilation
-- cargo check: successful compilation
-- cargo test: 18 passed
-
----
-
-## Desktop Dogfood Checklist
-
-Before trusting the desktop app, verify it through Policy Scout's own CLI checks:
-
-```bash
-# CLI verification
-policy-scout doctor --json
-policy-scout eval run
-policy-scout check --json "git status"
-policy-scout check --json "npm install left-pad"
-policy-scout check --json "rm -rf /"
-
-# Desktop build verification
-cd ui/desktop
-npm run build
-cd src-tauri
-cargo check
-cargo test
-
-# Native app verification
-cd /path/to/policy-scout/ui/desktop
-npm run tauri dev
-```
-
-In the native app:
-- Verify Decision Check shows "NOT EXECUTED" on all results
-- Verify Audit Events populates after check probes
-
----
-
-## Native Smoke Checklist
-
-**After the green checkpoint commands, run the native smoke checklist to validate the Tauri desktop UI.**
-
-The authoritative native dashboard smoke checklist for v0.4 CLI-first local alpha is:
-
-`docs/compressed/TAURI_NATIVE_MANUAL_SMOKE_CHECKLIST_SOURCE.md`
-
-This checklist verifies:
-- Native window startup and Tauri invoke paths
-- Live data loading from CLI
-- Card rendering and selector behavior
-- Safety boundary enforcement (no execution, no mutation, no approval, no deletion UI)
-- Browser preview fallback behavior
-- Redaction and evidence styling
-- Empty/error state display
-
-**Important:** Browser preview (`npm run dev`) is not sufficient for native invoke validation. The native Tauri runtime (`npm run tauri dev`) is required to validate live data loading and Rust adapter behavior.
-
----
-
-## Safety Boundaries
-
-### Desktop UI is read-only/check-only
-
-The Tauri desktop UI is explicitly constrained to read-only display:
-- No command execution UI
-- No approval resolution UI
-- No sandbox migration UI
-- No cleanup deletion (dry-run preview only)
-- No report/audit export or deletion UI
-- No arbitrary shell access
-- No direct SQLite or filesystem access from frontend
-
-### Report and evidence display
-
-The desktop UI displays reports and evidence with these safeguards:
-- **Redaction placeholders** (`<redacted:possible_token>`, etc.) are styled distinctly as "Protected evidence placeholder" — this is intentional privacy protection, not a broken output
-- **Could-not-verify states** appear as review/unknown sections (amber/neutral tone), not critical danger — this avoids creating false certainty about unverified aspects
-- **Long findings are previewed** (first 10 findings, first 5 could-not-verify checks) with message "Showing first X of Y — run from CLI for full results" — this keeps UI responsive while directing users to CLI for complete results
-- Report detail shows report ID, type, title, created_at, findings, could_not_verify, recommended_actions, and credential_exposure_assessment
-- No raw JSON dumps in the UI — structured display only
-
-### Audit events display
-
-The desktop UI displays audit events with these safeguards:
-- **Audit Stats** shows total events and counts by event type, with time range (first/last event timestamps)
-- **Audit Events List** shows recent events with event ID, type, summary, and timestamp
-- **Event type filter** allows filtering by 13 specific event types (All recent events, SweepCompleted, SweepError, SandboxInstallCompleted, SandboxInstallStarted, SandboxResultWritten, ScoutReportGenerated, CommandExecutionCompleted, CommandExecutionBlocked, ApprovalRequested, ApprovalApprovedOnce, ApprovalDeniedOnce, DecisionIssued)
-- **Empty state** explains how to generate events: "No audit events found. Run a check, sweep, or report command to generate audit entries."
-- **Event detail** shows event ID, event type, timestamp, request ID, actor (if present), summary, structured data payload, and additional fields (decision_id, approval_id, sandbox_id, sweep_id, report_id, execution_id, schema_version, created_at)
-- **Redaction is respected** in event detail with redaction notice when applicable
-- **Audit surfaces are read-only** — no deletion, export, or mutation controls
-
-### Cleanup is dry-run only
-
-The `policy-scout data cleanup` command is preview-only in v0.1:
-- Reports planned items, estimated sizes, and warnings
-- No deletion path exists
-- No `--yes` flag exists
-- High-risk targets (audit, reports, approvals, migrations, backups) are not supported
-
-### Setup does not require risky commands
-
-This guide does not ask you to:
-- Run unknown install scripts
-- Execute network-fetched code
-- Modify system permissions
-- Install untrusted packages
-
----
+CI does not build a packaged Tauri installer or perform native click-level UI
+testing.
 
 ## Troubleshooting
 
-### Python externally-managed error
+### Vendored Fossic build fails
 
-If you see an error about externally-managed Python environments:
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
+Confirm Rust stable is installed and run the local install from the repository
+root: `python -m pip install ./vendor/fossic/fossic-py`. No upstream Fossic
+checkout is required.
 
-### Tauri build fails on Linux
+### Package sandbox command is unavailable
 
-Install the required system dependencies:
-```bash
-sudo apt-get update
-sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-```
+Install the requested package manager separately. Policy Scout does not install
+npm, pnpm, yarn, or bun for you.
 
-### pytest fails from subdirectory
+### General sandbox prerequisites fail
 
-Always run pytest from the repository root:
-```bash
-cd /path/to/policy-scout
-python -m pytest
-```
+Run `policy-scout sandbox-check-prereqs --json`. Linux distributions and
+containerized development environments commonly disable required namespace or
+mount features.
 
-Some subprocess-based smoke tests inherit CWD and will fail if invoked from subdirectories.
+### Tests fail from a subdirectory
 
-### CLI not found after install
-
-Ensure your virtual environment is activated:
-```bash
-source .venv/bin/activate
-policy-scout doctor
-```
-
-Or use the module form:
-```bash
-PYTHONPATH=/path/to/policy-scout python -m policy_scout.cli.main doctor
-```
-
----
-
-## Known Limitations
-
-- **Desktop UI:** Read-only/check-only, not production-ready
-- **Sandbox:** npm-only (pnpm/yarn/bun sandbox execution deferred)
-- **Redaction:** Regex-based only, may miss novel secrets
-- **Data cleanup:** Preview-only (no deletion path yet)
-- **Platform:** Linux-first for quick sweep, namespace sandbox, and desktop UI
-
----
-
-## Next Steps
-
-After successful setup:
-- Run `policy-scout demo` for a safe demo sequence
-- Read `README.md` for usage examples
-- See `docs/IMPLEMENTATION_STATUS.md` for implementation status
-- See `ui/desktop/README.md` for desktop UI details
+Return to the repository root and run `python -m pytest`.

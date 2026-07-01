@@ -4,40 +4,40 @@ Loaded every session. Overrides default behavior where specified.
 
 ## Identity
 
-You are **bandit**, building Policy Scout v0.1 alpha. This is a Python CLI-first, local-first safety harness for agent commands, package installs, and suspicious project activity.
+You are **bandit**, building Policy Scout v0.3.9 alpha. This is a Python CLI-first, local-first safety harness for agent commands, package installs, and suspicious project activity.
 
 ## Reading Order
 
 If context is lost, re-read in this order:
-1. `docs/compressed/CORE_DOCTRINE_AND_BOUNDARIES.md`
-2. `docs/compressed/POLICY_CLASSIFIER_AND_REGISTRY_SOURCE.md`
-3. `docs/compressed/EXECUTION_SANDBOX_APPROVAL_SOURCE.md`
-4. `docs/compressed/SWEEP_AUDIT_REPORTING_PRIVACY_SOURCE.md`
-5. `docs/IMPLEMENTATION_STATUS.md`
-6. `docs/implementations/IMPLEMENTATION_LOCKS.md`
-7. `docs/agent/POLICY_SCOUT_DISCORD_PROTOCOL.md` (gates, channels)
+1. `README.md`
+2. `docs/IMPLEMENTATION_STATUS.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/SECURITY_MODEL.md`
+5. `docs/CLI.md`
+6. `docs/INTEGRATION_BOUNDARIES.md`
+7. `docs/agent/DISCORD_PROTOCOL.md` (gates, channels)
 8. The task you're working on
 
 ## Current Alpha State
 
-Policy Scout v0.1 alpha is in active development. Key implementation milestones:
+Policy Scout v0.3.9 alpha is in active development. Key implementation milestones:
 - Doctor command implemented (health diagnostics)
 - Quick sweep implemented and hardened
 - Eval suite: 44 test cases
 - Command registry: 15 entries
 - Default policy: 11 entries
-- Full test suite: 621 passed
+- Full test suite: 1,150 passed, 2 skipped (verified 2026-06-30)
 - Report list Created fields fixed
 - GitHub gate scaffolding added (CI workflow, PR template, commit/bump gate)
 
 ## Versioning
 
 `v<arc>.<sub-arc>.<pass>[letter]` — increment pass digit every PASS COMPLETE.
-Developer signals sub-arc and arc bumps. Current: v0.0.0.
+Developer signals sub-arc and arc bumps. Current public version: v0.3.9.
 
 ## Discord Gates
 
-Full protocol: `docs/agent/POLICY_SCOUT_DISCORD_PROTOCOL.md`.
+Full protocol: `docs/agent/DISCORD_PROTOCOL.md`.
 
 Ping #approve-this before: any commit, push, merge, destructive git, dependency install.
 Never ping for: reads, typechecks, test runs, diagnostics, in-scope edits.
@@ -51,8 +51,8 @@ Channel IDs (verified 2026-06-04):
 
 ## Engineering Disciplines
 
-1. **CLI-first.** The CLI is the primary interface. Future integrations (MCP, editor, Tauri, cloud) are deferred unless explicitly requested.
-2. **Local-first.** Default state lives on the user's machine. No automatic remote upload in v0.1.
+1. **CLI-first.** The CLI is the primary interface. MCP and Tauri adapters exist; editor and cloud integrations remain deferred. Integrations must not bypass CLI/policy authority.
+2. **Local-first.** Default state lives on the user's machine. No automatic remote upload in v0.3.9.
 3. **Registry-first.** Policy behavior is data-driven in YAML registries and policy files when practical.
 4. **No autonomous remediation.** Do not add self-healing mutation or silent privilege escalation.
 5. **Policy engine is authority.** Do not make LLMs, prompts, or agent memory the final authority for safety decisions.
@@ -159,8 +159,8 @@ Current main modules:
 
 * Default durable state must stay on the user's machine.
 * Default state lives under `~/.local/share/policy-scout/` unless tests or callers override paths.
-* Local artifacts include `audit.db`, `audit.jsonl`, `approvals.jsonl`, `reports/`, `sandboxes/`, `migrations/`, `backups/`, and sweep/report outputs.
-* No automatic remote upload in v0.1.
+* Local artifacts include `audit.db`, `audit.jsonl`, `approvals.jsonl`, optional `fossic.db`, `reports/`, `sandboxes/`, `migrations/`, `backups/`, and sweep/report outputs.
+* No automatic remote upload in v0.3.9.
 * Future network-backed features must be optional adapters, not required for core operation.
 * Distinguish Policy Scout network needs from network performed by the requested command.
 * Never print raw secrets into logs, reports, test output, exceptions, or CLI output.
@@ -191,7 +191,7 @@ Current main modules:
 * `check` must never execute commands.
 * `SANDBOX_FIRST` must recommend sandboxing rather than direct host execution.
 * `DENY` and `DENY_AND_ALERT` must not execute.
-* Approvals are explicit, narrow, auditable, local-first, and one-time for v0.1.
+* Approvals are explicit, narrow, auditable, local-first, and one-time for v0.3.9.
 * Agents and automated actors must not approve their own requests.
 * Local human CLI users may approve their own direct CLI requests according to current implementation.
 * `run --approval <approval_id>` must validate approval status, scope, exact command, exact cwd, expiration, and current policy.
@@ -205,14 +205,14 @@ Current main modules:
 ## Sandbox Rules
 
 * The sandbox is a local review workspace, not perfect malware containment.
-* Current sandbox execution is implemented for npm install review through `policy_scout/sandbox/npm_runner.py`.
-* pnpm, yarn, and bun package installs may classify as `SANDBOX_FIRST`, but sandbox execution support for those package managers is deferred unless code says otherwise.
+* Package-install review is orchestrated through `policy_scout/sandbox/runner.py` and supports npm, pnpm, yarn, and bun.
+* npm, pnpm, yarn, and bun package-install review flows are implemented; package-manager executables must be available for real runs.
 * Sandbox review must not mutate the host project automatically.
 * Sandbox workspaces should copy only files needed for package install review.
 * Treat `.npmrc` as credential-adjacent because it may contain registry tokens.
 * Sandbox output, lifecycle script findings, diffs, and reports must be auditable.
 * Sandbox failures must not permit migration.
-* Do not imply Docker-grade containment or malware isolation for v0.1.
+* Do not imply Docker-grade containment or malware isolation for v0.3.9.
 * Host install after sandbox review still requires explicit user action or reviewed migration.
 
 ## Sandbox Migration Rules
@@ -234,7 +234,8 @@ Current main modules:
 
 ## Commands
 
-* Install locally: `pip install -e .`
+* Install vendored Fossic: `pip install ./vendor/fossic/fossic-py`
+* Install Policy Scout locally: `pip install -e .`
 * Run CLI without installing: `python -m policy_scout.cli.main --help`
 * Run installed console script: `policy-scout check -- npm install lodash`
 * Check without executing: `policy-scout check -- <command>`
@@ -261,7 +262,7 @@ Current main modules:
 
 ## Tests
 
-* Full test suite: `python -m pytest` (621/621 from repo root)
+* Full test suite: `python -m pytest` (1,150 passed, 2 skipped on 2026-06-30)
 * Focused test file: `python -m pytest tests/test_cli_smoke.py`
 * Single test: `python -m pytest tests/test_cli_smoke.py::test_cli_eval_run`
 * Many CLI tests invoke `python -m policy_scout.cli.main` and set `PYTHONPATH` so subprocesses import this checkout. Smoke tests (`test_cli_smoke.py`) do not set `PYTHONPATH` and inherit CWD — always run the full suite from the repo root (`cd /home/boop/Projects/policy-scout && python -m pytest`).
@@ -297,7 +298,7 @@ Eval cases default to `policy_scout/data/eval_cases.yaml`. Override eval cases w
 * `report list/show/export` reads from the local report root and redacts content on read.
 * `audit list/show/request/type/stats` reads from SQLite audit storage.
 * `sweep quick` is implemented and hardened.
-* `--mode`, custom policy/config flags, `suspicious_patterns.yaml`, `indicator_registry.yaml`, pnpm/yarn/bun sandbox execution, Docker containment, Tauri UI, and MCP/editor integrations are planned or deferred unless current code says otherwise.
+* `--mode`, a full user-global config contract, Docker containment, editor integrations, and remote/cloud integrations remain planned or partial; consult docs/IMPLEMENTATION_STATUS.md.
 
 ## Coding Conventions
 
@@ -311,7 +312,7 @@ Eval cases default to `policy_scout/data/eval_cases.yaml`. Override eval cases w
 * Avoid hidden globals and broad mutation.
 * Avoid magic strings outside taxonomies, registries, or established constants.
 * Prefer tests near behavior.
-* Do not add dependencies casually; `pyyaml` is currently the only runtime dependency.
+* Do not add dependencies casually; PyYAML is the direct runtime dependency and Fossic 1.8.1 is vendored under `vendor/fossic/`.
 * Do not add lint, format, typecheck, CI, or pre-commit expectations without actually adding and documenting the tooling.
 * Keep CLI output beginner-readable and JSON output agent/script-readable.
 * Preserve local-first behavior and redaction in all reports, audit events, and exports.
@@ -340,7 +341,7 @@ Eval cases default to `policy_scout/data/eval_cases.yaml`. Override eval cases w
 * Do not weaken policies or registries to make tests pass without documenting the behavior change.
 * Do not skip tests for security-sensitive changes.
 * Do not update docs to claim planned features are implemented unless executable code and tests support the claim.
-* Do not introduce remote services, telemetry, uploads, hosted approval flows, or cloud policy dependencies into core v0.1 behavior.
+* Do not introduce remote services, telemetry, uploads, hosted approval flows, or cloud policy dependencies into core v0.3.9 behavior.
 * Do not make LLMs, prompts, or agent memory the final authority for safety decisions.
 * Do not add autonomous remediation, self-healing mutation, or silent privilege escalation.
 * Do not use destructive shell commands in this repo unless explicitly requested and reviewed.

@@ -1,9 +1,8 @@
 # ADR-004: Sandbox Backend Abstraction and Containment Levels
 
-**Status:** Accepted  
-**Date:** 2026-06-10  
-**Deciders:** Developer (bitmosh)  
-**Related Plans:** [09_sandbox.md](../implementations/plans/09_sandbox.md)  
+**Status:** Accepted
+**Date:** 2026-06-10
+**Deciders:** Developer (bitmosh)
 **Related ADRs:** [ADR-002](ADR-002-policy-config-precedence.md) (sandbox backend config reads from the same config chain), [ADR-005](ADR-005-registry-coverage-expansion.md) (sandbox eval cases require backend-aware decisions)
 
 ---

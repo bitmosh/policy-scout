@@ -1,9 +1,8 @@
 # ADR-001: MCP Server Transport and Agent Trust Model
 
-**Status:** Accepted  
-**Date:** 2026-06-10  
-**Deciders:** Developer (bitmosh)  
-**Related Plans:** [06_mcp_server.md](../implementations/plans/06_mcp_server.md), [07_prompt_injection_detection.md](../implementations/plans/07_prompt_injection_detection.md)  
+**Status:** Accepted
+**Date:** 2026-06-10
+**Deciders:** Developer (bitmosh)
 **Related ADRs:** [ADR-002](ADR-002-policy-config-precedence.md) (trust level feeds into effective policy chain), [ADR-003](ADR-003-graph-export-contract.md) (MCP tool calls are graph nodes)
 
 ---
@@ -224,37 +223,37 @@ These phases are ordered so each one is independently mergeable and leaves the c
 
 ### Phase 1 — Print/Return Separation (prerequisite, ~200 lines delta)
 
-**Scope:** `cli/check.py` (or extract from `main.py`), the sandbox run path, the sweep run path.  
-**Acceptance:** All 758 existing tests still pass. The refactored functions return dicts when called with `output_format="dict"`. CLI behavior (`print` mode) is unchanged.  
-**Commit:** `refactor(cli): extract check/sandbox/sweep logic from print layer`  
+**Scope:** `cli/check.py` (or extract from `main.py`), the sandbox run path, the sweep run path.
+**Acceptance:** All 758 existing tests still pass. The refactored functions return dicts when called with `output_format="dict"`. CLI behavior (`print` mode) is unchanged.
+**Commit:** `refactor(cli): extract check/sandbox/sweep logic from print layer`
 **Unlocks:** Phase 2 and Phase 3.
 
 ### Phase 2 — Hook Mode (~60 lines)
 
-**Scope:** `--hook-mode` flag in `cli/check.py`, hook mode exit logic, JSON stderr schema.  
-**Acceptance:** `policy-scout check --hook-mode -- rm -rf /` exits 1 with correct JSON on stderr. `policy-scout check --hook-mode -- ls` exits 0.  
-**Commit:** `feat(cli): add --hook-mode for Claude Code PreToolUse hook integration`  
+**Scope:** `--hook-mode` flag in `cli/check.py`, hook mode exit logic, JSON stderr schema.
+**Acceptance:** `policy-scout check --hook-mode -- rm -rf /` exits 1 with correct JSON on stderr. `policy-scout check --hook-mode -- ls` exits 0.
+**Commit:** `feat(cli): add --hook-mode for Claude Code PreToolUse hook integration`
 **Unlocks:** Users can immediately register the hook in `.claude/settings.json` without waiting for the full MCP server. Delivers value independently.
 
 ### Phase 3 — MCP Server Core (~560 lines)
 
-**Scope:** `server/mcp_server.py`, `server/tool_definitions.py`, `server/handlers.py` (4 tools: check, sandbox, sweep, get_report), `server/session.py`, `serve install` command.  
-**Acceptance:** Server starts, responds to `initialize`, returns tool list, handles `policy_scout_check` call, returns structured response, writes audit event.  
-**Test:** Unit test each handler with mocked policy engine. Integration test: start server in thread, pipe JSON-RPC request, verify response.  
-**Commit:** `feat(server): MCP server v1 — stdio transport, 4 tools, session trust model`  
+**Scope:** `server/mcp_server.py`, `server/tool_definitions.py`, `server/handlers.py` (4 tools: check, sandbox, sweep, get_report), `server/session.py`, `serve install` command.
+**Acceptance:** Server starts, responds to `initialize`, returns tool list, handles `policy_scout_check` call, returns structured response, writes audit event.
+**Test:** Unit test each handler with mocked policy engine. Integration test: start server in thread, pipe JSON-RPC request, verify response.
+**Commit:** `feat(server): MCP server v1 — stdio transport, 4 tools, session trust model`
 **Unlocks:** Phase 4. Also enables [11] Desktop UI to display MCP session status.
 
 ### Phase 4 — Response Scanning Hook for [07] (~80 lines delta to handlers.py)
 
-**Scope:** Add `PostToolResponse` hook slot in `handlers.py`. `PromptInjectionAnalyzer` (from [07]) plugs in here.  
-**Note:** This phase is owned by [07], not [06]. Phase 3 must leave the hook slot visible in the code with a `# [07]: inject response scanner here` comment.  
-**Acceptance:** Phase 3 tests still pass. The hook slot exists and is documented.  
+**Scope:** Add `PostToolResponse` hook slot in `handlers.py`. `PromptInjectionAnalyzer` (from [07]) plugs in here.
+**Note:** This phase is owned by [07], not [06]. Phase 3 must leave the hook slot visible in the code with a `# [07]: inject response scanner here` comment.
+**Acceptance:** Phase 3 tests still pass. The hook slot exists and is documented.
 **Unlocks:** [07] can be implemented without touching the MCP server structure.
 
 ### Phase 5 — `serve install` and `.mcp.json` scaffolding (~80 lines)
 
-**Scope:** `policy-scout serve install --scope project|user`, writes `.mcp.json`.  
-**Acceptance:** Running `policy-scout serve install --scope project` creates `.mcp.json` with correct content. `policy-scout serve status` reports registration found.  
+**Scope:** `policy-scout serve install --scope project|user`, writes `.mcp.json`.
+**Acceptance:** Running `policy-scout serve install --scope project` creates `.mcp.json` with correct content. `policy-scout serve status` reports registration found.
 **Commit:** `feat(server): serve install — scaffold MCP registration files`
 
 ---

@@ -12,3 +12,7 @@ build/
 .env
 .env.*
 !.env.example
+
+# Design explorations and internal agent-ops docs — not product deliverables
+PS-Frontend/
+docs/aseptic/

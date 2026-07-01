@@ -1,16 +1,15 @@
 # ADR-003: Graph Export Contract and LumaWeave Boundary
 
-**Status:** Accepted  
-**Date:** 2026-06-10  
-**Deciders:** Developer (bitmosh)  
-**Related Plans:** [GRAPH_EXPORT_PLAN.md](../GRAPH_EXPORT_PLAN.md), [INTEGRATION_BOUNDARIES.md](../INTEGRATION_BOUNDARIES.md)  
+**Status:** Accepted
+**Date:** 2026-06-10
+**Deciders:** Developer (bitmosh)
 **Related ADRs:** [ADR-001](ADR-001-mcp-transport-and-trust-model.md) (MCP tool calls are graph nodes), [ADR-002](ADR-002-policy-config-precedence.md) (policy version is a node property)
 
 ---
 
 ## Context
 
-Policy Scout and LumaWeave have a clear conceptual boundary: Policy Scout decides, LumaWeave visualizes. This has been stated consistently in `INTEGRATION_BOUNDARIES.md` and `GRAPH_EXPORT_PLAN.md`. What those documents lack is a normative, versioned data contract — a JSON schema that both sides can implement against independently without coordination on every change.
+Policy Scout and LumaWeave have a clear conceptual boundary: Policy Scout decides, LumaWeave visualizes. This boundary is documented in `INTEGRATION_BOUNDARIES.md`. What those documents lack is a normative, versioned data contract — a JSON schema that both sides can implement against independently without coordination on every change.
 
 Without a locked contract, two expensive failure modes are likely as Tier 2 lands:
 
@@ -68,9 +67,9 @@ Rationale: JSON Lines is readable, appendable, and streamable. A full JSON array
 }
 ```
 
-Required fields on every node: `record_type`, `schema_version`, `id`, `node_type`, `label`, `timestamp`.  
-Optional but recommended: `properties`, `source_event_id`, `source_event_type`.  
-`label` must be safe for display — apply redaction before populating it.  
+Required fields on every node: `record_type`, `schema_version`, `id`, `node_type`, `label`, `timestamp`.
+Optional but recommended: `properties`, `source_event_id`, `source_event_type`.
+`label` must be safe for display — apply redaction before populating it.
 `properties` must not contain raw secrets. Values are strings, numbers, booleans, or arrays of those — no nested objects.
 
 ### D3 — Edge schema
@@ -89,7 +88,7 @@ Optional but recommended: `properties`, `source_event_id`, `source_event_type`.
 }
 ```
 
-Required fields: `record_type`, `schema_version`, `id`, `edge_type`, `source_id`, `target_id`.  
+Required fields: `record_type`, `schema_version`, `id`, `edge_type`, `source_id`, `target_id`.
 `source_id` and `target_id` must reference node IDs that appear in the same export file (or a previously exported file in an incremental export).
 
 ### D4 — Header record (line 1 of every export file)
@@ -327,29 +326,29 @@ LumaWeave must NOT call back into Policy Scout at ingestion time. It must NOT mo
 
 ### Phase 1 — Schema and mapping table (~150 lines)
 
-**Scope:** `schema.py` (constants), `node_factory.py` and `edge_factory.py` (event → node/edge transforms for the 18 event types in the mapping table D5), unit tests for each factory function.  
-**Acceptance:** Every event type in the mapping table has a test. Factory functions for unmapped event types return `None`. Schema constants are stable (no strings hardcoded outside `schema.py`).  
-**Commit:** `feat(export): graph schema constants and event-to-node/edge factory`  
+**Scope:** `schema.py` (constants), `node_factory.py` and `edge_factory.py` (event → node/edge transforms for the 18 event types in the mapping table D5), unit tests for each factory function.
+**Acceptance:** Every event type in the mapping table has a test. Factory functions for unmapped event types return `None`. Schema constants are stable (no strings hardcoded outside `schema.py`).
+**Commit:** `feat(export): graph schema constants and event-to-node/edge factory`
 **Unlocks:** Phase 2.
 
 ### Phase 2 — Export engine and CLI (~200 lines)
 
-**Scope:** `graph_exporter.py` (main export loop: query audit store → call factories → write NDJSON with header), `export` CLI command group, `GraphExported` audit event.  
-**Acceptance:** `policy-scout export graph --dry-run` runs against a populated test audit store, reports correct node/edge counts, writes no file. `policy-scout export graph --output /tmp/test.ndjson` writes valid NDJSON that passes a schema validator. Header record appears on line 1.  
-**Test:** Fixture audit store with 5 `DecisionIssued` events → export → verify node count = 10 (5 CommandRequest + 5 PolicyDecision), edge count = 5.  
-**Commit:** `feat(export): graph exporter CLI — on-demand NDJSON export`  
+**Scope:** `graph_exporter.py` (main export loop: query audit store → call factories → write NDJSON with header), `export` CLI command group, `GraphExported` audit event.
+**Acceptance:** `policy-scout export graph --dry-run` runs against a populated test audit store, reports correct node/edge counts, writes no file. `policy-scout export graph --output /tmp/test.ndjson` writes valid NDJSON that passes a schema validator. Header record appears on line 1.
+**Test:** Fixture audit store with 5 `DecisionIssued` events → export → verify node count = 10 (5 CommandRequest + 5 PolicyDecision), edge count = 5.
+**Commit:** `feat(export): graph exporter CLI — on-demand NDJSON export`
 **Unlocks:** Phase 3. LumaWeave can now begin building its ingestion layer against a stable file format.
 
 ### Phase 3 — Incremental export (~80 lines delta)
 
-**Scope:** `--since-export-id` flag — reads the last exported event ID from the previous export's header, queries only events after that ID.  
-**Acceptance:** Two sequential exports with `--since-export-id` produce no overlap (no duplicate node IDs). Total nodes across both exports equals what a single full export would produce.  
+**Scope:** `--since-export-id` flag — reads the last exported event ID from the previous export's header, queries only events after that ID.
+**Acceptance:** Two sequential exports with `--since-export-id` produce no overlap (no duplicate node IDs). Total nodes across both exports equals what a single full export would produce.
 **Commit:** `feat(export): incremental graph export via since-export-id`
 
 ### Phase 4 — MCP real-time graph emission (deferred, Phase 3 of ADR-001)
 
-**Scope:** When the MCP server is running and a LumaWeave client has subscribed (via `notifications/subscribe` to `graphEvent`), emit a `MCPToolCall` node record as a `notifications/graphEvent` notification after each tool call completes.  
-**Note:** This is a stretch goal for v1. The infrastructure (schema, factories) is ready after Phase 2. The MCP server needs `notifications/subscribe` support added. This is explicitly deferred to after ADR-001 Phase 3 is stable.  
+**Scope:** When the MCP server is running and a LumaWeave client has subscribed (via `notifications/subscribe` to `graphEvent`), emit a `MCPToolCall` node record as a `notifications/graphEvent` notification after each tool call completes.
+**Note:** This is a stretch goal for v1. The infrastructure (schema, factories) is ready after Phase 2. The MCP server needs `notifications/subscribe` support added. This is explicitly deferred to after ADR-001 Phase 3 is stable.
 **Commit:** `feat(server): real-time graph event notifications for subscribed LumaWeave clients`
 
 ---
