@@ -34,7 +34,7 @@ decision.
 
 ## Current release
 
-**v0.3.9 alpha**
+**v0.3.16 alpha**
 
 - Python 3.12+
 - 15 registry-backed command patterns

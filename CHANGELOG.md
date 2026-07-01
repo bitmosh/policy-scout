@@ -4,7 +4,7 @@ Per-pass change detail lives in Git history (`git log --oneline`). This file
 records significant milestones. v0.1 through v0.3.8 are consolidated below;
 v0.3.9 entries reflect the current baseline.
 
-## v0.3.9
+## v0.3.16
 
 ### Added
 - MIT license

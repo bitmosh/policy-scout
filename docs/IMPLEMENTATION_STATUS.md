@@ -1,6 +1,6 @@
 # Implementation status
 
-**Release:** v0.3.9 alpha
+**Release:** v0.3.16 alpha
 **Verified:** 2026-06-30
 
 This is a capability snapshot, not a milestone log. “Implemented” means an
