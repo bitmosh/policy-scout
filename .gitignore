@@ -16,3 +16,6 @@ build/
 # Design explorations and internal agent-ops docs — not product deliverables
 PS-Frontend/
 docs/aseptic/
+
+# Local Claude Code session config (hooks, etc.) — per-machine, not for cloners
+.claude/
