@@ -17,5 +17,12 @@ build/
 PS-Frontend/
 docs/aseptic/
 
-# Local Claude Code session config (hooks, etc.) — per-machine, not for cloners
+# AI agent session files and internal development coordination
 .claude/
+AGENTS.md
+CLAUDE.md
+docs/agent/
+opencode.jsonc
+
+# LibreOffice and editor lock files
+.~lock.*
