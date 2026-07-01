@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 
 _DEFAULT_PATH = Path.home() / ".local" / "share" / "policy-scout" / "settings.json"
@@ -18,7 +19,11 @@ def read_settings() -> dict:
         return {}
     try:
         return json.loads(path.read_text())
-    except Exception:
+    except json.JSONDecodeError as exc:
+        print(f"Warning: settings file at {path} is corrupt and will be ignored: {exc}", file=sys.stderr)
+        return {}
+    except Exception as exc:
+        print(f"Warning: could not read settings from {path}: {exc}", file=sys.stderr)
         return {}
 
 

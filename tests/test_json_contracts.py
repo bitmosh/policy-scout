@@ -1206,4 +1206,30 @@ def test_scan_injection_json_has_required_fields(temp_state_paths):
     assert isinstance(data["findings"], list)
 
     _validate_schema(data, "injection_scan_data.json")
+
+
+def test_check_redacts_secret_in_jsonl_audit(temp_state_paths):
+    """Secret-like values in checked commands must be redacted in the persisted JSONL record.
+
+    Proves the redaction chain reaches the audit file — not just stdout.
+    The JSON contract tests cover stdout; this closes the JSONL gap.
+    """
+    tmpdir, report_root, env = temp_state_paths
+    jsonl_path = env["POLICY_SCOUT_AUDIT_PATH"]
+
+    # sk-ant- prefix matches the Anthropic token redaction pattern
+    secret = "sk-ant-api03-abc123def456ghi789jkl012"
+
+    subprocess.run(
+        ["python", "-m", "policy_scout.cli.main", "check", "--", f"echo {secret}"],
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert Path(jsonl_path).exists(), "JSONL audit file was not written by check"
+    jsonl_content = Path(jsonl_path).read_text()
+
+    assert secret not in jsonl_content, "Secret leaked into JSONL audit record unredacted"
+    assert "<redacted:" in jsonl_content, "Expected redaction placeholder absent from JSONL"
     _validate_mock("injection_scan_data.json", "scan_injection_result.json")

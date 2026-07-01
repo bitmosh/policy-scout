@@ -144,8 +144,26 @@ determine the actual containment available.
 - remote multi-user authorization;
 - treating inference quality or LLM content as action-policy authority.
 
+## Known implementation limitations
+
+These are documented gaps in the current implementation, not design boundaries:
+
+**Approval single-use race condition.** The `approvals.jsonl` store uses a
+read-modify-write pattern with no file lock. Two concurrent `run --approval`
+invocations for the same approval ID can both read `status=approved_once`
+before either writes `status=executed`, causing the command to execute twice.
+Single-user local use makes this low blast-radius in practice. A future
+release will add `fcntl.flock` or an atomic rename to close the window.
+
+**Credential pattern coverage.** Credential-adjacent classification triggers
+on `cat` targeting `.env`, SSH key paths, and credential files. Alternative
+read commands (`less`, `head`, `tail`, `type`, `bat`) do not trigger the same
+classification and may receive a less restrictive decision.
+
+**Shell parser is heuristic.** Complex shell constructs — heredocs, process
+substitution, ANSI-escape obfuscation — may not be fully interpreted. The
+parser fails conservatively in most cases, but coverage is not exhaustive.
+
 ## Reporting security issues
 
-This repository does not yet publish a formal vulnerability disclosure process.
-Until one exists, avoid filing raw credentials, private reports, or sensitive
-audit records in public issues.
+See [SECURITY.md](../SECURITY.md) for the vulnerability reporting path.
