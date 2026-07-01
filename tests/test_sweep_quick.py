@@ -6,6 +6,7 @@ import sqlite3
 from contextlib import redirect_stdout
 from pathlib import Path
 from policy_scout.cli import main as cli_main
+import policy_scout.cli.commands.sweep as cli_sweep_cmds
 from policy_scout.sweep.ports import (
     check_listening_ports,
     _parse_ss_output,
@@ -291,7 +292,7 @@ def test_handle_sweep_quick_json_redacts_finding_evidence(tmp_path, monkeypatch)
         )
     )
 
-    monkeypatch.setattr(cli_main, "run_quick_system_sweep", lambda: sweep_result)
+    monkeypatch.setattr(cli_sweep_cmds, "run_quick_system_sweep", lambda: sweep_result)
     monkeypatch.setenv("POLICY_SCOUT_REPORT_ROOT", str(tmp_path / "reports"))
 
     stdout_capture = io.StringIO()
@@ -317,7 +318,7 @@ def test_handle_sweep_quick_writes_audit_events(tmp_path, monkeypatch):
     sweep_result = SweepResult(
         sweep_id="sweep_test", sweep_type="quick_system", platform="linux"
     )
-    monkeypatch.setattr(cli_main, "run_quick_system_sweep", lambda: sweep_result)
+    monkeypatch.setattr(cli_sweep_cmds, "run_quick_system_sweep", lambda: sweep_result)
 
     stdout_capture = io.StringIO()
     with redirect_stdout(stdout_capture):
