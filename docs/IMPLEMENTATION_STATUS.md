@@ -47,7 +47,7 @@ python -m policy_scout.cli.main doctor --json
 | MCP server | **Experimental adapter** | Local stdio transport and bounded tools; not remote/multi-user auth |
 | Tauri desktop | **Experimental companion** | CLI-backed read/check surfaces; no general command execution UI |
 | Fossic emission | **Implemented adapter** | Redacted best-effort local secondary store; SQLite remains authority |
-| Lattica relay | **Experimental/untracked** | Standalone relay exists locally but is not part of the tracked release baseline |
+| Lattica integration | **Live (two paths)** | Track A: 4 Tauri commands in Lattica shell out to policy-scout CLI with --json; Track B: Fossic relay backfills and streams posture/decision events. Both paths confirmed live as of v0.3.9. |
 | VS Code / Cursor extension | **Experimental alpha (source only)** | Sweep-on-save diagnostics, pre-commit hook management, MCP auto-registration for VS Code agent mode and Cursor; not packaged or published |
 
 ## Verified design strengths

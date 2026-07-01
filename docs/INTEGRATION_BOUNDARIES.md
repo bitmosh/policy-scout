@@ -53,14 +53,19 @@ local.
 
 ## Lattica
 
-Lattica currently contains a Policy Scout tile with two data paths:
+Lattica contains a Policy Scout tile with two live data paths:
 
-1. CLI polling for watch, lockdown, and approval state;
-2. subscription/backfill from `policy-scout/**` Fossic streams for posture and
-   decision events.
+1. **Track A — CLI polling**: four Tauri commands (`ps_watch_status`,
+   `ps_approvals_list`, `ps_approve_once`, `ps_deny`) are fully implemented in
+   Lattica's `src-tauri/src/lib.rs` and shell out to the policy-scout CLI with
+   `--json` flags. Watch, lockdown, and approval state surface in the tile;
+   approval and lockdown controls invoke the same CLI paths.
+2. **Track B — Fossic events**: subscription and startup backfill from
+   `policy-scout/**` streams relay posture and decision events to the tile via
+   `policy-scout-relay.py`.
 
-Lattica provides controls that invoke Policy Scout approval, lockdown, and watch
-commands. Those controls remain external consumers of the same CLI behavior.
+Both paths are live. Lattica's controls remain external consumers of Policy
+Scout's CLI — they do not alter policy or bypass the decision engine.
 
 The standalone `policy-scout-relay.py` can backfill and relay selected local
 Fossic events to Lattica's local hub. It is currently untracked experimental
