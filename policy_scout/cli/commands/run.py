@@ -247,15 +247,15 @@ def handle_run_command(
 
             # Re-evaluate policy for the command
             # This ensures approval cannot bypass hard-deny or sandbox-first decisions
-            parser = ShellParser()
-            parse_result = parser.parse(command)
-            classifier = CommandClassifier()
-            classification = classifier.classify(
-                parse_result, command, request.request_id
-            )
             registry_loader = RegistryLoader()
             command_registry = registry_loader.load_command_registry()
             policy_registry = registry_loader.load_policy_registry()
+            parser = ShellParser()
+            parse_result = parser.parse(command)
+            classifier = CommandClassifier(command_registry=command_registry)
+            classification = classifier.classify(
+                parse_result, command, request.request_id
+            )
             risk_scorer = RiskScorer()
             risk_score = risk_scorer.score(classification, command_registry)
             policy_engine = PolicyEngine(policy_registry)

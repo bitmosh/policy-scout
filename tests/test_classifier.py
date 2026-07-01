@@ -93,6 +93,10 @@ def test_network_execute_classification(cmd):
     "head ~/.ssh/id_rsa",
     "tail ~/.aws/credentials",
     "bat ~/.npmrc",
+    "cat /etc/shadow",
+    "less /etc/sudoers",
+    "head /etc/passwd",
+    "cat /proc/1234/environ",
 ])
 def test_credential_adjacent_classification(cmd):
     """Test classification of credential-adjacent commands."""

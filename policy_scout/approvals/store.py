@@ -32,9 +32,12 @@ class ApprovalStore:
 
     def save(self, approval: ApprovalRequest) -> bool:
         """Save an approval request to the store."""
+        lock_path = self.path.with_suffix(".lock")
         try:
-            with open(self.path, "a") as f:
-                f.write(json.dumps(approval.to_dict()) + "\n")
+            with open(lock_path, "w") as lock_file:
+                fcntl.flock(lock_file, fcntl.LOCK_EX)
+                with open(self.path, "a") as f:
+                    f.write(json.dumps(approval.to_dict()) + "\n")
             return True
         except Exception as e:
             print(f"Warning: Failed to save approval request: {e}", file=sys.stderr)

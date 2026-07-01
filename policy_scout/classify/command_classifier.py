@@ -60,12 +60,19 @@ class CommandClassifier:
     # Credential-adjacent patterns
     _CRED_READER = r"(?:cat|less|head|tail|more|bat)"
     CREDENTIAL_PATTERNS = [
+        # Dotfile credentials
         (rf"{_CRED_READER}\s+.*\.env", "credential_adjacent"),
         (rf"{_CRED_READER}\s+.*\.npmrc", "credential_adjacent"),
         (rf"{_CRED_READER}\s+.*\.ssh", "credential_adjacent"),
         (rf"{_CRED_READER}\s+.*id_rsa", "credential_adjacent"),
         (rf"{_CRED_READER}\s+.*id_ed25519", "credential_adjacent"),
         (rf"{_CRED_READER}\s+.*\.aws/credentials", "credential_adjacent"),
+        # System credential and sensitive paths
+        (rf"{_CRED_READER}\s+/etc/shadow\b", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+/etc/sudoers\b", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+/etc/passwd\b", "credential_adjacent"),
+        (rf"{_CRED_READER}\s+/proc/[0-9]+/environ\b", "credential_adjacent"),
+        # Grep for secrets
         (r"grep\s+-r\s+.*TOKEN", "credential_adjacent"),
         (r"grep\s+-r\s+.*SECRET", "credential_adjacent"),
     ]
@@ -87,9 +94,9 @@ class CommandClassifier:
     SAFE_READ_PATTERNS = [
         (r"^(ls|pwd|git\s+status|git\s+log|git\s+diff)\b", "safe_read"),
         (
-            r"^(cat|less|more|head|tail|bat)\s+[^\s~$\.>]",
+            r"^(cat|less|more|head|tail|bat)\s+[^\s~$\.>/]",
             "safe_read",
-        ),  # Not reading hidden/config files, no redirect
+        ),  # Not reading hidden/config/absolute-path files, no redirect
     ]
 
     # Test/inspection patterns
