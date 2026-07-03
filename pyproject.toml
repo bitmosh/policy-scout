@@ -1,6 +1,6 @@
 [project]
 name = "policy-scout"
-version = "0.3.19"
+version = "0.3.20"
 description = "Local-first safety harness for agent commands, package installs, and suspicious project activity"
 authors = [{name = "Ryan Johnson"}]
 readme = "README.md"
