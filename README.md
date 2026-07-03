@@ -4,6 +4,12 @@ Policy Scout is a local-first safety harness that classifies requested commands,
 applies deterministic policy, routes risky work through approval or sandbox
 review, and records a redacted audit trail.
 
+**Status:** Active development — v0.3.19 alpha
+
+<!-- provisional, sync with canonical ecosystem doc when published -->
+**Part of the Lattica ecosystem.** Policy Scout is the command safety harness in a
+suite of six local AI development tools.
+
 It is an alpha engineering project, not an antivirus product or a hardened
 containment boundary.
 

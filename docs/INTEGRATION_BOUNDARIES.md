@@ -67,9 +67,10 @@ Lattica contains a Policy Scout tile with two live data paths:
 Both paths are live. Lattica's controls remain external consumers of Policy
 Scout's CLI — they do not alter policy or bypass the decision engine.
 
-The standalone `policy-scout-relay.py` can backfill and relay selected local
-Fossic events to Lattica's local hub. It is currently untracked experimental
-work, so it is not part of the v0.3.9 release guarantee.
+The standalone `policy-scout-relay.py` is tracked source and can backfill and
+relay selected local Fossic events to Lattica's local hub. It is experimental
+and has no isolated test coverage; it is not part of the core v0.3.19 release
+guarantee.
 
 ### Contracts that remain planned
 
