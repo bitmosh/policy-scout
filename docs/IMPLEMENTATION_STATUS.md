@@ -1,7 +1,7 @@
 # Implementation status
 
-**Release:** v0.3.16 alpha
-**Verified:** 2026-06-30
+**Release:** v0.3.19 alpha
+**Verified:** 2026-07-02
 
 This is a capability snapshot, not a milestone log. “Implemented” means an
 executable code path and focused tests exist. It does not imply production
@@ -11,8 +11,8 @@ hardening or complete platform support.
 
 | Signal | Verified result |
 |---|---:|
-| Python tests | 1,150 passed, 2 skipped |
-| Behavior evals | 44/44 passed |
+| Python tests | 1,188 passed, 2 skipped |
+| Behavior evals | 50/50 passed |
 | Command-registry entries | 15 |
 | Default policy rules | 11 |
 | Python requirement | 3.12+ |
@@ -68,7 +68,7 @@ python -m policy_scout.cli.main doctor --json
 - Fifteen registry entries are narrow relative to the full command ecosystem;
   classifier code contains additional hard-coded detection paths.
 - Redaction and secret scanning are regex/entropy based.
-- `policy_scout/cli/main.py` is a large orchestration module and needs separation.
+- CLI was decomposed from a 4,443-line monolith into 18 command modules in v0.3.18/0.3.19; residual orchestration coupling remains.
 - Several optional features depend on Linux tools, kernel capabilities, package
   managers, Git, network access, or a native Tauri toolchain.
 - The Fossic adapter is best-effort at runtime; its vendored PyO3 binding adds a

@@ -1,6 +1,6 @@
 # Installation and development
 
-Policy Scout v0.3.9 is installed from source. It is not published to PyPI and
+Policy Scout v0.3.19 is installed from source. It is not published to PyPI and
 does not currently ship a desktop installer.
 
 ## Requirements
@@ -47,8 +47,8 @@ policy-scout eval run
 python -m pytest -q
 ```
 
-At the 2026-06-30 verification point, the repository produced 44/44 eval passes
-and 1,150 Python test passes with 2 environment-dependent skips. Treat this as a
+At the 2026-07-02 verification point, the repository produced 50/50 eval passes
+and 1,188 Python test passes with 2 environment-dependent skips. Treat this as a
 dated baseline, not a hard-coded expected count.
 
 ## Safe first commands

@@ -38,14 +38,14 @@ decision.
 
 ## Current release
 
-**v0.3.16 alpha**
+**v0.3.19 alpha**
 
 - Python 3.12+
 - 15 registry-backed command patterns
 - 11 default policy rules
-- 44 deterministic behavior evaluations
-- 1,150 passing Python tests and 2 environment-dependent skips at the latest
-  local verification on 2026-06-30
+- 50 deterministic behavior evaluations
+- 1,188 passing Python tests and 2 environment-dependent skips at the latest
+  local verification on 2026-07-02
 - CLI-first; optional Tauri dashboard and MCP adapter
 - Local SQLite, JSONL, report, approval, sandbox, and Fossic state
 
