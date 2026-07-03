@@ -26,3 +26,6 @@ opencode.jsonc
 
 # LibreOffice and editor lock files
 .~lock.*
+
+# Pass 1 review working directory
+.review/

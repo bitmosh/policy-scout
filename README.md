@@ -15,6 +15,10 @@ Executors obey.
 Audit records everything.
 ```
 
+<!-- OPERATOR: capture a terminal screenshot or GIF showing `policy-scout check -- npm install lodash`
+     producing a SANDBOX_FIRST decision (human-readable output). Save as docs/assets/demo-check.gif. -->
+![Policy Scout — decision pipeline demo](docs/assets/demo-check.gif)
+
 ## Why it exists
 
 Coding agents can move faster than a developer can inspect every shell command,
