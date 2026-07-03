@@ -1,6 +1,6 @@
 # Engineering deep dives
 
-These notes explain the highest-leverage safety mechanisms in the current code.
+These notes explain the most consequential safety mechanisms in the current code.
 They describe implemented behavior, not product aspirations.
 
 - [Policy decisions and approvals](policy-and-approvals.md)

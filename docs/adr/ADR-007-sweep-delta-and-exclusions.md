@@ -156,7 +156,7 @@ The `id` field on each suppression is mandatory and must be unique within the pr
 
 Sweep baselines are stored in the data directory alongside reports and audit events (`~/.local/share/policy-scout/sweep-baselines/`). The data lifecycle ADR (ADR-006) governs retention: baselines expire with the same default as reports (90 days) and are cleaned up by `data cleanup`.
 
-A baseline that expires does not cause a problem — the next sweep run just treats it as a first run and does a full sweep.
+A baseline that expires does not cause a problem — the next sweep run treats it as a first run and does a full sweep.
 
 ### D6 — Engine version tracking
 

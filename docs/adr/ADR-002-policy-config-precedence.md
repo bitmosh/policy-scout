@@ -94,7 +94,7 @@ def find_project_config(cwd: Path) -> Path | None:
         current = parent
 ```
 
-The walk stops at the git root. This prevents projects from accidentally inheriting a config from a parent directory that happens to contain one. If no `.policy-scout.yaml` is found within the git repo, Layer 3 is simply absent and the effective policy is Layer 1+2 only.
+The walk stops at the git root. This prevents projects from accidentally inheriting a config from a parent directory that happens to contain one. If no `.policy-scout.yaml` is found within the git repo, Layer 3 is absent and the effective policy is Layer 1+2 only.
 
 ### D4 — Test isolation escape hatch
 

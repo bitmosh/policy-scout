@@ -39,7 +39,7 @@ This ADR defines the expansion order, the eval coverage contract, and the govern
 
 **Tier A — Python ecosystem (highest priority)**
 
-Rationale: Python is the second most common ecosystem for AI agent workflows (after JS). `pip install` is extremely common in agent-generated commands. The absence of Python registry entries is the single largest coverage gap.
+Rationale: Python is the second most common ecosystem for AI agent workflows (after JS). `pip install` is common in agent-generated commands. The absence of Python registry entries is the single largest coverage gap.
 
 Entries required:
 ```
@@ -89,7 +89,7 @@ Every active registry entry must have at minimum:
 - One **boundary eval case** — a command that should NOT match this entry (tests that the rule doesn't over-match)
 
 For entries with `SANDBOX_FIRST` or `DENY` decisions:
-- One **affirming eval case** must use a realistic attacker-pattern command (not just the canonical form)
+- One **affirming eval case** must use a realistic attacker-pattern command (not only the canonical form)
 
 The eval coverage metric is defined as:
 
@@ -161,7 +161,7 @@ Priority ordering rule: specific-ecosystem entries (`python.pip_install`, priori
 - `policy-scout eval coverage` surfaces the gap to the developer without manual counting
 
 ### Negative / Risks
-- Tier D (container/IaC) is explicitly blocked on a taxonomy extension. If someone adds `docker run` to the registry without the taxonomy change, it gets an incorrect category and misleading reasons. The entry authoring requirements (D3) must be enforced in review, not just documented.
+- Tier D (container/IaC) is explicitly blocked on a taxonomy extension. If someone adds `docker run` to the registry without the taxonomy change, it gets an incorrect category and misleading reasons. The entry authoring requirements (D3) must be enforced in review, not only documented.
 - Python's `setup.py` decision is nuanced: `pip install numpy` from a known-safe wheel has no lifecycle script risk; `pip install <unknown-package>` from source does. The registry cannot distinguish these cases per-entry. The decision must default to the risky case (`SANDBOX_FIRST`) with the reason explicitly noting the wheel/source distinction. Accepting some false positives on known-safe packages is correct.
 - `cargo add` (manifest-only) is categorically different from `cargo install` (downloads and compiles). The registry must not assign them the same decision. `cargo add` is `ALLOW_LOGGED`; `cargo install` is `SANDBOX_FIRST`. This distinction must be preserved in both the registry entry and the classifier.
 

@@ -13,7 +13,7 @@ Policy Scout and LumaWeave have a clear conceptual boundary: Policy Scout decide
 
 Without a locked contract, two expensive failure modes are likely as Tier 2 lands:
 
-1. **Premature emission in [06] MCP Server.** The MCP server is the first feature that naturally produces real-time graph-ready data: each `policy_scout_check` call is a node, each decision is an edge. If the MCP server emits graph data in an ad-hoc format, and LumaWeave builds an ingestion layer against that format, we create a de facto contract that's hard to change later. Better to define the contract first.
+1. **Premature emission in [06] MCP Server.** The MCP server is the first feature that naturally produces real-time graph-ready data: each `policy_scout_check` call is a node, each decision is an edge. If the MCP server emits graph data in an ad-hoc format, and LumaWeave builds an ingestion layer against that format, this creates a de facto contract that's hard to change later. Better to define the contract first.
 
 2. **Audit event creep.** As Tier 2 adds new event types (MCPToolCallCompleted, ProjectOverrideLoaded, SecretScanCompleted, etc.) the audit store grows. If there's no defined mapping from audit event types to graph node/edge types, LumaWeave will either ignore the new events or require Policy Scout changes every time a new event type is added. A declared mapping table prevents this.
 
@@ -357,7 +357,7 @@ LumaWeave must NOT call back into Policy Scout at ingestion time. It must NOT mo
 
 **Enabled:**
 - LumaWeave can build an ingestion layer immediately against a stable schema after Phase 2 lands — without any further coordination with Policy Scout implementation work.
-- The forward-compatibility rule (ignore unknown types) means LumaWeave doesn't break when new Tier 2 event types land. Adding `MCPToolCall` nodes doesn't require a LumaWeave update — LumaWeave just starts seeing new node types in imports.
+- The forward-compatibility rule (ignore unknown types) means LumaWeave doesn't break when new Tier 2 event types land. Adding `MCPToolCall` nodes doesn't require a LumaWeave update — LumaWeave starts seeing new node types in imports.
 - The mapping table (D5) is a single canonical reference. When a new audit event type is added (e.g., in [07] injection detection), the mapping table gets one new row, the factory gets one new function, and the graph exporter picks it up automatically.
 - Incremental export (Phase 3) makes continuous import practical — LumaWeave can poll for new exports on a schedule without duplicating data.
 - The `--dry-run` flag makes the export safe to run in CI or in automated health checks without side effects.

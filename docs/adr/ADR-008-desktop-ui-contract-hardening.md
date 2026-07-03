@@ -122,7 +122,7 @@ CLI commands that receive these params:
 
 JSON responses from these commands must include `total_count` (ADR-006 D4). The frontend uses `total_count` to compute total pages without a separate query.
 
-Frontend pagination component: a simple prev/next control below each list card. No page numbers, no jump-to-page, no infinite scroll in v1 — just prev/next with a "showing N–M of total" label.
+Frontend pagination component: a simple prev/next control below each list card. No page numbers, no jump-to-page, no infinite scroll in v1 — prev/next with a "showing N–M of total" label.
 
 ### D5 — Policy management UI (new cards for [10])
 
