@@ -4,6 +4,60 @@ Per-pass change detail lives in Git history (`git log --oneline`). This file
 records significant milestones. v0.1 through v0.3.8 are consolidated below;
 v0.3.9 entries reflect the current baseline.
 
+## v0.3.19
+
+### Security
+- Fixed approval re-evaluation to load `RegistryLoader` before constructing
+  `CommandClassifier`; without the registry, registry-DENY commands reclassified
+  as `unknown → REQUIRE_APPROVAL` at run time, allowing approved-but-actually-denied
+  commands to execute (commit `7f56067`)
+- Extended `CREDENTIAL_PATTERNS` to cover system credential paths:
+  `/etc/shadow`, `/etc/sudoers`, `/etc/passwd`, `/proc/<PID>/environ`;
+  previously these matched the safe-read shortcut (commit `7f56067`)
+- Fixed `SAFE_READ_PATTERNS` to exclude leading `/`; absolute-path reads no
+  longer match the safe-read category (commit `7f56067`)
+- Added `fcntl.flock` exclusive lock to `ApprovalStore.save()` to match
+  `update_status()`; closed TOCTOU window on concurrent append path (commit `7f56067`)
+
+### Added
+- eval_049: `cat /etc/shadow` → `DENY_AND_ALERT` (commit `7f56067`)
+- eval_050: `cat /proc/<PID>/environ` → `DENY_AND_ALERT` (commit `7f56067`)
+
+### Changed
+- Refactored `policy_scout/cli/main.py` from 4,443 lines to 1,086 lines;
+  18 command modules extracted to `policy_scout/cli/commands/`; CLI behavior
+  and JSON contracts unchanged (commit `9943adf`)
+
+### Verification
+- 1,188 Python tests passed, 2 skipped; 50/50 evals passed (2026-07-02)
+
+---
+
+## v0.3.18
+
+### Changed
+- Type annotations narrowed throughout core models: bare `list`/`dict` replaced
+  with `list[str]`, `dict[str, Any]` in `ClassificationResult`, `PolicyDecision`,
+  `CommandRequest`, `ParseResult`, and registry models (commit `21145fe`)
+- Policy engine rule chain refactored: post-decision override block removed;
+  structural-destructive DENY injected into matched-rule list at priority 990
+  so `policy simulate` sees the same outcome as live evaluation (commit `21145fe`)
+
+### Fixed
+- Credential patterns expanded: `less`, `head`, `tail`, `bat` added alongside
+  `cat`; `less .env`, `head ~/.ssh/id_rsa`, `tail ~/.aws/credentials`,
+  `bat ~/.npmrc` now trigger `credential_adjacent → DENY_AND_ALERT` (commit `21145fe`)
+- `ApprovalStore.update_status()` wrapped in `fcntl.flock` exclusive lock;
+  TOCTOU race on JSONL read-modify-write path closed (commit `21145fe`)
+- Config-path warning suppressed; JSONL redaction test coverage added;
+  test parametrize coverage expanded (commit `62d4bcb`)
+
+### Added
+- eval_045–048: `less .env`, `head ~/.ssh/id_rsa`, `tail ~/.aws/credentials`,
+  `bat ~/.npmrc` → `DENY_AND_ALERT` (commit `21145fe`)
+
+---
+
 ## v0.3.16
 
 ### Added
