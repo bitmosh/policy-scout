@@ -24,7 +24,7 @@ def temp_audit_paths():
         os.makedirs(sweep_root, exist_ok=True)
 
         env = os.environ.copy()
-        env["PYTHONPATH"] = "/home/boop/Projects/policy-scout"
+        env["PYTHONPATH"] = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         env["POLICY_SCOUT_AUDIT_DB_PATH"] = db_path
         env["POLICY_SCOUT_AUDIT_PATH"] = jsonl_path
         env["POLICY_SCOUT_APPROVAL_PATH"] = approval_path
