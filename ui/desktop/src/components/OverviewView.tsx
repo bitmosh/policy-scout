@@ -26,6 +26,7 @@ export interface ReviewRowData {
   evidence: string;
   time: string;
   dim?: boolean;
+  event_id?: string;
 }
 
 export function deriveReviewRows(events?: AuditEventListData["events"]): ReviewRowData[] {
@@ -48,7 +49,7 @@ export function deriveReviewRows(events?: AuditEventListData["events"]): ReviewR
       else if (s.includes("REQUIRE_APPROVAL")) { tone = "var(--color-review)"; kind = "REQUIRE_APPROVAL"; }
       else if (s.includes("COULD_NOT_VERIFY")) { tone = "var(--color-review)"; kind = "COULD_NOT_VERIFY"; dim = true; }
       const title = s.replace(/^Decision \S+ issued for:\s*/, "").trim() || s;
-      return { tone, kind, title, evidence: title, time: fmtRelative(e.timestamp), dim };
+      return { tone, kind, title, evidence: title, time: fmtRelative(e.timestamp), dim, event_id: e.event_id ?? undefined };
     });
 }
 
@@ -185,9 +186,9 @@ function SecHead({ title, count }: { title: string; count?: number }) {
   );
 }
 
-function ReviewRow({ row }: { row: ReviewRowData }) {
+function ReviewRow({ row, onClick }: { row: ReviewRowData; onClick?: () => void }) {
   return (
-    <div className="review-row t">
+    <div className="review-row t" onClick={onClick} style={{ cursor: onClick ? "pointer" : undefined }}>
       <div style={{ width: 3, background: row.tone, flex: "none" }} />
       <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 14, padding: "11px 14px", minWidth: 0 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -232,7 +233,7 @@ function NeedsReviewSkeleton() {
   );
 }
 
-function NeedsReview({ rows }: { rows: ReviewRowData[] }) {
+function NeedsReview({ rows, onRowClick }: { rows: ReviewRowData[]; onRowClick?: (eventId?: string) => void }) {
   return (
     <section>
       <SecHead title="Needs review" count={rows.length} />
@@ -243,7 +244,9 @@ function NeedsReview({ rows }: { rows: ReviewRowData[] }) {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {rows.map((r, i) => <ReviewRow key={i} row={r} />)}
+          {rows.map((r, i) => (
+            <ReviewRow key={i} row={r} onClick={onRowClick ? () => onRowClick(r.event_id) : undefined} />
+          ))}
         </div>
       )}
     </section>
@@ -362,12 +365,13 @@ export interface OverviewViewProps {
   onGoToAudit?: () => void;
   onGoToPolicy?: () => void;
   onGoToSystem?: () => void;
+  onReviewRowClick?: (eventId?: string) => void;
 }
 
 export function OverviewView({
   doctorStatus, dataStatus, auditStats, auditEventsList, quickSweep,
   sweeping, lastSweepLabel, reviewLoading, reviewRows,
-  policyIssueCount = 0, onSweep, onGoToSweeps, onGoToAudit, onGoToPolicy, onGoToSystem,
+  policyIssueCount = 0, onSweep, onGoToSweeps, onGoToAudit, onGoToPolicy, onGoToSystem, onReviewRowClick,
 }: OverviewViewProps) {
   const findingsCount = quickSweep?.data?.findings?.length;
   const attention = pickAttention(doctorStatus, reviewRows, policyIssueCount, findingsCount, onGoToAudit, onGoToPolicy, onGoToSystem);
@@ -387,7 +391,7 @@ export function OverviewView({
       />
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)", gap: 24, marginTop: 24, alignItems: "start" }}>
-        {reviewLoading ? <NeedsReviewSkeleton /> : <NeedsReview rows={reviewRows} />}
+        {reviewLoading ? <NeedsReviewSkeleton /> : <NeedsReview rows={reviewRows} onRowClick={onReviewRowClick} />}
         <RecentActivity auditEventsList={auditEventsList} />
       </div>
 

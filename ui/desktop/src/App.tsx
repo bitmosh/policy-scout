@@ -592,6 +592,10 @@ function App() {
             onGoToAudit={() => setActiveView("audit")}
             onGoToPolicy={() => setActiveView("policy")}
             onGoToSystem={() => setActiveView("system")}
+            onReviewRowClick={(eventId) => {
+              setActiveView("audit");
+              if (eventId) handleAuditEventClick(eventId);
+            }}
           />
         );
 
