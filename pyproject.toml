@@ -11,6 +11,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=9.0.0"]
+audit = ["fossic>=1.8.3"]
 
 [project.scripts]
 policy-scout = "policy_scout.cli.main:cli"
@@ -30,7 +31,6 @@ markers = [
 include = [
     "/policy_scout",
     "/tests",
-    "/vendor/fossic",
     "/README.md",
     "/pyproject.toml",
 ]

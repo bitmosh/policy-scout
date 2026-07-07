@@ -13,8 +13,12 @@ wheels = [
 
 [[package]]
 name = "fossic"
-version = "0.1.0"
-source = { directory = "/home/boop/Projects/fossic/fossic-py" }
+version = "1.8.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/e9/397aff1fc80b21c2b70ab622a5594f5333134881ea40676c152e0981207f/fossic-1.8.3.tar.gz", hash = "sha256:5cfd1105fd94d084d1367cb670feb0b8beb0435b03d37292e0f78899230796f9", size = 165065, upload-time = "2026-07-06T05:20:56.331Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/24/10/304012f484c0aa951c532d9ebc67494b2d9e801bdb88b3fd5756bb805a7a/fossic-1.8.3-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:d2670b2ec5b45d31d778b7884b26ac4ebeeb4243f1d52d8c09777c3b43117397", size = 3048109, upload-time = "2026-07-06T05:20:54.096Z" },
+]
 
 [[package]]
 name = "iniconfig"
@@ -45,25 +49,27 @@ wheels = [
 
 [[package]]
 name = "policy-scout"
-version = "0.3.9"
+version = "0.3.20"
 source = { editable = "." }
 dependencies = [
-    { name = "fossic" },
     { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
+audit = [
+    { name = "fossic" },
+]
 dev = [
     { name = "pytest" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "fossic", directory = "/home/boop/Projects/fossic/fossic-py" },
+    { name = "fossic", marker = "extra == 'audit'", specifier = ">=1.8.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "audit"]
 
 [[package]]
 name = "pygments"
