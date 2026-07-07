@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { CliJsonResponse, SecretScanData, InjectionScanData } from "../types";
-import scanSecretMock from "../mocks/scan_secret_result.json";
-import scanInjectionMock from "../mocks/scan_injection_result.json";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--color-danger)",
@@ -10,11 +8,6 @@ const SEVERITY_COLOR: Record<string, string> = {
   medium:   "var(--color-info)",
   low:      "var(--color-text-muted)",
 };
-
-function isMockErr(e: unknown) {
-  const s = String(e);
-  return s.includes("invoke") || s.includes("undefined") || s.includes("not been defined");
-}
 
 function RunBtn({ loading, hasResult, onRun }: { loading: boolean; hasResult: boolean; onRun: () => void }) {
   return (
@@ -224,8 +217,7 @@ export function ScanView() {
       const r = await invoke<CliJsonResponse<SecretScanData>>("run_scan_dir", { path: null });
       setDirResult(r);
     } catch (e) {
-      if (isMockErr(e)) setDirResult({ ok: true, exit_code: 0, data: scanSecretMock as SecretScanData, error: null, stderr_summary: null });
-      else setDirResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
+      setDirResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
     } finally {
       setDirLoading(false);
     }
@@ -237,8 +229,7 @@ export function ScanView() {
       const r = await invoke<CliJsonResponse<SecretScanData>>("run_scan_staged", { repo: null });
       setStagedResult(r);
     } catch (e) {
-      if (isMockErr(e)) setStagedResult({ ok: true, exit_code: 0, data: { ...scanSecretMock, scan_type: "staged", finding_count: 0, findings: [], severity_counts: {}, files_scanned: 0 } as SecretScanData, error: null, stderr_summary: null });
-      else setStagedResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
+      setStagedResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
     } finally {
       setStagedLoading(false);
     }
@@ -250,8 +241,7 @@ export function ScanView() {
       const r = await invoke<CliJsonResponse<SecretScanData>>("run_scan_history", { repo: null, maxCommits: null });
       setHistoryResult(r);
     } catch (e) {
-      if (isMockErr(e)) setHistoryResult({ ok: true, exit_code: 0, data: { ...scanSecretMock, scan_type: "history", commits_scanned: 200 } as SecretScanData, error: null, stderr_summary: null });
-      else setHistoryResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
+      setHistoryResult({ ok: false, exit_code: -1, data: null as unknown as SecretScanData, error: String(e), stderr_summary: null });
     } finally {
       setHistoryLoading(false);
     }
@@ -263,8 +253,7 @@ export function ScanView() {
       const r = await invoke<CliJsonResponse<InjectionScanData>>("run_scan_injection", { path: null });
       setInjectionResult(r);
     } catch (e) {
-      if (isMockErr(e)) setInjectionResult({ ok: true, exit_code: 0, data: scanInjectionMock as InjectionScanData, error: null, stderr_summary: null });
-      else setInjectionResult({ ok: false, exit_code: -1, data: null as unknown as InjectionScanData, error: String(e), stderr_summary: null });
+      setInjectionResult({ ok: false, exit_code: -1, data: null as unknown as InjectionScanData, error: String(e), stderr_summary: null });
     } finally {
       setInjectionLoading(false);
     }

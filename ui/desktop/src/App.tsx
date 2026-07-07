@@ -10,26 +10,6 @@ import {
   ApprovalListData, ApprovalActionData,
   LockdownStatusData, WatchStatusData,
 } from "./types";
-import doctorStatusMock from "./mocks/doctor_status.json";
-import dataStatusMock from "./mocks/data_status.json";
-import auditStatsMock from "./mocks/audit_stats.json";
-import cleanupDryRunMock from "./mocks/cleanup_dry_run.json";
-import evalResultsMock from "./mocks/eval_results.json";
-import sweepDataMock from "./mocks/sweep_data.json";
-import reportListMockRaw from "./mocks/report_list.json";
-import reportDetailMock from "./mocks/report_detail.json";
-import auditEventsListMock from "./mocks/audit_events_list.json";
-import auditEventDetailMock from "./mocks/audit_event_detail.json";
-import sandboxResultListMock from "./mocks/sandbox_result_list.json";
-import sandboxResultDetailMock from "./mocks/sandbox_result_detail.json";
-import sandboxLaunchResultMock from "./mocks/sandbox_launch_result.json";
-import sandboxMigrationDryRunMock from "./mocks/sandbox_migration_dry_run.json";
-import approvalsListMock from "./mocks/approvals_list.json";
-import lockdownStatusMock from "./mocks/lockdown_status.json";
-import watchStatusMock from "./mocks/watch_status.json";
-import policyOverviewMock from "./mocks/policy_overview.json";
-import policyValidateMock from "./mocks/policy_validate.json";
-
 import { applyTheme, readStoredTheme, readStoredTexture, type ThemeId } from "./themes";
 import { Sidebar, TopBar, NAV, type ViewId } from "./components/Shell";
 import { Toast, type ToastData } from "./components/Toast";
@@ -57,15 +37,6 @@ import { SandboxLaunchCard } from "./components/SandboxLaunchCard";
 import { LiveStatusCard } from "./components/LiveStatusCard";
 import { ScanView } from "./components/ScanView";
 import { AuditVerifyChainCard } from "./components/AuditVerifyChainCard";
-
-function mockResponse<T>(data: T): CliJsonResponse<T> {
-  return { ok: true, exit_code: 0, data, error: null, stderr_summary: null };
-}
-
-function isMockError(e: unknown): boolean {
-  const s = String(e);
-  return s.includes("invoke") || s.includes("undefined") || s.includes("not been defined");
-}
 
 function deriveLastSweep(auditEventsList?: CliJsonResponse<AuditEventListData> | null): string {
   const events = auditEventsList?.data?.events;
@@ -200,19 +171,7 @@ function App() {
       setEvalResults(evalResult);
       setSandboxResultsList(sbxList);
     } catch (e) {
-      if (isMockError(e)) {
-        setDoctorStatus(mockResponse(doctorStatusMock as DoctorStatusData));
-        setDataStatus(mockResponse(dataStatusMock as DataStatusData));
-        setReportsList(mockResponse(reportListMockRaw as ReportListData));
-        setAuditStats(mockResponse(auditStatsMock as AuditStatsData));
-        setCleanupResult(mockResponse(cleanupDryRunMock as CleanupDryRunData));
-        setEvalResults(mockResponse(evalResultsMock as EvalRunData));
-        setSandboxResultsList(mockResponse(sandboxResultListMock as ReportListData));
-        setPolicyOverview(mockResponse(policyOverviewMock as PolicyOverviewData));
-        setPolicyValidate(mockResponse(policyValidateMock as PolicyValidateData));
-      } else {
-        setError(String(e));
-      }
+      setError(String(e));
     } finally {
       setLoading(false);
     }
@@ -227,8 +186,7 @@ function App() {
       const result = await invoke<CliJsonResponse<ReportListData>>("list_reports_filtered", { limit, reportType: type || null, offset });
       setReportsList(result);
     } catch (e) {
-      if (isMockError(e)) setReportsList(mockResponse(reportListMockRaw as ReportListData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setReportsLoading(false);
     }
@@ -252,8 +210,7 @@ function App() {
       const result = await invoke<CliJsonResponse<CleanupDryRunData>>("get_cleanup_dry_run", { target });
       setCleanupResult(result);
     } catch (e) {
-      if (isMockError(e)) setCleanupResult(mockResponse(cleanupDryRunMock as CleanupDryRunData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setCleanupLoading(false);
     }
@@ -285,8 +242,7 @@ function App() {
       const result = await invoke<CliJsonResponse<ReportListData>>("list_sandbox_results", { limit, offset });
       setSandboxResultsList(result);
     } catch (e) {
-      if (isMockError(e)) setSandboxResultsList(mockResponse(sandboxResultListMock as ReportListData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setSandboxLoading(false);
     }
@@ -308,8 +264,7 @@ function App() {
       });
       setAuditEventsList(result);
     } catch (e) {
-      if (isMockError(e)) setAuditEventsList(mockResponse(auditEventsListMock as AuditEventListData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setAuditEventsLoading(false);
     }
@@ -342,20 +297,7 @@ function App() {
         onAction: () => setActiveView("sweeps"),
       });
     } catch (e) {
-      if (isMockError(e)) {
-        const mock = mockResponse(sweepDataMock as SweepData);
-        setQuickSweep(mock);
-        setLastSweepOverride("just now");
-        const count = mock.data?.findings?.length ?? 0;
-        setToast({
-          title: "Quick sweep complete",
-          sub: `${count} finding${count !== 1 ? "s" : ""}`,
-          actionLabel: "View in Sweeps",
-          onAction: () => setActiveView("sweeps"),
-        });
-      } else {
-        setError(String(e));
-      }
+      setError(String(e));
     } finally {
       setSweepLoading(false);
     }
@@ -367,8 +309,7 @@ function App() {
       const result = await invoke<CliJsonResponse<SweepData>>("run_sweep_project");
       setProjectSweep(result);
     } catch (e) {
-      if (isMockError(e)) setProjectSweep(mockResponse(sweepDataMock as SweepData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setProjectSweepLoading(false);
     }
@@ -380,8 +321,7 @@ function App() {
       const result = await invoke<CliJsonResponse<PolicyValidateData>>("run_policy_validate");
       setPolicyValidate(result);
     } catch (e) {
-      if (isMockError(e)) setPolicyValidate(mockResponse(policyValidateMock as PolicyValidateData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setPolicyValidateLoading(false);
     }
@@ -397,10 +337,7 @@ function App() {
       setLockdownStatus(lockdown);
       setWatchStatus(watch);
     } catch (e) {
-      if (isMockError(e)) {
-        setLockdownStatus(mockResponse(lockdownStatusMock as LockdownStatusData));
-        setWatchStatus(mockResponse(watchStatusMock as WatchStatusData));
-      }
+      setError(String(e));
     } finally {
       setLiveStatusLoading(false);
     }
@@ -414,8 +351,7 @@ function App() {
       const result = await invoke<CliJsonResponse<SandboxMigrationData>>("run_sandbox_migrate_dry_run", { sandboxId });
       setMigrationPreview(result);
     } catch (e) {
-      if (isMockError(e)) setMigrationPreview(mockResponse(sandboxMigrationDryRunMock as SandboxMigrationData));
-      else setMigrationPreview({ ok: false, exit_code: -1, data: null as unknown as SandboxMigrationData, error: String(e), stderr_summary: null });
+      setMigrationPreview({ ok: false, exit_code: -1, data: null as unknown as SandboxMigrationData, error: String(e), stderr_summary: null });
     } finally {
       setMigrationPreviewLoading(false);
     }
@@ -439,8 +375,7 @@ function App() {
       const result = await invoke<CliJsonResponse<ApprovalListData>>("list_approvals");
       setApprovalsList(result);
     } catch (e) {
-      if (isMockError(e)) setApprovalsList(mockResponse(approvalsListMock as ApprovalListData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setApprovalsLoading(false);
     }
@@ -489,8 +424,7 @@ function App() {
       const result = await invoke<CliJsonResponse<SandboxLaunchResultData>>("run_sandbox_install", { commandText });
       setSandboxLaunchResult(result);
     } catch (e) {
-      if (isMockError(e)) setSandboxLaunchResult(mockResponse(sandboxLaunchResultMock as SandboxLaunchResultData));
-      else setSandboxLaunchResult({ ok: false, exit_code: -1, data: null as unknown as SandboxLaunchResultData, error: String(e), stderr_summary: null });
+      setSandboxLaunchResult({ ok: false, exit_code: -1, data: null as unknown as SandboxLaunchResultData, error: String(e), stderr_summary: null });
     } finally {
       setSandboxLaunchLoading(false);
     }
@@ -504,8 +438,7 @@ function App() {
       const result = await invoke<CliJsonResponse<ReportDetailData>>("show_report", { reportId });
       setReportDetail(result);
     } catch (e) {
-      if (isMockError(e)) setReportDetail(mockResponse(reportDetailMock as ReportDetailData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setReportDetailLoading(false);
     }
@@ -521,8 +454,7 @@ function App() {
       const result = await invoke<CliJsonResponse<AuditEventDetailData>>("show_audit_event", { eventId });
       setAuditEventDetail(result);
     } catch (e) {
-      if (isMockError(e)) setAuditEventDetail(mockResponse(auditEventDetailMock as AuditEventDetailData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setAuditEventDetailLoading(false);
     }
@@ -540,8 +472,7 @@ function App() {
       const result = await invoke<CliJsonResponse<SandboxResultDetailData>>("show_sandbox_result", { reportId });
       setSandboxResultDetail(result);
     } catch (e) {
-      if (isMockError(e)) setSandboxResultDetail(mockResponse(sandboxResultDetailMock as SandboxResultDetailData));
-      else setError(String(e));
+      setError(String(e));
     } finally {
       setSandboxResultDetailLoading(false);
     }
