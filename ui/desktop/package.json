@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node -e \"process.stderr.write('\\n[Policy Scout] The web-only dev server is disabled.\\nThis app requires the Tauri runtime. Use: npm run tauri dev\\n\\n'); process.exit(1)\"",
+    "dev:vite": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri"
