@@ -21,15 +21,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Install vendored Fossic binding
+      - name: Install Policy Scout with audit and dev extras
         run: |
-          pip install ./vendor/fossic/fossic-py
-
-      - name: Install Policy Scout editable
-        run: |
-          pip install -e ".[dev]"
+          pip install -e ".[dev,audit]"
 
       - name: Run doctor diagnostics
         run: |
