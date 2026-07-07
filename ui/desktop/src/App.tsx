@@ -264,7 +264,7 @@ function App() {
       });
       setAuditEventsList(result);
     } catch (e) {
-      setError(String(e));
+      setAuditEventsList({ ok: false, exit_code: -1, data: null as unknown as AuditEventListData, error: String(e), stderr_summary: null });
     } finally {
       setAuditEventsLoading(false);
     }
@@ -275,6 +275,7 @@ function App() {
     setAuditEventsOffset(0);
     setSelectedAuditEventId(null);
     setAuditEventDetail(null);
+    fetchAuditEvents(type, auditEventsLimit, 0);
   }
   function handleAuditLimitChange(limit: number) { setAuditEventsLimit(limit); fetchAuditEvents(auditEventType, limit, 0); }
   function handleAuditPagePrev() { fetchAuditEvents(auditEventType, auditEventsLimit, Math.max(0, auditEventsOffset - auditEventsLimit)); }
