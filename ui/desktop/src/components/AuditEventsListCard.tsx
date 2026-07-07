@@ -73,7 +73,6 @@ export function AuditEventsListCard({
               className="list-control-select"
               value={auditEventType}
               onChange={(e) => onTypeChange(e.target.value as AuditEventTypeFilter)}
-              disabled={loading}
             >
               {AUDIT_EVENT_TYPE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>

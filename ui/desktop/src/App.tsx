@@ -135,11 +135,6 @@ function App() {
   const [liveStatusLoading, setLiveStatusLoading] = useState(false);
   const [checkTab, setCheckTab] = useState<"check" | "simulate">("check");
 
-  useEffect(() => {
-    fetchAuditEvents(auditEventType);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auditEventType]);
-
   // Initial data load on mount
   useEffect(() => {
     fetchAllStatus();
@@ -176,7 +171,7 @@ function App() {
       setLoading(false);
     }
     // Always refresh audit events alongside main status so review rows stay in sync
-    fetchAuditEvents(auditEventType);
+    fetchAuditEvents(auditEventsLimit, auditEventType);
   }
 
   async function fetchReports(limit: number, type: ReportTypeFilter, offset: number = 0) {
@@ -255,7 +250,7 @@ function App() {
     if (newOffset < (sandboxResultsList?.data?.total_count ?? 0)) fetchSandboxResults(sandboxLimit, newOffset);
   }
 
-  async function fetchAuditEvents(type: AuditEventTypeFilter, limit: number = auditEventsLimit, offset: number = 0) {
+  async function fetchAuditEvents(limit: number, type: AuditEventTypeFilter, offset: number = 0) {
     setAuditEventsLoading(true);
     setAuditEventsOffset(offset);
     try {
@@ -275,13 +270,13 @@ function App() {
     setAuditEventsOffset(0);
     setSelectedAuditEventId(null);
     setAuditEventDetail(null);
-    fetchAuditEvents(type, auditEventsLimit, 0);
+    fetchAuditEvents(auditEventsLimit, type, 0);
   }
-  function handleAuditLimitChange(limit: number) { setAuditEventsLimit(limit); fetchAuditEvents(auditEventType, limit, 0); }
-  function handleAuditPagePrev() { fetchAuditEvents(auditEventType, auditEventsLimit, Math.max(0, auditEventsOffset - auditEventsLimit)); }
+  function handleAuditLimitChange(limit: number) { setAuditEventsLimit(limit); fetchAuditEvents(limit, auditEventType, 0); }
+  function handleAuditPagePrev() { fetchAuditEvents(auditEventsLimit, auditEventType, Math.max(0, auditEventsOffset - auditEventsLimit)); }
   function handleAuditPageNext() {
     const newOffset = auditEventsOffset + auditEventsLimit;
-    if (newOffset < (auditEventsList?.data?.total_count ?? 0)) fetchAuditEvents(auditEventType, auditEventsLimit, newOffset);
+    if (newOffset < (auditEventsList?.data?.total_count ?? 0)) fetchAuditEvents(auditEventsLimit, auditEventType, newOffset);
   }
 
   async function runQuickSweep() {
