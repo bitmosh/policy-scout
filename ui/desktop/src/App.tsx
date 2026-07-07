@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import {
@@ -118,6 +118,14 @@ function App() {
   const [auditEventsOffset, setAuditEventsOffset] = useState<number>(0);
   const [auditEventsLimit, setAuditEventsLimit] = useState<number>(25);
   const [auditEventsLoading, setAuditEventsLoading] = useState(false);
+
+  // Refs that always point to the latest state values — used by stale closures (e.g. fetchAllStatus
+  // captured in the mount useEffect) so they read current values rather than initial-render values.
+  const auditEventTypeRef = useRef<AuditEventTypeFilter>("all");
+  const auditEventsLimitRef = useRef<number>(25);
+  auditEventTypeRef.current = auditEventType;
+  auditEventsLimitRef.current = auditEventsLimit;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [approvalsList, setApprovalsList] = useState<CliJsonResponse<ApprovalListData> | null>(null);
@@ -170,8 +178,9 @@ function App() {
     } finally {
       setLoading(false);
     }
-    // Always refresh audit events alongside main status so review rows stay in sync
-    fetchAuditEvents(auditEventsLimit, auditEventType);
+    // Use refs (not closure values) so this always fetches with the CURRENT filter,
+    // not the "all" value that was captured when the mount effect ran.
+    fetchAuditEvents(auditEventsLimitRef.current, auditEventTypeRef.current);
   }
 
   async function fetchReports(limit: number, type: ReportTypeFilter, offset: number = 0) {
@@ -255,7 +264,7 @@ function App() {
     setAuditEventsOffset(offset);
     try {
       const result = await invoke<CliJsonResponse<AuditEventListData>>("list_audit_events_filtered", {
-        event_type: type === "all" ? null : type, limit, offset,
+        eventType: type === "all" ? null : type, limit, offset,
       });
       setAuditEventsList(result);
     } catch (e) {
