@@ -136,12 +136,7 @@ export function PolicySimulateCard() {
         setError(resp.error ?? "Simulation failed.");
       }
     } catch (e) {
-      const s = String(e);
-      if (s.includes("invoke") || s.includes("undefined") || s.includes("not been defined")) {
-        setError("Simulate requires the native Tauri app. Browser preview cannot call Policy Scout.");
-      } else {
-        setError("An error occurred during simulation.");
-      }
+      setError(String(e));
     } finally {
       setLoading(false);
     }

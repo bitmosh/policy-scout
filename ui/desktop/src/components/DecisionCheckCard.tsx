@@ -254,12 +254,7 @@ export function DecisionCheckCard({ onGoTo }: { onGoTo?: (view: string) => void 
         setError(response.error || "Check failed.");
       }
     } catch (err) {
-      const errorStr = String(err);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setError("Decision Check requires the native Tauri app. Browser preview cannot call Policy Scout.");
-      } else {
-        setError("An error occurred while checking the command.");
-      }
+      setError(String(err));
     } finally {
       setLoading(false);
     }
@@ -276,12 +271,7 @@ export function DecisionCheckCard({ onGoTo }: { onGoTo?: (view: string) => void 
       });
       setRunResult(response);
     } catch (err) {
-      const errorStr = String(err);
-      if (errorStr.includes("invoke") || errorStr.includes("undefined")) {
-        setRunError("Run requires the native Tauri app. Browser preview cannot call Policy Scout.");
-      } else {
-        setRunError("An error occurred while running the command.");
-      }
+      setRunError(String(err));
     } finally {
       setRunLoading(false);
     }
