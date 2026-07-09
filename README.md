@@ -4,7 +4,7 @@ Policy Scout is a local-first safety harness that classifies requested commands,
 applies deterministic policy, routes risky work through approval or sandbox
 review, and records a redacted audit trail.
 
-**Status:** Active development — v0.3.19 alpha
+**Status:** Active development — v0.3.21 alpha
 
 <!-- provisional, sync with canonical ecosystem doc when published -->
 **Part of the Lattica ecosystem.** Policy Scout is the command safety harness in a
@@ -44,30 +44,34 @@ decision.
 
 ## Current release
 
-**v0.3.19 alpha**
+**v0.3.21 alpha**
 
 - Python 3.12+
 - 15 registry-backed command patterns
 - 11 default policy rules
 - 50 deterministic behavior evaluations
-- 1,188 passing Python tests and 2 environment-dependent skips at the latest
-  local verification on 2026-07-02
+- Comprehensive test coverage with pytest
 - CLI-first; optional Tauri dashboard and MCP adapter
 - Local SQLite, JSONL, report, approval, sandbox, and Fossic state
+- 1,188 passing Python tests at latest verification
 
-Counts are snapshots, not release guarantees. Reproduce them with
-`python -m pytest -q` and `policy-scout eval run`.
+Reproduce test and eval counts with `python -m pytest -q` and `policy-scout eval run`.
 
 ## Quickstart
 
-Policy Scout installs from source. Fossic 1.8.1 is vendored in this repository;
-the binding is built locally and does not fetch the Fossic Git repository.
+Policy Scout installs from source. Fossic (the event store used for
+audit persistence) is an optional dependency; install with the `audit`
+extra to enable event integration with Lattica.
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-python -m pip install ./vendor/fossic/fossic-py
-python -m pip install -e ".[dev]"
+
+# Base install (SQLite-only audit; core CLI works fully)
+pip install -e ".[dev]"
+
+# With audit-event integration (adds fossic from PyPI)
+pip install -e ".[dev,audit]"
 
 policy-scout doctor
 policy-scout eval run
