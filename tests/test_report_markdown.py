@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Test Markdown report generation."""
 
 from policy_scout.reports.markdown_report import generate_markdown_report

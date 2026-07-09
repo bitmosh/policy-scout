@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lifecycle script inspection for sandbox."""
 
 import json

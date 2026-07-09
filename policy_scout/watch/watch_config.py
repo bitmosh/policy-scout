@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Watch mode configuration — paths, trigger patterns, and loader."""
 
 from __future__ import annotations

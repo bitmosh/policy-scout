@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, ReportDetailData, SweepFinding, CouldNotVerifyItem, asArray } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { StatusPill, severityToTone } from "./StatusPill";

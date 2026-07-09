@@ -171,6 +171,10 @@ work remain experimental or environment-dependent.
 Policy Scout is not published to PyPI and is not recommended for production
 enforcement without additional hardening.
 
+## License
+
+Apache-2.0. See [LICENSE](LICENSE) for the full text.
+
 ## Documentation
 
 - [Documentation map](docs/README.md)

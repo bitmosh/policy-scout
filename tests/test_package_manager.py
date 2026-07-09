@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for package manager detection and configuration."""
 
 from policy_scout.sandbox.package_manager import (

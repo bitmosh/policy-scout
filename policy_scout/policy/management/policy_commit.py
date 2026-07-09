@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy versioning — snapshot current registry state into git."""
 
 from __future__ import annotations

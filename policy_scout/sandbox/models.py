@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Sandbox result models."""
 
 from dataclasses import dataclass, field

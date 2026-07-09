@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Assertion logic for comparing expected vs actual eval results."""
 
 from typing import Any, Dict, List, Optional

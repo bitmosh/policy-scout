@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for sandbox models."""
 
 from policy_scout.sandbox.models import SandboxResult, LifecycleScript

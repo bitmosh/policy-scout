@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, AuditEventListData, AuditEventListItem, AuditEventTypeFilter } from "../types";
 
 const AUDIT_EVENT_TYPE_OPTIONS: { value: AuditEventTypeFilter; label: string }[] = [

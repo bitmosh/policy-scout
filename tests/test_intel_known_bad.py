@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for the known-bad registry adapter."""
 
 from policy_scout.intel.local.known_bad import KnownBadAdapter, _lookup

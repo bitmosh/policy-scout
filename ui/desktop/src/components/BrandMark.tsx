@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export function BrandMark() {
   return (
     <img src="/icon-transparent.png" width={28} height={28} alt="" aria-hidden="true" style={{ objectFit: "contain" }} />

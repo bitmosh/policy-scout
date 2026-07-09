@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """SQLite audit store for queryable local audit records."""
 
 import json

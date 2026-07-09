@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Verify canary file state and search audit log for canary token hits."""
 
 from __future__ import annotations

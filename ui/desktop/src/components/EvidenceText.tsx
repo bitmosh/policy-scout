@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 interface EvidenceTextProps {
   text: string;
   className?: string;

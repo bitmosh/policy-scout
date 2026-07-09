@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import * as cp from "child_process";
 import * as vscode from "vscode";
 

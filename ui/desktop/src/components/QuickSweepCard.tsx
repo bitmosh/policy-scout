@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, SweepData } from "../types";
 import { SweepResultPreview } from "./SweepResultPreview";
 

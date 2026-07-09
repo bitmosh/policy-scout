@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { GuidedFaqPrompt, CliJsonResponse, DecisionCheckData, DecisionCheckDecision, RunGateData, RunGateExecutionData } from "../types";

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Credential-adjacent reference checks for sweep."""
 
 import os

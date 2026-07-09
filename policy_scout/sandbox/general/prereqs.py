@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Platform prerequisites check for the general namespace sandbox."""
 
 from __future__ import annotations

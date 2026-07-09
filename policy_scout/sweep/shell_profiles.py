@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shell profile checks for quick system sweep."""
 
 import re

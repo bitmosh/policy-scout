@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Combine fs diff + syscall analysis into a behavior report."""
 
 from __future__ import annotations

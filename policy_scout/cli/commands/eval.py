@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """eval command handler."""
 
 import json

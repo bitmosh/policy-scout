@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """preserve and clearance command handlers."""
 
 import json

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for [13] Self-Integrity: registry manifest verification and startup check."""
 
 import json

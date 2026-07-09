@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Command classifier for categorizing commands and detecting capabilities."""
 
 import re

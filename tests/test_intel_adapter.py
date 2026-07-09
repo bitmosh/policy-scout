@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for AdapterChain, IntelResult, and extract_packages."""
 
 from policy_scout.intel.adapter import (

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Rotation guidance generator for secret findings."""
 
 from .patterns import SecretFinding

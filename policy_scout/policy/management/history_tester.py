@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy history tester — replay audit decisions against current or candidate policy."""
 
 from __future__ import annotations

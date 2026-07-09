@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Data cleanup for Policy Scout — plan (dry-run) and execute (--apply)."""
 
 import os

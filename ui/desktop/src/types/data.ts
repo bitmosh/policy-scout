@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export interface DataPathInfo {
   path: string;
   exists: boolean;

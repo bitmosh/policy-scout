@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Strace subprocess wrapper for syscall capture."""
 
 from __future__ import annotations

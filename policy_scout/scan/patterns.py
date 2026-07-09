@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Secret pattern registry loader and matcher."""
 
 import re

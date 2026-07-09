@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lockfile and package manifest tamper detection."""
 
 import subprocess

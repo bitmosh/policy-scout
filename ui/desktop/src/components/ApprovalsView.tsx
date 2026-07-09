@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, ApprovalListData, ApprovalActionData, ApprovalItem } from "../types";
 import { Motif } from "./BrandMark";
 

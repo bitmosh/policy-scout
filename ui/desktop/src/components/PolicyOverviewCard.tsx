@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, PolicyOverviewData } from "../types";
 import { StatusPill, StatusTone } from "./StatusPill";
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy simulator — full rule trace for a command evaluation."""
 
 from __future__ import annotations

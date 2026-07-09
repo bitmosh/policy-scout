@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Eval report generation (human and JSON)."""
 
 from typing import List

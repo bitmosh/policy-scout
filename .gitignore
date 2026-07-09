@@ -29,3 +29,14 @@ opencode.jsonc
 
 # Pass 1 review working directory
 .review/
+# Additional internal working artifacts (Claude Code sessions, planning notes)
+/docs/_internal/
+/docs/coordination/
+/docs/planning/
+/docs/session-notes/
+*.session.md
+/POLISH_DEBT.md
+/PROJECT_DIAGNOSTIC.md
+/.review/
+/cleanup/
+/archive/

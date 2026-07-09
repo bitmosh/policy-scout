@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """File-based secret scanner."""
 
 import time

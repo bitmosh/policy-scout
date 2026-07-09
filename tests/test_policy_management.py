@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for [10] Policy Management — Phases 1 + 2: project override loading and engine integration."""
 
 import pytest

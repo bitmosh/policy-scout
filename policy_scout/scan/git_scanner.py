@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Git-aware secret scanning: staged files and commit history."""
 
 import subprocess

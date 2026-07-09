@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight self-check run on every Policy Scout invocation."""
 
 import sys

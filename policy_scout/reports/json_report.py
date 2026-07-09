@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """JSON report generation."""
 
 from typing import Dict, Any, List, Optional

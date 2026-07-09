@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export type SecretScanFinding = {
   secret_type: string;
   service: string;

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for eval runner."""
 
 from policy_scout.evals.models import EvalCase

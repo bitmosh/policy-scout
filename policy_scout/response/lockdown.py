@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lockdown kill switch for Policy Scout.
 
 When lockdown is active, the policy engine forces DENY for all non-read

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for EventRouter: pattern matching, audit emission, finding creation."""
 
 import pytest

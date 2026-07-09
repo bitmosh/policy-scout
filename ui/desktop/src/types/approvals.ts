@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export interface ApprovalItem {
   approval_id: string;
   request_id: string;

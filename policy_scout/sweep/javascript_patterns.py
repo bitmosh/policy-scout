@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """JavaScript pattern checks for sweep."""
 
 import os

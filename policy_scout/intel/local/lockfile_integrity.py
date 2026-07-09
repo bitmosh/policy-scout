@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lockfile integrity checker — validates SRI hashes in package-lock.json."""
 
 from __future__ import annotations

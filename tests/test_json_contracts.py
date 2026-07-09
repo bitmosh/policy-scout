@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """JSON contract tests for Policy Scout CLI commands.
 
 These tests lock down the current JSON output contracts for future UI/API/Tauri work.

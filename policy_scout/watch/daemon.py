@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Watch daemon — PID file lifecycle, main event loop, heartbeat."""
 
 from __future__ import annotations

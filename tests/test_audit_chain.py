@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for HMAC chain integrity in JSONL audit writer and verifier."""
 
 import json

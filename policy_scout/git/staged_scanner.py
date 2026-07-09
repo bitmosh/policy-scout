@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Staged-file security scan: secrets + sensitive file additions + CI workflow changes."""
 
 from dataclasses import dataclass, field

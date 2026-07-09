@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy Scout doctor command for health diagnostics."""
 
 import sys

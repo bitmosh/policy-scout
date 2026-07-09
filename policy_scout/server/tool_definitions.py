@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """MCP tool schemas for Policy Scout."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for data cleanup — plan and execute paths."""
 
 from __future__ import annotations

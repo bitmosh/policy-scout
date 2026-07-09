@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Generic package manager runner for sandbox."""
 
 import subprocess

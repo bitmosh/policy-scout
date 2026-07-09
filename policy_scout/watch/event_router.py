@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Routes FSEvents through trigger patterns to audit + sweep sub-checkers."""
 
 from __future__ import annotations

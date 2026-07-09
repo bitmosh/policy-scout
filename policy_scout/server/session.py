@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Per-connection MCP session state."""
 
 from __future__ import annotations

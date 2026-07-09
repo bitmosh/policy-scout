@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for fs_watcher: FSEvent, PollingWatcher, platform helpers."""
 
 import os

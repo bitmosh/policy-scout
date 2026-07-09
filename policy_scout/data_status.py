@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Local data status visibility for Policy Scout."""
 
 import os

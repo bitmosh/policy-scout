@@ -4,6 +4,7 @@
   "description": "Local-first supply chain and agent safety for VS Code and Cursor",
   "version": "0.1.0",
   "publisher": "bitmosh",
+  "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.99.0"
   },

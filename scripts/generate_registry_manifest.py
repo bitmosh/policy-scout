@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: Apache-2.0
 """Generate registry_manifest.json for Policy Scout data files.
 
 Run after any data file change:

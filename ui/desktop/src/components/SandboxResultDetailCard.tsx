@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, SandboxResultDetailData, SandboxMigrationData, asArray } from "../types";
 import { DetailHeader } from "./DetailHeader";
 import { RedactionNotice } from "./RedactionNotice";

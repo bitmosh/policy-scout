@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Test report models."""
 
 from policy_scout.reports.models import ScoutReport

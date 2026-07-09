@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Git repository context extraction."""
 
 import subprocess

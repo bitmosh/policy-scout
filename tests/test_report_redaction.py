@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Test report redaction of secret-like values."""
 
 import os

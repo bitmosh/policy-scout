@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Manifest/lockfile diff capture for sandbox."""
 
 from pathlib import Path

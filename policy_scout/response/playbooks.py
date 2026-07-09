@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Incident response playbook loader and finding enrichment."""
 
 import sys

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Eval runner that executes cases and compares results."""
 
 import time

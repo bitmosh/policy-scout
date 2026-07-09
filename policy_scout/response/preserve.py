@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Evidence preservation for incident response.
 
 Creates a ZIP archive of current system state for post-incident analysis.

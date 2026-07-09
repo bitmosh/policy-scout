@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """lockdown command handler."""
 
 import json

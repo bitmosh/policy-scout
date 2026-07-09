@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Place and remove canary files in a project directory."""
 
 from __future__ import annotations

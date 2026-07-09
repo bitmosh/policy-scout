@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """watch command handler."""
 
 import json

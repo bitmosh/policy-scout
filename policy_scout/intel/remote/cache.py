@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """SQLite TTL cache for remote intel results."""
 
 from __future__ import annotations

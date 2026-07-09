@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """check and print_human_output command handlers."""
 
 import json

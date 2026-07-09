@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shannon entropy calculation for high-entropy string detection."""
 
 import math

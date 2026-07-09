@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Publish-anomaly detection via npm registry metadata.
 
 Activated only with --with-intel / remote=True to avoid mandatory network calls.

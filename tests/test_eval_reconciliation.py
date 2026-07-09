@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Reconciliation tests to verify eval runner uses same pipeline as CLI check."""
 
 import os

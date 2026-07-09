@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Risk scoring with component-based evaluation."""
 
 from typing import TYPE_CHECKING, Literal, Optional

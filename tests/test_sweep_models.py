@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for sweep models."""
 
 from policy_scout.sweep.models import Finding, SweepResult

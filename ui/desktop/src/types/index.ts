@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export type { CliJsonResponse, ReportType, ReportTypeFilter, AuditEventType, AuditEventTypeFilter, CleanupTarget } from "./common";
 export { isObject, asArray, isCliSuccess } from "./common";
 export type { DoctorCheck, DoctorStatusData } from "./doctor";

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for direct executor."""
 
 from policy_scout.executor.direct_executor import DirectExecutor

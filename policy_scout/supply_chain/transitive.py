@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Transitive dependency tree analysis using package manager list output."""
 
 from __future__ import annotations

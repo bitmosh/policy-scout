@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Direct executor for policy-gated command execution."""
 
 import subprocess

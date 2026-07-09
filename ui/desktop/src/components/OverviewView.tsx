@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import type { CliJsonResponse, DoctorStatusData, DataStatusData, AuditStatsData, AuditEventListData, SweepData } from "../types";
 import { Chip } from "./Chip";
 import { Motif } from "./BrandMark";

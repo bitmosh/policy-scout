@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy validator — detect unreachable rules, contradictions, and coverage gaps."""
 
 from __future__ import annotations

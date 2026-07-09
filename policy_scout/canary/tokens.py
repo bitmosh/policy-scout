@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Canary token generation and extraction."""
 
 from __future__ import annotations

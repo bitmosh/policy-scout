@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export interface AuditStatsData {
   total_events?: number;
   events_by_decision?: Record<string, number>;

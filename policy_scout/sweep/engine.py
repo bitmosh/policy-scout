@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Sweep engine for project scanning."""
 
 import os

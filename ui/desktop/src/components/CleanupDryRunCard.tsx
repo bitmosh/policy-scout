@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { useState } from "react";
 import { CliJsonResponse, CleanupDryRunData, CleanupApplyData, CleanupTarget } from "../types";
 import { EvidenceText } from "./EvidenceText";

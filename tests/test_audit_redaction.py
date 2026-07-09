@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for audit redaction."""
 
 from policy_scout.audit.redaction import redact_string, redact_dict, redact_list

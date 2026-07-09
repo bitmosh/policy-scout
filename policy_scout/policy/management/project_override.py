@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Per-project policy override: discovery, loading, and tighten-only validation."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Command request and actor models."""
 
 from dataclasses import dataclass, field

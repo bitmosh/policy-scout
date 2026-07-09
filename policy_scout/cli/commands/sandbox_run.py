@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """sandbox-run and sandbox-check-prereqs command handlers."""
 
 import json

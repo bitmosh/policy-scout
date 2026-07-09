@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Package manager config checks for quick system sweep."""
 
 import re

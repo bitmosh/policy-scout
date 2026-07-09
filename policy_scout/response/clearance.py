@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Post-incident clearance workflow.
 
 Runs a set of checks to determine whether it is safe to exit lockdown.

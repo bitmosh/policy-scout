@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """OSV (Open Source Vulnerabilities) remote adapter — stdlib only, no new deps."""
 
 from __future__ import annotations

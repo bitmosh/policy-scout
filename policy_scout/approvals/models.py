@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Approval request models."""
 
 from dataclasses import dataclass, field

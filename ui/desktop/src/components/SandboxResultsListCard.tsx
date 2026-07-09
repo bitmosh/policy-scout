@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { CliJsonResponse, ReportListData, ReportListItem } from "../types";
 
 const LIMIT_OPTIONS = [5, 10, 25, 50];

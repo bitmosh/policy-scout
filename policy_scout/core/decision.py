@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Policy decision and risk score models."""
 
 from dataclasses import dataclass, field

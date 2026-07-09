@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Filesystem watcher — inotifywait primary, polling fallback."""
 
 from __future__ import annotations

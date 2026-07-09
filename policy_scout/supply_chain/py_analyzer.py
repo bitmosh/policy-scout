@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Python AST-based analysis for setup.py and build hook scripts."""
 
 from __future__ import annotations

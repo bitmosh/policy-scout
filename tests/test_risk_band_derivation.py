@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Tests for risk band derivation."""
 
 from policy_scout.core.decision import derive_risk_band

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """HMAC chain verifier for JSONL audit logs."""
 
 import hashlib

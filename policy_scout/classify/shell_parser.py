@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shell command parser for basic structure detection."""
 
 import re

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Parse strace output and classify behaviors."""
 
 from __future__ import annotations

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """policy-scout-relay.py — relay policy-scout fossic events to the Lattica hub store.
 
 Implements payload-conditional relay (CP-F-3): most event types relay unconditionally;

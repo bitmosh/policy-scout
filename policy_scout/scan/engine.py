@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """SecretScanner orchestrator — ties together file and git scanning."""
 
 from dataclasses import dataclass, field

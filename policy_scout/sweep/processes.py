@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Suspicious process checks for quick system sweep."""
 
 import subprocess

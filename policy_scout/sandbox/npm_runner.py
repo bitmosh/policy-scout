@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """npm install runner for sandbox."""
 
 import subprocess

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Temporary workspace creation for sandbox."""
 
 import os

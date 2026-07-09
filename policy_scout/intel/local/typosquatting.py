@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Typosquatting detection — edit distance + substitution patterns."""
 
 from __future__ import annotations

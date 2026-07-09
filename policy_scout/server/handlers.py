@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """MCP tool handlers — delegate to existing CLI logic."""
 
 from __future__ import annotations
