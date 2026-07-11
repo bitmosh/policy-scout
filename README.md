@@ -1,4 +1,9 @@
 # Policy Scout
+[![Release](https://img.shields.io/github/v/release/bitmosh/policy-scout?include_prereleases)](https://github.com/bitmosh/policy-scout/releases)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/bitmosh/policy-scout/actions/workflows/ci.yml/badge.svg)](https://github.com/bitmosh/policy-scout/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/Tests-1188_passing-brightgreen.svg)](https://github.com/bitmosh/policy-scout)
 
 Policy Scout is a local-first safety harness that classifies requested commands,
 applies deterministic policy, routes risky work through approval or sandbox
